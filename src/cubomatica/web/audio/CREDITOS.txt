@@ -1,0 +1,28 @@
+CUBOMÁTICA — MÚSICA
+===================
+
+Las nueve pistas de este juego son música libre de derechos descargada de
+Pixabay y utilizada bajo la Pixabay Content License, que permite el uso
+comercial y no comercial sin necesidad de atribución. Se atribuye igualmente,
+porque a los autores les corresponde el crédito aunque la licencia no lo exija.
+
+  Fichero              Autor                Pixabay      Dura   Dónde suena
+  -------------------  -------------------  -----------  -----  --------------------
+  tema-principal.mp3   musicinmedia         id 381366    2:20   el tema del juego
+  mundo-pradera.mp3    Tunetank             id 347589    1:48   Pradera de los Números
+  mundo-bosque.mp3     maksymmalko          id 385611    3:12   Bosque de las Llevadas
+  mundo-rio.mp3        viacheslavstarostin  id 370830    2:35   Río de los Problemas
+  mundo-mina.mp3       maksymmalko          id 358426    4:02   Mina de las Veces
+  jefe.mp3             u_z2x0wum3cm         id 394978    1:56   los guardianes
+  calma.mp3            unrealmicikcz12      id 235545    4:00   descansos y reparación
+  cantera.mp3          Tatamusic            id 423630    1:16   vetas y álbum
+  victoria.mp3         musicinmedia         id 453214    1:49   fin de partida
+
+Los ficheros son los originales, bit a bit: no se han recortado, recodificado
+ni normalizado. Lo único que se ha cambiado es el nombre, para que el nombre
+del fichero no arrastre las palabras clave comerciales con las que se subieron
+a Pixabay. La equivalencia con el nombre original está en docs/musica.md.
+
+La diferencia de volumen entre pistas (hay 8 dB entre la más fuerte y la más
+floja) se corrige en el reproductor, con una ganancia por pista declarada en
+js/07-musica.js. Por eso no hizo falta tocar los ficheros.

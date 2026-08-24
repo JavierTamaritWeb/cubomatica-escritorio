@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Fuente del icono de Cubomatica.
+       Es el mismo dibujo que el <link rel="icon"> de web/index.html.
+       Para regenerar assets/icon.icns:  ./make-icon.sh -->
+  <rect width="64" height="64" rx="8" fill="#2B2118"/>
+  <path d="M12 20 32 9l20 11-20 11z" fill="#F2C94C"/>
+  <path d="m12 20 20 11v24L12 44z" fill="#5AA02C"/>
+  <path d="M52 20 32 31v24l20-11z" fill="#3C8DBC"/>
+</svg>
