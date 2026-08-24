@@ -154,6 +154,17 @@ cubomatica/
 
 ---
 
+## La ventana
+
+Arranca **maximizada**, ocupando toda la pantalla (`maximized=True`). El juego
+esta pensado para apaisado y a pantalla completa: asi el niño no tiene que
+colocar nada antes de jugar.
+
+`width` y `height` (1280x800) no son el tamaño de arranque, sino el que tendra
+la ventana si se restaura. El minimo es 1024x640.
+
+---
+
 ## Como se carga el juego (y por que con `file://`)
 
 `main.py` abre la ventana con `url=index.as_uri()`, es decir un `file://`.

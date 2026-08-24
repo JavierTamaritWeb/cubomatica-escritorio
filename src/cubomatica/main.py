@@ -68,6 +68,9 @@ def main() -> None:
         title="Cubomática",
         url=index.as_uri(),
         js_api=api,          # <-- puente JavaScript -> Python
+        # Arranca ocupando toda la pantalla. width/height son el tamano al que
+        # vuelve la ventana si el usuario la restaura, no el de arranque.
+        maximized=True,
         width=1280,
         height=800,
         min_size=(1024, 640),  # el juego esta pensado para apaisado
