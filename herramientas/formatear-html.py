@@ -227,6 +227,7 @@ def main() -> int:
         print(__doc__.strip())
         return 2
 
+    pendientes = 0
     for ruta in map(Path, rutas):
         original = ruta.read_text(encoding="utf-8")
         nuevo = formatear(original)
@@ -257,10 +258,12 @@ def main() -> int:
         if comprobar:
             estado = "ya está formateado" if original == nuevo else "haría falta formatearlo"
             print(f"{ruta}: {estado}")
+            if original != nuevo:
+                pendientes += 1
         else:
             ruta.write_text(nuevo, encoding="utf-8")
             print(f"{ruta}: {original.count(chr(10)) + 1} -> {nuevo.count(chr(10))} líneas")
-    return 0
+    return 1 if pendientes else 0
 
 
 if __name__ == "__main__":

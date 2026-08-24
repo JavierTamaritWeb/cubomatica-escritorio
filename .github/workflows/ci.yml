@@ -66,9 +66,15 @@ jobs:
           test -x dist/Cubomatica.app/Contents/MacOS/Cubomatica
           test -f dist/Cubomatica.app/Contents/Resources/cubomatica/web/index.html
 
+      # upload-artifact no conserva permisos ni enlaces simbolicos: el .app
+      # en crudo llegaba sin bit de ejecucion y con la firma rota. Se sube un
+      # zip hecho con ditto, que si los guarda.
+      - name: Empaquetar la app en un zip que conserve permisos y enlaces
+        run: ditto -c -k --sequesterRsrc --keepParent dist/Cubomatica.app dist/Cubomatica.zip
+
       - name: Guardar la app como artefacto
         uses: actions/upload-artifact@v4
         with:
           name: Cubomatica.app
-          path: dist/Cubomatica.app
+          path: dist/Cubomatica.zip
           retention-days: 14

@@ -8,9 +8,9 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.12.0**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.13.0**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
-apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.11.0); it tracks the
+apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.12.0); it tracks the
 game's content, moves on its own schedule, and nothing on the Python side reads it.
 
 The Python here is deliberately thin (two short modules); nearly everything else is the game bundle.
@@ -49,7 +49,7 @@ is not an item and is ignored; in a normal block it is a space you will see. Tha
 `.contenido--doble .contenido__paneles` carries `line-height: 0` with the panels restoring it: the
 panels are `inline-block`, so the newline between them would otherwise add a blank line.
 
-`cubomatica.js` is a concatenation of 58 modules whose boundary comments (`/* 00-nucleo.js`,
+`cubomatica.js` is a concatenation of 57 modules whose boundary comments (`/* 00-nucleo.js`,
 `/* 07-musica.js` …) survive in the bundle — see the next section for the map. The CSS is BEM in
 Spanish, and the game's accessibility rules are legal requirements rather than preferences: root
 classes `letra-grande`, `alto-contraste` and `sin-movimiento` must keep working, and anything that
@@ -146,13 +146,34 @@ show — clearing it after left the screen with no «Nuevo minero» once the las
 `#btn-descartar` calls `CB.partida.descartarGuardada`, the only way out of a half-finished
 expedition short of waiting for the 24 h expiry.
 
+**Resuming a saved game must not serve anything before it is restored.** `CB.partida.iniciar`
+ends by serving the first item, and `reanudarGuardada` used to call it and then serve again on
+top: the ghost item went into the `2C-vistos` memory, drained the word-problem bags, left
+`vetaPrevia` pointing at a level the child never saw («Ya has terminado…» on resume) and the
+freshly drawn `proximoDescanso` (6–8) sat below the saved index, so «Seguir jugando» opened the
+rest screen instead of a question. `iniciar({ sinServir: true })` skips the serve and `reanudar`
+recomputes the next rest from the restored index (4.13.0). Three more locks from the same audit:
+`tiempoAgotado` sets `e.respondido = true` (an answer touched during the 2,2 s of «ánimo» ran a
+second `siguiente()` and skipped a question); `siguiente()` while `e.pausada` parks the advance in
+`e.avancePendiente` for `reanudar` to run (pausing during the festejo served the next item — or
+the rest screen — on top of Ajustes and killed the clock for the rest of the game); and
+`CB.pantallas.fallo` runs the abandoned screen's `alSalir` and nulls `CB.partida.estado`, or the
+game's timers kept firing behind the error screen. `TestAuditoria413` pins the four.
+
+**A restored backup is built on a fresh skeleton, never on the raw JSON.** `validarImportado` used
+to copy whatever came in and typed six fields of thirty-three: `{"version":4}` was «Copia
+restaurada» and the profile had no `niveles`, no `respuestas`, nothing — it blew up on the first
+item. Now it starts from `perfilNuevo()` and copies a field only when its type matches the
+skeleton's (arrays with arrays, objects with objects); anything else keeps the fresh value, and
+`podar` skips `null` entries so a bad `errores` cannot crash every boot.
+
 There is no parental gate either. The key on the title screen opens the parent panel directly: the
 old gate (type the n-th word of a sentence shown on screen) was removed in 4.6.0 at the owner's
 request. With no profile selected the panel says so and offers only «Salir».
 
 ## Orienting inside the bundle
 
-`cubomatica.js` is 18k lines but navigable: the 58 concatenated modules each keep their header
+`cubomatica.js` is 19k lines but navigable: the 57 concatenated modules each keep their header
 comment, so this prints the table of contents with line numbers:
 
 ```bash
@@ -252,7 +273,7 @@ the panel's shadow and no content — at the foot of a column; and the columns l
 and the exit button fragments the multicol and scrambles the panel order.
 
 Flow columns are right for a screen that fits in about one scroll. They are wrong for a long one:
-Ayuda has 18 panels, and newspaper columns would mean reading to the bottom and scrolling all the
+Ayuda has 20 panels, and newspaper columns would mean reading to the bottom and scrolling all the
 way back up. It stays in a single column on purpose — but a **wide** one. `.contenido--ancho`
 (3.7.1) declares `--ancho-contenido: 1040px / --ancho-panel: 100% / --ancho-lectura: 52ch` at
 1200px and 1240px / 60ch at 1600px, and Ayuda, Mis vetas, Mi álbum and «¿Quién juega?» consume it.
@@ -286,7 +307,7 @@ global `.05em` is tuned for lower case and reads tight in caps. Keep both if you
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (92 tests, fast)
+uv run pytest                        # full suite (103 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg

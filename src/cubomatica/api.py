@@ -144,7 +144,7 @@ class Api:
         if not hasattr(vista, "printOperationWithPrintInfo_"):
             return {"ok": False, "motivo": "sin impresion"}
 
-        def lanzar() -> None:
+        def montar() -> None:
             info = AppKit.NSPrintInfo.sharedPrintInfo().copy()
             # La ventana es apaisada y ancha; sin esto el informe sale cortado
             # por la derecha. El nombre de la constante cambio de nombre entre
@@ -165,6 +165,15 @@ class Api:
                 )
             except Exception:  # noqa: BLE001 - hay SDK donde la firma no cuadra
                 operacion.runOperation()
+
+        def lanzar() -> None:
+            # Corre en el hilo principal DESPUES de haber devuelto ok: True.
+            # Una excepcion aqui no llega a JavaScript, asi que al menos se
+            # deja escrita en vez de perderse en silencio.
+            try:
+                montar()
+            except Exception as exc:  # noqa: BLE001 - se traza, no se oculta
+                print(f"[cubomatica] imprimir(): {exc!r}", file=sys.stderr)
 
         # Todo lo que toca AppKit va al hilo principal, como en main.py.
         AppHelper.callAfter(lanzar)

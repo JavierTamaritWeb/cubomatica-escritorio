@@ -3,12 +3,12 @@
   <h1>Cubomática</h1>
   <p><b>El juego de matemáticas de Educación Primaria,<br>como aplicación de escritorio para macOS.</b></p>
   <p>
-    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.12.0-2B7BB9" alt="Versión 4.12.0"></a>
+    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.13.0-2B7BB9" alt="Versión 4.13.0"></a>
     <a href=".python-version"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
     <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
     <a href="#requisitos"><img src="https://img.shields.io/badge/plataforma-macOS%2011%2B-555555?logo=apple" alt="macOS 11 o superior"></a>
-    <a href="#tests"><img src="https://img.shields.io/badge/tests-92%20passing-2EA043" alt="92 tests"></a>
+    <a href="#tests"><img src="https://img.shields.io/badge/tests-103%20passing-2EA043" alt="103 tests"></a>
   </p>
   <br>
   <img src="docs/partida.png" width="840" alt="Una partida de Cubomática: el bloque acertado hundido y en verde, los demás apagados a piedra, y el mensaje junto a las opciones">
@@ -91,11 +91,12 @@ Si tu versión es más antigua, `uv` avisa y no continúa. Actualiza con `uv sel
 **2. Instalar el proyecto**, desde su carpeta:
 
 ```bash
-uv sync
+uv sync --all-extras
 ```
 
 Eso hace tres cosas: crea el entorno virtual en `.venv/`, instala las librerías declaradas en
-`pyproject.toml` y genera `uv.lock` con las versiones exactas. **No hace falta activar el
+`pyproject.toml` —con `--all-extras`, también las de desarrollo: pytest, ruff y PyInstaller, sin las
+que `uv run pytest` y `./build-mac.sh` no arrancan— y genera `uv.lock` con las versiones exactas. **No hace falta activar el
 entorno**: `uv` se encarga.
 
 **3. Arrancar el juego:**
@@ -129,7 +130,7 @@ uv run cubomatica
 ## Tests
 
 ```bash
-uv run pytest                                              # los 92
+uv run pytest                                              # los 103
 uv run pytest --cov=cubomatica --cov-report=term-missing   # con cobertura
 ```
 
@@ -174,6 +175,9 @@ revierte, rompe la app **en silencio**.
 | El banco de enunciados tiene 80 nombres y 120 objetos, y todos pasan el validador | Que un enunciado nuevo se salte la lista blanca o el ancho de línea |
 | La tabla del 2 sale entera antes de repetir una pregunta | Que la memoria de ítems deje de recorrer el banco |
 | Las 308 vetas tienen pista de método y ninguna se rellena con la respuesta | Que el botón de pista vuelva a decir «léelo otra vez con calma», o que chive el resultado |
+| Reanudar no sirve un ítem fantasma ni abre el descanso | Que «Seguir jugando» empiece con «Ya has terminado…» y sin pregunta |
+| Una copia de seguridad vacía no pasa por válida | Un perfil sin niveles ni respuestas que revienta al primer ítem |
+| Los generadores no sirven respuestas imposibles ni distractores equivalentes | «Toca el número PAR» con respuesta 99, o 4/6 con un 8/12 entre las opciones |
 
 ---
 
@@ -205,7 +209,9 @@ cubomatica/
 ├── .github/workflows/
 │   └── ci.yml               # tests, lint, HTML y build del .app en cada push
 ├── herramientas/
-│   └── formatear-html.py    # deja index.html legible sin cambiar lo que se pinta
+│   ├── formatear-html.py    # deja index.html legible sin cambiar lo que se pinta
+│   ├── cargar-bundle.js     # carga el bundle en node, sin navegador (generadores y reglas)
+│   └── medir-banco.js       # banco real de cada veta y cuánto se repite entre partidas
 ├── assets/
 │   ├── icon.svg             # el dibujo del icono (el mismo que el favicon)
 │   └── icon.icns            # icono del .app
@@ -413,8 +419,8 @@ Los métodos que empiezan por `_` no se exponen —ahí viaja la ventana, que no
 
 | | |
 |---|---|
-| **Versión de la app** | **4.12.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
-| **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.11.0) |
+| **Versión de la app** | **4.13.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
+| **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.12.0) |
 | **Identificador** | `es.javiertamarit.cubomatica` |
 
 Son dos números distintos a propósito: esta app empaqueta el juego, pero el juego se versiona en

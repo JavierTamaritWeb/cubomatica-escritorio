@@ -9,6 +9,129 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.13.0] — 2026-08-24
+
+Segunda auditoría severa, con seis frentes en paralelo: los generadores de
+ejercicios (308 vetas × D1–D3 × 500–600 semillas, recalculando cada respuesta
+con aritmética propia), las reglas y el almacén, la capa que toca el DOM, el
+CSS con el HTML, y el lado Python con tests, empaquetado y documentación.
+Salieron treinta y cinco errores y están todos corregidos. Juego 3.12.0.
+
+### Corregido
+
+**En la partida:**
+
+- Reanudar una expedición guardada servía primero un ítem fantasma —`iniciar()`
+  termina sirviendo, y `reanudarGuardada` volvía a servir encima—: se anotaba en
+  la memoria de vistos, gastaba las bolsas de nombres, dejaba `vetaPrevia` con
+  una veta que el niño no había visto («Ya has terminado…» nada más volver) y
+  leía dos consignas seguidas. Y el próximo descanso (6–8) quedaba casi siempre
+  por debajo del índice guardado, así que «Seguir jugando» abría el descanso en
+  vez de una pregunta. `iniciar({ sinServir: true })` y el descanso se recalcula.
+- Con el reloj agotado, una respuesta tocada durante los 2,2 s del mensaje de
+  ánimo entraba en `responder()` y corrían dos `siguiente()`: se saltaba una
+  pregunta. `tiempoAgotado` cierra el cerrojo `respondido`.
+- Pausar en la ventana del festejo (1,6–2,6 s tras contestar) dejaba que el
+  temporizador sirviera el siguiente ítem —o el descanso— encima de Ajustes con
+  la partida marcada como pausada, y el reloj no volvía a arrancar en toda la
+  expedición. `siguiente()` en pausa deja el avance pendiente y `reanudar()` lo
+  ejecuta.
+- Escape en «Vamos a verlo» pausaba la tarjeta, cuyos temporizadores morían al
+  salir: al reanudar quedaba el ítem fallado en pantalla, contestado y sin nada
+  que lo cerrara. Escape ya no hace nada ahí, ni en el descanso (retrocedía al
+  mapa con la partida viva).
+- La pantalla de error no apagaba la partida que abandonaba: sus temporizadores
+  seguían disparando y arrastraban al niño, ya en el mapa, a un descanso o a un
+  fin de expedición. `CB.pantallas.fallo` ejecuta el `alSalir` y anula el estado.
+- La confirmación doble (antiazar) era imposible en «Ordenar» —la última pieza
+  se deshabilitaba antes de pedirla— y cobraba dos veces la moneda de cierre en
+  «Monedas».
+- Las caras de «¿Cómo te has sentido?» conservaban la elegida en la expedición
+  anterior, ya en oro; el niño no tocaba y el ánimo quedaba sin registrar.
+- Tres toques en «Borrar este perfil» apilaban tres cajas «Escribe BORRAR»; y el
+  aviso de perfil dañado no se iba al elegir otro minero.
+
+**En las preguntas:**
+
+- Con dato sobrante, la coletilla («También tiene 6 de otro color») SUSTITUÍA
+  a la segunda frase del problema: el segundo dato desaparecía y la respuesta no
+  se podía deducir del texto (P3, P4, P7, P8 en 3.º con historial). Ahora se
+  añade, y el validador admite la cuarta frase.
+- N6 servía «Toca el número PAR» con respuesta 99 (subía desde 99 y recortaba).
+- Las series N5/N11 arrancaban en un punto fijo —de 100 en 100, siempre 400— y
+  llegaban a 700 en un nivel «hasta 599». N11 pasa de 2 ítems a 1 882.
+- S26: el distractor `est − 500` era mejor estimación que la respuesta en el
+  26 % de los ítems. M15 «con llevada» servía productos sin llevada (6 %).
+- «Entre Vera y Iván»: la conjunción es «e» delante de i-. Y en comparación e
+  igualación (P4, P5, P6, P9, P10) ya no sale «¿Cuántas más tiene?» → 0.
+- F13 servía respuestas de cuatro cifras en un teclado de tres. F7 ofrecía dos
+  fracciones mayores que un entero. F8, F12 y A6 rellenaban con un distractor
+  EQUIVALENTE a la respuesta (2/6 → 4/12; 3/6 → 4/8): una segunda respuesta
+  correcta entre las opciones. En la resta de F12 el primer «fijo» era la propia
+  respuesta.
+- Concordancias: «baja 1 grados», «baja 1 plantas», «1 litros», «hay 1 bolas»,
+  «bolas de color roja» (ahora «de color rojo»).
+
+**En las reglas y el almacén:**
+
+- Restaurar una copia de seguridad aceptaba cualquier JSON: `{"version":4}` era
+  «Copia restaurada» y el perfil quedaba sin niveles ni respuestas (reventaba al
+  primer ítem); un campo a `null` tiraba `podar()` en cada arranque, con el
+  perfil ya activo; y `version: "abc"` esquivaba las migraciones. Ahora se
+  construye sobre el esqueleto de `perfilNuevo()` y solo se copia lo que tiene
+  el mismo tipo.
+- Un theta inválido (0, texto, ausente) caía al suelo de 400 en la primera
+  respuesta —`clamp` devuelve el mínimo ante NaN— mientras `theta()` decía 1000:
+  el niño pasaba a la banda más fácil. Parte de 1000.
+- El diagnóstico de errores comparaba redondeando al entero: en C3/C4/C7/C12 un
+  «0» tecleado por «0,1» era `E-C-COMA-CORTA`, se guardaba en el perfil y llegaba
+  al panel del adulto con recomendación. Se compara a dos decimales.
+- «Las columnas» daba por hecho que el préstamo estaba en las unidades: en
+  5408 − 4174 decía «8 es menos que 4». Busca la primera columna que no llega.
+- La recta numérica con respuesta negativa (Z1–Z4) pintaba la marca fuera; y la
+  tabla del 100 recibía sumas de 5 713 que no podía señalar (van a las columnas).
+- La estabilidad del repaso espaciado crecía por RESPUESTA, no por repaso: ocho
+  aciertos seguidos la clavaban en el tope de 180 días y el musgo no volvía en
+  cuatro meses. Sube una vez por día de acierto; los fallos la bajan siempre.
+- Tras un `QuotaExceededError` el reintento dejaba `clave.tmp` huérfano para
+  siempre. El escalón 3 de la escalera declaraba un formato que nadie aplicaba.
+
+**En la interfaz:**
+
+- Las tres nubes de la portada son hijas directas de `.pantalla` y la regla que
+  levanta el contenido sobre el cielo las volvía relativas: pasaban a ser ítems
+  del flex y empujaban el contenido. Quedan excluidas, como la llave.
+- En alto contraste, QUITAR al pasar el ratón era blanco sobre blanco.
+- Tres animaciones fuera de las dos listas de `sin-movimiento`; el premio de
+  tipo «logro» sin marco.
+
+**En el shell, los tests y la integración continua:**
+
+- Cuatro aserciones de `TestPersistencia` y `TestUrlDeCarga` pasaban por los
+  comentarios de `main.py` (o buscaban una variable que nunca existió); ahora
+  miran el código. Las dependencias de desarrollo también tienen que ir con `==`.
+- `formatear-html.py --comprobar` devolvía 0 aunque hiciera falta formatear, así
+  que el paso de CI no podía fallar. Devuelve 1.
+- El artefacto de CI subía el `.app` en crudo, y `upload-artifact` no conserva
+  permisos ni enlaces simbólicos: llegaba sin bit de ejecución y con la firma
+  rota. Se sube un zip hecho con `ditto`.
+- `imprimir()` traza a stderr una excepción que antes se perdía en el hilo
+  principal; la carpeta de `storage_path` (solo Windows/Linux) ya no es una ruta
+  de macOS.
+
+### Documentación
+
+- Cifras al día: 57 módulos (no 58), 19k líneas, 20 paneles en Ayuda, 103 tests,
+  308 niveles en las cabeceras de `17-catalogo.js` y `29-grafo.js`.
+- `README`: `uv sync --all-extras` en la puesta en marcha (a secas desinstalaba
+  pytest, ruff y PyInstaller), las tres herramientas en el árbol, enlaces de
+  todas las versiones al pie del CHANGELOG. `pyproject`: 1.º a 6.º de Primaria.
+
+### Añadido
+
+- `TestAuditoria413`: once tests que fijan cada familia de arreglos, cinco de
+  ellos cargando el bundle en node.
+
 ## [4.12.0] — 2026-08-24
 
 Las pistas cuentan el método. Juego 3.11.0.
@@ -794,6 +917,18 @@ ningún puerto en el equipo.
 - **Se perdía el progreso al cerrar.** `private_mode=False` es lo único que hace
   persistir `localStorage`, donde el juego guarda perfiles y avance.
 
+[4.13.0]: #4130--2026-08-24
+[4.12.0]: #4120--2026-08-24
+[4.11.0]: #4110--2026-08-24
+[4.10.1]: #4101--2026-08-24
+[4.10.0]: #4100--2026-08-24
+[4.9.1]: #491--2026-08-24
+[4.9.0]: #490--2026-08-24
+[4.8.2]: #482--2026-08-24
+[4.8.1]: #481--2026-08-24
+[4.8.0]: #480--2026-08-24
+[4.7.0]: #470--2026-08-24
+[4.6.0]: #460--2026-08-24
 [4.5.0]: #450--2026-08-24
 [4.4.0]: #440--2026-08-24
 [4.3.0]: #430--2026-08-24

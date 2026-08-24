@@ -31,7 +31,8 @@ MENU_PANTALLAS = [
 #   ~/Library/WebKit/<bundle id>/WebsiteData/
 # Por eso el .app (es.javiertamarit.cubomatica) y el modo desarrollo
 # (org.python.python) NO comparten perfiles ni progreso.
-STORAGE_DIR = Path.home() / "Library" / "Application Support" / "Cubomatica"
+# En macOS no se usa (ver arriba); en Windows/Linux, una carpeta oculta en casa.
+STORAGE_DIR = Path.home() / ".cubomatica"
 
 # Rotulos de pywebview. Su diccionario por defecto esta en ingles y se cuela
 # en los dialogos nativos: el titulo del panel de guardar decia "Save file" en

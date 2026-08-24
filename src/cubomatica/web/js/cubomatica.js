@@ -1985,7 +1985,7 @@ CB.bus = new CB.util.EventoSimple();
 
 /* CB.LEGAL */
 /* Versión */
-CB.VERSION = '3.11.0';
+CB.VERSION = '3.12.0';
 
 CB.LEGAL = {
   /* El texto completo viaja en web/LICENCIA.txt. Aquí va solo la línea que
@@ -2129,6 +2129,7 @@ CB.almacen.escribir = function (clave, obj) {
       if (obj && obj.id) CB.almacen.podar(obj, { agresiva: true });
       try {
         store.setItem(clave, JSON.stringify(CB.almacen.sanear(obj)));
+        try { store.removeItem(clave + '.tmp'); } catch (e3) { }   // no quede huérfano
         return true;
       } catch (e2) { /* cae al respaldo */ }
     }
@@ -2460,6 +2461,7 @@ CB.almacen.podar = function (perfil, opciones) {
   if (perfil.errores) {
     for (k in perfil.errores) {
       if (!Object.prototype.hasOwnProperty.call(perfil.errores, k)) continue;
+      if (!perfil.errores[k]) continue;
       if (perfil.errores[k].ejemplos && perfil.errores[k].ejemplos.length > 3) {
         perfil.errores[k].ejemplos.length = 3;
       }
@@ -2469,6 +2471,7 @@ CB.almacen.podar = function (perfil, opciones) {
     for (k in perfil.destrezas) {
       if (!Object.prototype.hasOwnProperty.call(perfil.destrezas, k)) continue;
       d = perfil.destrezas[k];
+      if (!d) continue;
       if (d.rtMuestras && d.rtMuestras.length > 12) d.rtMuestras = d.rtMuestras.slice(-12);
       if (d.ejemplosFallados && d.ejemplosFallados.length > 3) d.ejemplosFallados.length = 3;
     }
@@ -2498,16 +2501,28 @@ CB.almacen.exportar = function (perfil) {
 };
 
 CB.almacen.validarImportado = function (crudo, motesValidos) {
-  if (!crudo || typeof crudo !== 'object') return { ok: false, motivo: 'formato' };
+  if (!crudo || typeof crudo !== 'object' || Array.isArray(crudo)) {
+    return { ok: false, motivo: 'formato' };
+  }
+  if (crudo.version != null && !isFinite(crudo.version)) return { ok: false, motivo: 'formato' };
   if (isFinite(crudo.version) && crudo.version > CB.almacen.VERSION_ESQUEMA) {
     return { ok: false, motivo: 'version' };
   }
 
-  const limpio = {};
+  /* Se construye SOBRE el esqueleto de un perfil nuevo y solo se copia lo que
+     tenga el mismo tipo que allí: hasta 3.11.0 «{"version":4}» pasaba por
+     copia válida y el perfil quedaba sin niveles ni respuestas, y reventaba
+     al servir el primer ítem; y un campo con null donde iba un objeto tiraba
+     podar() en cada arranque. Lo que no encaja se queda con el valor nuevo. */
+  const limpio = CB.almacen.perfilNuevo('x', 'x', 0, CB.util.hoyISO(), null);
   let i, c;
   for (i = 0; i < CB.almacen.CAMPOS_PERMITIDOS.length; i++) {
     c = CB.almacen.CAMPOS_PERMITIDOS[i];
-    if (crudo[c] !== undefined) limpio[c] = crudo[c];
+    const v = crudo[c], ref = limpio[c];
+    if (v === undefined) continue;
+    if (ref === null || ref === undefined) { limpio[c] = v; continue; }
+    if (v === null || Array.isArray(ref) !== Array.isArray(v) || typeof ref !== typeof v) continue;
+    limpio[c] = v;
   }
 
   /* mote: de la lista cerrada de 120, o uno por defecto. Nunca texto libre. */
@@ -4230,7 +4245,10 @@ function serie(rng, D, saltos, max) {
   const salto = CB.util.elegir(rng, saltos);
   const asc = rng() < 0.65;
   const cuantos = (D === 1) ? 3 : 4;
-  const inicio = CB.util.ent(rng, salto * cuantos, Math.max(salto * cuantos, max - salto * cuantos));
+  /* El recorrido completo (salto × (cuantos − 1)) cabe dentro de [1, max]:
+     con salto 100 y tope 599 el arranque era fijo en 400 y la serie llegaba a 700. */
+  const paso = salto * (cuantos - 1);
+  const inicio = asc ? CB.util.ent(rng, 1, max - paso) : CB.util.ent(rng, paso + 1, max);
   const orden = [];
   let i, v;
   for (i = 0; i < cuantos; i++) {
@@ -4257,9 +4275,10 @@ CB.gen.numeracion.N11 = function (rng, D) { return serie(rng, D, [5, 100], 599);
 /* N6 Pares e impares */
 CB.gen.numeracion.N6 = function (rng, D) {
   const pidePar = rng() < 0.5;
-  const base = tramo(1, 99, D, rng);
-  let resp = pidePar ? (base % 2 === 0 ? base : base + 1) : (base % 2 === 1 ? base : base + 1);
-  resp = CB.util.clamp(resp, 0, 99);
+  /* Se baja (no se sube) a la paridad pedida: subir desde 99 y recortar a 99
+     servía «Toca el número PAR» con respuesta 99. Par en [2, 98], impar en [1, 99]. */
+  const base = tramo(2, 99, D, rng);
+  const resp = pidePar ? (base % 2 === 0 ? base : base - 1) : (base % 2 === 1 ? base : base - 1);
   return {
     formato: 'opciones4',
     consigna: pidePar ? 'Toca el número PAR.' : 'Toca el número IMPAR.',
@@ -5068,7 +5087,9 @@ CB.gen.sumas.S26 = function (rng, D) {
     respuesta: est,
     expr: 'estS' + a + '_' + b,
     diagnostico: false,
-    distractoresFijos: [est - 1000, est + 1000, est - 500]
+    /* La suma real queda entre 60 y 360 por debajo de est: est − 500 era a
+       veces la MEJOR estimación. Los distractores van por arriba o a 1000. */
+    distractoresFijos: [est - 1000, est + 1000, est + 500]
   };
 };
 
@@ -5489,7 +5510,10 @@ CB.gen.multiplicacion.M14 = function (rng, D) {
 /* M15 Por una cifra, con llevada (3.º) */
 CB.gen.multiplicacion.M15 = function (rng, D) {
   const b = CB.util.ent(rng, 3, 9);
-  const a = CB.util.ent(rng, 12, (D === 1) ? 40 : Math.floor(999 / b));
+  let a, k = 0;
+  /* Alguna cifra de a por b tiene que llegar a 10: el nivel promete llevada. */
+  do { k++; a = CB.util.ent(rng, 12, (D === 1) ? 40 : Math.floor(999 / b)); }
+  while ((a % 10) * b < 10 && (Math.floor(a / 10) % 10) * b < 10 && k < 40);
   return itemMultGrande(a, b);
 };
 
@@ -5679,7 +5703,7 @@ CB.gen.problemas.PLANTILLAS = {
   COMBINACION_2: function (a, b, act) {          /* incógnita en una parte */
     return {
       frases: [
-        'Entre ' + act.n1 + ' y ' + act.n2 + ' tienen ' + a + ' ' + act.obj.plur + '.',
+        'Entre ' + act.n1 + (/^i/i.test(act.n2) ? ' e ' : ' y ') + act.n2 + ' tienen ' + a + ' ' + act.obj.plur + '.',
         act.n1 + ' tiene ' + b + '.',
         '¿' + cuantos(act.obj) + ' ' + act.obj.plur + ' tiene ' + act.n2 + '?'
       ],
@@ -5917,9 +5941,10 @@ CB.gen.problemas.numeros = function (subtipo, rng, D, techo) {
       return [a, c];
 
     default:
-      /* Todos los de resta: el primero SIEMPRE ≥ el segundo (invariante 2). */
+      /* Todos los de resta: el primero SIEMPRE > el segundo (invariante 2).
+         Estrictamente: con a = b, «¿Cuántas más tiene…?» respondía 0. */
       a = CB.util.ent(rng, 3, max);
-      b = CB.util.ent(rng, 1, a);
+      b = CB.util.ent(rng, 1, a - 1);
       return [a, b];
   }
 };
@@ -6004,8 +6029,9 @@ CB.gen.problemas.validar = function (item) {
   const frases = item.frases || [];
   const texto = frases.join(' ');
 
-  /* 1. Número de frases y forma de la pregunta */
-  if (frases.length > 3) motivos.push('frases');
+  /* 1. Número de frases y forma de la pregunta (una más con dato sobrante) */
+  const sobrante = !!item.datoSobrante;
+  if (frases.length > (sobrante ? 4 : 3)) motivos.push('frases');
   if (!frases.length) { motivos.push('frases'); return { ok: false, motivos: motivos }; }
 
   const ultima = frases[frases.length - 1];
@@ -6016,12 +6042,12 @@ CB.gen.problemas.validar = function (item) {
 
   /* 2. Longitud */
   if (CB.gen.problemas.validacion.excedePalabras(frases, 12)) motivos.push('fraseLarga');
-  if (CB.util.palabras(texto).length > 25) motivos.push('total');
+  if (CB.util.palabras(texto).length > (sobrante ? 33 : 25)) motivos.push('total');
 
   /* 3. Ancho de línea, con el MISMO algoritmo que usa la interfaz */
   const lineas = CB.util.cortarLineas(texto, 34);
   if (CB.gen.problemas.validacion.excedeAncho(lineas, 34)) motivos.push('ancho');
-  if (lineas.length > 5) motivos.push('demasiadasLineas');
+  if (lineas.length > (sobrante ? 6 : 5)) motivos.push('demasiadasLineas');
 
   /* 4. Datos numéricos */
   const numeros = texto.match(/\d+/g) || [];
@@ -6118,11 +6144,13 @@ CB.gen.problemas.generarSubtipo = function (subtipo, rng, D, ctx) {
         item.numeroSobrante = c;
         item.frases = [base.frases[0], base.frases[1],
                        base.frases[2]];
-        /* El dato sobrante se inserta como una coletilla de la 2.ª frase, sin
-           subordinación y sin pasar de 12 palabras. */
+        /* El dato sobrante se AÑADE como frase propia detrás de la 2.ª, sin
+           subordinación y sin pasar de 12 palabras. Hasta 3.11.0 sustituía a
+           la 2.ª frase, y el enunciado perdía el segundo dato: la respuesta
+           no se podía deducir del texto. */
         const extra = 'También tiene ' + c + ' ' + act.obj.plur + ' de otro color.';
         if (CB.util.palabras(extra).length <= 12) {
-          item.frases = [base.frases[0], extra, base.frases[2]];
+          item.frases = [base.frases[0], base.frases[1], extra, base.frases[2]];
           item.datos = base.datos.slice();
         } else {
           item.datoSobrante = false;
@@ -6964,7 +6992,11 @@ function itemFrac(consigna, num, den, fijos, expr, visual) {
   let k = 2;
   while (unicos.length < 3 && k < 40) {
     const cand = fstr(num + k, den + k + 1);
-    if (cand !== resp && unicos.indexOf(cand) === -1) unicos.push(cand);
+    /* (num+k)/(den+k+1) vale lo mismo que num/den cuando k·den = num·(k+1):
+       2/6 → 4/12. Un distractor equivalente a la respuesta es una segunda
+       respuesta correcta. */
+    if (cand !== resp && (num + k) * den !== num * (den + k + 1) &&
+        unicos.indexOf(cand) === -1) unicos.push(cand);
     k++;
   }
   const it = {
@@ -7059,7 +7091,7 @@ CB.gen.fracciones.F7 = function (rng, D) {
   const den = CB.util.elegir(rng, [2, 3, 4, 5]);
   const num = den + CB.util.ent(rng, 1, den);
   return itemFrac('Toca la fracción MAYOR que un entero.', num, den,
-    [fstr(Math.max(1, den - 1), den), fstr(1, den), fstr(den, den + 1)],
+    [fstr(den - 1, den), fstr(1, den + 1), fstr(den, den + 1)],
     'f7_' + num + '_' + den);
 };
 
@@ -7130,8 +7162,9 @@ CB.gen.fracciones.F12 = function (rng, D) {
   const sumaReal = resta ? (a - b) : (a + b);
   return itemFrac(fstr(a, den) + (resta ? ' − ' : ' + ') + fstr(b, den),
     sumaReal, den,
-    [fstr(sumaReal, resta ? den : den * 2), fstr(Math.abs(a * 1 - b) + 1, den),
-     fstr(sumaReal + 1, den)],
+    /* El error contrario (sumar en la resta, restar en la suma), el de sumar
+       también los denominadores y el de pasarse en uno. Ninguno es la respuesta. */
+    [fstr(sumaReal, den * 2), fstr(resta ? a + b : a - b, den), fstr(sumaReal + 1, den)],
     'f12_' + a + (resta ? 'm' : 'p') + b + '_' + den);
 };
 
@@ -7139,7 +7172,8 @@ CB.gen.fracciones.F12 = function (rng, D) {
 CB.gen.fracciones.F13 = function (rng, D) {
   const den = CB.util.elegir(rng, [3, 4, 5, 6, 8, 10]);
   const num = CB.util.ent(rng, 1, den - 1);
-  const parte = CB.util.ent(rng, 10, (D === 1) ? 50 : 120);
+  /* num × parte ≤ 999: la veta declara [0, 999] y el teclado admite 3 cifras. */
+  const parte = CB.util.ent(rng, 10, Math.min((D === 1) ? 50 : 120, Math.floor(999 / num)));
   return {
     formato: 'teclado',
     consigna: '¿Cuánto es ' + fstr(num, den) + ' de ' + CB.gen.motor.sep(den * parte) + '?',
@@ -7631,7 +7665,7 @@ CB.gen.enteros.Z1 = function (rng, D) {
   return {
     formato: 'teclado', conSigno: true,
     consigna: 'Estaba a ' + desde + ' °C y baja ' + baja +
-              ' grados. ¿A qué temperatura queda?',
+              (baja === 1 ? ' grado' : ' grados') + '. ¿A qué temperatura queda?',
     operacion: '-', operandos: [desde, baja],
     respuesta: desde - baja,
     expr: 'z1_' + desde + '_' + baja,
@@ -7646,7 +7680,7 @@ CB.gen.enteros.Z2 = function (rng, D) {
   return {
     formato: 'teclado', conSigno: true,
     consigna: 'El ascensor está en la planta ' + planta + ' y baja ' + baja +
-              ' plantas. ¿A qué planta llega?',
+              (baja === 1 ? ' planta' : ' plantas') + '. ¿A qué planta llega?',
     operacion: '-', operandos: [planta, baja],
     respuesta: planta - baja,
     expr: 'z2_' + planta + '_' + baja,
@@ -7948,7 +7982,8 @@ CB.gen.medida.B15 = function (rng, D) {
     return {
       formato: 'teclado',
       consigna: 'Una botella tiene ' + CB.gen.motor.coma(vasos[0] / 100, 10) +
-                ' litros. ¿Cuántos vasos de ' + vasos[1] + ' ml se pueden llenar?',
+                (vasos[0] === 1000 ? ' litro' : ' litros') +
+                '. ¿Cuántos vasos de ' + vasos[1] + ' ml se pueden llenar?',
       respuesta: vasos[2],
       expr: 'b15b_' + vasos[0] + '_' + vasos[1],
       diagnostico: false
@@ -8107,7 +8142,8 @@ const TEMAS_DATOS = [
 ];
 
 /* Colores de las bolas de la bolsa, en femenino singular («bola roja»). */
-const COLORES_BOLA = ['roja', 'azul', 'verde', 'amarilla', 'naranja', 'morada'];
+/* En masculino: siempre van detrás de «de color» («de color rojo»). */
+const COLORES_BOLA = ['rojo', 'azul', 'verde', 'amarillo', 'naranja', 'morado'];
 
 /* Un gráfico de barras: nCats categorías de un tema, con valores DISTINTOS
    entre minV y maxV (distintos para que «el que más» y «el que menos» sean
@@ -8494,7 +8530,8 @@ function bolsaConCuentas(rng, maxN) {
 CB.gen.azar._bolsaConCuentas = bolsaConCuentas;
 
 function fraseBolsa(b) {
-  return 'En la bolsa hay ' + b.cuentas[0] + ' bolas de color ' + b.colores[0] +
+  return 'En la bolsa hay ' + b.cuentas[0] + (b.cuentas[0] === 1 ? ' bola' : ' bolas') +
+         ' de color ' + b.colores[0] +
          ', ' + b.cuentas[1] + ' de color ' + b.colores[1] +
          ' y ' + b.cuentas[2] + ' de color ' + b.colores[2] + '.';
 }
@@ -8544,6 +8581,7 @@ function fijosFraccion(resp, candidatos, num, den) {
   }
   for (k = 1; k <= 20 && fijos.length < 3; k++) {   // cota: todo while/for la lleva
     const relleno = CB.gen.motor.fstr(num + k, den + k + 1);
+    if ((num + k) * den === num * (den + k + 1)) continue;   // equivalente a la respuesta
     if (relleno !== resp && fijos.indexOf(relleno) === -1) fijos.push(relleno);
   }
   return fijos;
@@ -8566,7 +8604,7 @@ CB.gen.azar.A5 = function (rng, D) {
     formato: 'opciones4',
     consigna: 'En la bolsa hay ' + total + ' bolas y ' + fav +
               (fav === 1 ? ' es' : ' son') + ' de color ' + color +
-              '. ¿Qué fracción dice la probabilidad de sacar una bola ' +
+              '. ¿Qué fracción dice la probabilidad de sacar una bola de color ' +
               color + '?',
     respuesta: resp,
     respuestaFraccion: true,
@@ -9348,7 +9386,7 @@ CB.gen.espacio.K6 = function (rng, D) {
   };
 };
 
-/* 17-catalogo.js — Los 92 niveles y los 4 mundos. ESTE FICHERO ES UN CONTRATO. */
+/* 17-catalogo.js — Los 308 niveles y los 4 mundos. ESTE FICHERO ES UN CONTRATO. */
 
 var CB = CB || {};
 CB.catalogo = CB.catalogo || {};
@@ -10550,7 +10588,9 @@ CB.diagnosticar = function (item, valorDado) {
   const codigos = CB.distractores.codigosAplicables(item);
   for (i = 0; i < codigos.length; i++) {
     try { v = CB.ERRORES[codigos[i]].simular(item); } catch (e) { v = null; }
-    if (v != null && isFinite(v) && Math.round(v) === Math.round(valorDado)) {
+    /* A dos decimales: redondear al entero hacía que en C3/C4/C7/C12 un «0»
+       tecleado por «0,1» diagnosticara E-C-COMA-CORTA y llegara al adulto. */
+    if (v != null && isFinite(v) && Math.round(v * 100) === Math.round(valorDado * 100)) {
       hipotesis.push(codigos[i]);
     }
   }
@@ -11347,8 +11387,13 @@ CB.adaptativo.actualizar = function (destreza, acierto, beta, perfil) {
   if (!d) d = perfil.destrezas[destreza] = CB.adaptativo.nuevaDestreza(null);
 
   const K = CB.adaptativo.K(d.n || 0);
+  /* Un theta que no es un número —o un 0, que es lo que sanear() deja de un
+     NaN— parte de la competencia inicial, igual que theta() lo lee. Antes
+     clamp() devolvía el suelo (400) y el niño caía a la banda más fácil. */
+  const base = (isFinite(d.theta) && d.theta >= CB.adaptativo.THETA_MIN)
+    ? d.theta : CB.adaptativo.THETA_INICIAL;
   const nuevo = CB.util.clamp(
-    d.theta + K * (acierto - CB.adaptativo.OBJETIVO_ACIERTO),
+    base + K * (acierto - CB.adaptativo.OBJETIVO_ACIERTO),
     CB.adaptativo.THETA_MIN, CB.adaptativo.THETA_MAX
   );
   d.theta = isFinite(nuevo) ? Math.round(nuevo) : CB.adaptativo.THETA_INICIAL;
@@ -11885,15 +11930,41 @@ CB.reparacion.columnasCDU = function (item) {
   const esResta = (item.operacion === '-');
 
   if (esResta) {
-    const uA = a % 10, uB = b % 10;
+    /* La columna que pide prestado es la PRIMERA (desde las unidades) con la
+       cifra de arriba menor que la de abajo: en 5408 − 4174 son las decenas.
+       Dar por hecho que eran las unidades enunciaba «8 es menos que 4». */
+    const cifras = function (n) {
+      const d = []; let x = Math.abs(Math.round(n));
+      do { d.push(x % 10); x = Math.floor(x / 10); } while (x > 0);
+      return d;
+    };
+    const da = cifras(a), db = cifras(b);
+    const NOMBRES = ['unidades', 'decenas', 'centenas', 'millares'];
+    let i = 0;
+    while (i < da.length && (da[i] || 0) >= (db[i] || 0)) i++;
+    if (i >= da.length) {
+      return {
+        titulo: 'Las columnas',
+        dibujo: 'columnas',
+        datos: { a: a, b: b, op: '-' },
+        pasos: [
+          { texto: 'Resto primero las unidades: ' + (a % 10) + ' menos ' + (b % 10) + '.', foco: 'unidades' },
+          { texto: 'Sigo con las decenas, cada columna por separado.', foco: 'decenas' },
+          { texto: 'Y así hasta la última columna, de derecha a izquierda.', foco: 'centenas' }
+        ]
+      };
+    }
+    const col = NOMBRES[i] || ('columna ' + (i + 1));
+    const sig = NOMBRES[i + 1] || ('columna ' + (i + 2));
+    const unidad = (i === 0) ? 'una decena' : 'una de las ' + sig;
     return {
       titulo: 'Las columnas',
       dibujo: 'columnas',
       datos: { a: a, b: b, op: '-' },
       pasos: [
-        { texto: uA + ' es menos que ' + uB + ': no llega para quitar.', foco: 'unidades' },
-        { texto: 'Pido prestada una decena y la deshago en 10 unidades.', foco: 'prestamo' },
-        { texto: 'A las decenas les queda una menos. Ahora sí se puede restar.', foco: 'decenas' }
+        { texto: 'En las ' + col + ', ' + (da[i] || 0) + ' es menos que ' + (db[i] || 0) + ': no llega para quitar.', foco: col },
+        { texto: 'Pido prestada ' + unidad + ' y la deshago en 10 ' + col + '.', foco: 'prestamo' },
+        { texto: 'A las ' + sig + ' les queda una menos. Ahora sí se puede restar.', foco: sig }
       ]
     };
   }
@@ -11915,7 +11986,9 @@ CB.reparacion.rectaNumerica = function (item) {
   return {
     titulo: 'La recta de los números',
     dibujo: 'recta',
-    datos: { desde: Math.max(0, d - 10), hasta: d + 20, marca: r },
+    /* Con respuesta negativa (Z1-Z4) la recta empieza por debajo de cero: si
+       no, la marca quedaba fuera y nada se resaltaba. */
+    datos: { desde: (r < 0) ? d - 10 : Math.max(0, d - 10), hasta: d + 20, marca: r },
     pasos: [
       { texto: 'Busco el número en la recta.', foco: 'buscar' },
       { texto: 'Miro cuál va justo antes y cuál va justo después.', foco: 'vecinos' },
@@ -11995,6 +12068,11 @@ CB.reparacion.tarjeta = function (item, hipotesis) {
   let nombre = CB.reparacion.explicadorDe(item.destreza);
   if (err && err.reparacion && typeof CB.reparacion[err.reparacion] === 'function') {
     nombre = err.reparacion;
+  }
+  /* La rejilla 1…100 no puede señalar un 5 713: las sumas y restas grandes
+     (S11, S24, R21, R23…) van a las columnas o a la recta. */
+  if (nombre === 'tabla100' && !(item.respuesta >= 1 && item.respuesta <= 100)) {
+    nombre = (item.operandos && item.operandos.length >= 2) ? 'columnasCDU' : 'rectaNumerica';
   }
   const base = CB.reparacion[nombre](item);
 
@@ -12296,7 +12374,12 @@ CB.memoria.vencidosHoy = function (perfil, hoyISO) {
 
 /* Marca un repaso hecho hoy. */
 CB.memoria.repasado = function (estado, acierto, hoyISO) {
-  CB.memoria.actualizarEstabilidad(estado, acierto);
+  /* Repaso ESPACIADO: la estabilidad sube una vez por día de acierto. Subiendo
+     por cada respuesta, ocho aciertos seguidos la clavaban en el tope de 180
+     días y el musgo no volvía en cuatro meses. Los fallos sí la bajan siempre. */
+  if (!(acierto && estado.ultimoRepasoISO === hoyISO)) {
+    CB.memoria.actualizarEstabilidad(estado, acierto);
+  }
   estado.ultimoRepasoISO = hoyISO;
   estado.proximoRepasoISO = CB.util.sumarDias(
     hoyISO, Math.max(1, Math.round(estado.estabilidadDias || 1))
@@ -12328,7 +12411,7 @@ CB.memoria.vetaConLuz = function (estadoAntes, estadoDespues, repasoAntesISO, ho
          CB.memoria.hanPasado48h({ ultimoRepasoISO: repasoAntesISO }, hoyISO);
 };
 
-/* 29-grafo.js — DAG de prerrequisitos de los 92 niveles */
+/* 29-grafo.js — DAG de prerrequisitos de los 308 niveles */
 
 var CB = CB || {};
 CB.grafo = CB.grafo || {};
@@ -12542,7 +12625,9 @@ CB.escalera.siguienteEscalon = function (fallosConcepto, fallosItem) {
 
   /* Escalones 3, 4 y 5: acumulados por CONCEPTO a lo largo de la partida. */
   if (fallosConcepto === 2) {
-    return CB.escalera.escalonDe(3, { D: 1, formato: 'opciones4',
+    /* Solo baja la dificultad: el formato lo decide el generador, y un
+       `formato: 'opciones4'` declarado aquí nunca se llegó a aplicar. */
+    return CB.escalera.escalonDe(3, { D: 1,
                         texto: 'El siguiente de este tipo será más fácil.' });
   }
   if (fallosConcepto === 3) {
@@ -13879,7 +13964,7 @@ CB.ui.dibujoReparacion = function (tarjeta) {
 };
 
 CB.ui.resaltarPasoDibujo = function (foco) {
-  const mapa = { unidades: 'U', decenas: 'D', prestamo: 'D', llevada: 'D' };
+  const mapa = { unidades: 'U', decenas: 'D', centenas: 'C', prestamo: 'D', llevada: 'D' };
   const letra = mapa[foco];
   const cols = document.querySelectorAll('.columna-cdu');
   let i;
@@ -14372,6 +14457,21 @@ CB.pantallas.fallo = function (e) {
     }
   } catch (e2) { /* si ni siquiera se puede guardar, seguimos: lo importante
                      es no dejar al niño con la pantalla congelada */ }
+  /* Lo que ir() haría al abandonar la pantalla, y además se apaga la partida:
+     sus temporizadores comprueban `CB.partida.estado === e`, que seguía siendo
+     cierto, y desde el mapa arrastraban al niño a un descanso o a un fin. */
+  try {
+    if (CB.pantallas.actual && CB.pantallas.alSalir[CB.pantallas.actual]) {
+      CB.pantallas.alSalir[CB.pantallas.actual]();
+    }
+  } catch (e3) { }
+  try {
+    if (CB.partida) {
+      if (CB.partida.pararCronometro) CB.partida.pararCronometro();
+      CB.partida.estado = null;
+    }
+    if (CB.jefes) CB.jefes.estado = null;
+  } catch (e4) { }
 
   const det = document.getElementById('error-detalle');
   if (det) {
@@ -14419,7 +14519,12 @@ CB.pantallas.conectar = function () {
     if (ev.key !== 'Escape') return;
     if (CB.pantallas.SIN_SALIR.indexOf(CB.pantallas.actual) !== -1) return;
 
-    if (CB.pantallas.actual === 'p-partida' || CB.pantallas.actual === 'p-reparacion') {
+    /* «Vamos a verlo» no tiene reloj que pausar, y pausarla mataba los
+       temporizadores de la tarjeta: al reanudar quedaba el ítem fallado en
+       pantalla, ya contestado, sin nada que lo cerrara. El descanso tampoco
+       retrocede: atras() iría al mapa con la partida viva y sin pausar. */
+    if (CB.pantallas.actual === 'p-reparacion' || CB.pantallas.actual === 'p-descanso') return;
+    if (CB.pantallas.actual === 'p-partida') {
       if (CB.partida && CB.partida.pausar) CB.partida.pausar();
       return;
     }
@@ -14817,18 +14922,28 @@ CB.componentes.ordenarFila = function (item, alResponder, opciones) {
   item.piezas.forEach(function (v, idx) {
     const b = CB.ui.boton(String(v), '', function () {
       if (CB.partida && CB.partida.bloqueado) return;
+      /* Segundo toque de la confirmación doble (antiazar): la pieza ya está
+         colocada, solo hay que confirmar. */
+      if (b.getAttribute('data-confirmando') === 'si') {
+        CB.componentes.pedirConfirmacion(b, cerrarSiEstaLlena);
+        return;
+      }
       if (b.disabled) return;
       const pos = CB.componentes._seleccion.length;
       CB.componentes._seleccion.push(v);
       usados.push(b);
       const hueco = huecos.querySelector('[data-hueco="' + pos + '"]');
       if (hueco) hueco.textContent = String(v);
-      b.disabled = true;
       b.classList.add('btn-bloque--hundido');
       CB.audio.sfx('picar');
 
       if (CB.componentes._seleccion.length === item.orden.length) {
+        /* La última pieza se queda activa si va a pedirse confirmación: un
+           botón disabled no recibe el segundo toque y el ítem era imposible. */
+        b.disabled = !CB.componentes._confirmacionPendiente;
         CB.componentes.pedirConfirmacion(b, cerrarSiEstaLlena);
+      } else {
+        b.disabled = true;
       }
     }, { posicion: idx });
     b.style.width = '80px'; b.style.height = '80px';
@@ -14896,6 +15011,14 @@ CB.componentes.monedas = function (item, alResponder, opciones) {
       b.setAttribute('data-posicion', idx);
       b.addEventListener('click', function () {
         if (CB.partida && CB.partida.bloqueado) return;
+        /* Segundo toque de la confirmación doble: la moneda ya está contada;
+           volver a sumarla hacía incorrecta cualquier respuesta confirmada. */
+        if (b.getAttribute('data-confirmando') === 'si') {
+          CB.componentes.pedirConfirmacion(b, function () {
+            alResponder(total, 'monedas', {});
+          });
+          return;
+        }
         total += v;
         marcador.textContent = String(total);
         cogidas.push(v);
@@ -15407,7 +15530,11 @@ CB.partida.iniciar = function (opciones) {
      0 de N, que es lo que hay que enseñar. */
   CB.ui.pintarHUD({ luces: luces.luces, gemas: 0,
                     indice: 0, total: CB.partida.estado.guion.length });
-  CB.partida.servirItem();
+  /* reanudarGuardada() pide sinServir: hasta 3.11.0 iniciar() servía aquí un
+     ítem del guion recién estrenado que nadie veía —se anotaba en la memoria
+     de vistos, gastaba las bolsas, dejaba vetaPrevia con una veta fantasma y
+     leía dos consignas seguidas— y la reanudación volvía a servir encima. */
+  if (!opciones.sinServir) CB.partida.servirItem();
   return CB.partida.estado;
 };
 
@@ -15714,6 +15841,9 @@ CB.partida.marcarLectura = function () {
 CB.partida.tiempoAgotado = function () {
   const e = CB.partida.estado;
   if (!e || e.pausada) return;
+  /* Cerrojo: una respuesta tocada durante el mensaje de ánimo entraba en
+     responder() y corrían dos siguiente(): se saltaba una pregunta. */
+  e.respondido = true;
 
   /* El tiempo agotado NUNCA apaga una luz. Ni el primero, ni ninguno. */
   const r = CB.vidas.timeout(e.luces);
@@ -16244,6 +16374,11 @@ CB.partida.logrosDeCromo = function () {
 CB.partida.siguiente = function () {
   const e = CB.partida.estado;
   if (!e) return;
+  /* Pausar durante el festejo (1,6-2,6 s tras contestar) dejaba que el
+     temporizador sirviera el siguiente ítem —o abriera el descanso— encima de
+     Ajustes, con la partida marcada como pausada y el reloj muerto para el
+     resto de la expedición. El avance espera a reanudar(). */
+  if (e.pausada) { e.avancePendiente = true; return; }
   e.indice++;
 
   if (e.indice % 3 === 0) CB.partida.guardarEnCurso();
@@ -16347,6 +16482,11 @@ CB.partida.reanudar = function () {
   const e = CB.partida.estado;
   if (!e) return;
   e.pausada = false;
+  if (e.avancePendiente) {
+    e.avancePendiente = false;
+    CB.partida.siguiente();   // servirItem() ya abre p-partida o p-descanso
+    return;
+  }
   CB.pantallas.ir('p-partida');
   CB.partida.iniciarCronometro(!!(e.itemActual && e.itemActual.subtipo));
 };
@@ -16394,10 +16534,15 @@ CB.partida.reanudarGuardada = function (perfil) {
      quedaban por servir no serían los de la expedición que se guardó. (El
      que estaba en pantalla al guardar ya consta en itemsServidos y se
      regenera con otros números: eso fue siempre así.) */
-  const e = CB.partida.iniciar({ mundoId: p.mundo, modo: p.modo, semilla: p.semillaPartida });
+  const e = CB.partida.iniciar({ mundoId: p.mundo, modo: p.modo,
+                                 semilla: p.semillaPartida, sinServir: true });
   if (!e) return null;
   e.guion = p.guion.slice();
   e.indice = p.indice;
+  /* El próximo descanso se cuenta desde aquí: el de iniciar() (6-8) quedaba
+     casi siempre por debajo del índice guardado, y «Seguir jugando» abría la
+     pantalla de descanso en vez de una pregunta. */
+  e.proximoDescanso = e.indice + CB.util.elegir(e.rng, CB.partida.CADA_DESCANSO);
   e.luces.luces = p.luces;
   e.puntos = p.puntos;
   e.gemas = p.gemas;
@@ -16633,6 +16778,10 @@ CB.partida.pintarFin = function (motivo, bono, hitos) {
   const duro = (Date.now() - e.inicioTs) >= 180000;
   if (cajaAnimo) {
     cajaAnimo.hidden = true;
+    /* Sin la cara de la expedición anterior ya marcada en oro. */
+    const carasFin = cajaAnimo.querySelectorAll('.animo__cara');
+    let c;
+    for (c = 0; c < carasFin.length; c++) carasFin[c].setAttribute('aria-pressed', 'false');
     if (duro) {
       setTimeout(function () {
         if (CB.pantallas.actual === 'p-fin') cajaAnimo.hidden = false;
@@ -17644,7 +17793,9 @@ CB.adulto.restaurar = function (cont) {
 };
 
 CB.adulto.confirmarBorrado = function (perfil, cont) {
-  const caja = CB.ui.crear('div', 'adulto__aviso');
+  const previa = cont.querySelector('.adulto__aviso--borrar');
+  if (previa) previa.parentNode.removeChild(previa);
+  const caja = CB.ui.crear('div', 'adulto__aviso adulto__aviso--borrar');
   caja.appendChild(CB.ui.crear('p', null,
     'Esto borra para siempre el progreso de ' + perfil.mote +
     '. Escribe BORRAR para confirmar.'));
@@ -18615,6 +18766,8 @@ CB.perfiles.pintar = function () {
   const cont = document.getElementById('lista-perfiles');
   if (!cont) return;
   CB.ui.vaciar(cont);
+  const roto = document.getElementById('aviso-perfil-roto');
+  if (roto && roto.parentNode) roto.parentNode.removeChild(roto);
 
   /* crear() se lleva prestado el h1 para su propia pregunta. Al volver hay que
      devolvérselo, o la lista de mineros se queda titulada «¿En qué curso…?». */

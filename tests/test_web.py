@@ -10,6 +10,7 @@ import json
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -102,13 +103,13 @@ class TestPersistencia:
         return ruta.read_text(encoding="utf-8")
 
     def test_private_mode_desactivado(self):
-        assert "private_mode=False" in self._main(), (
+        assert '"private_mode": False' in self._main(), (
             "main.py debe llamar a webview.start(private_mode=False) "
             "o el progreso del juego no se guarda"
         )
 
     def test_declara_storage_path(self):
-        assert "storage_path" in self._main()
+        assert 'opciones["storage_path"]' in self._main()
 
 
 class TestUrlDeCarga:
@@ -126,13 +127,13 @@ class TestUrlDeCarga:
         return ruta.read_text(encoding="utf-8")
 
     def test_usa_esquema_file(self):
-        assert "as_uri()" in self._main(), (
-            "main.py debe pasar url=INDEX.as_uri() (file://), no la ruta suelta"
+        assert "url=index.as_uri()" in self._main(), (
+            "main.py debe pasar url=index.as_uri() (file://), no la ruta suelta"
         )
 
     def test_no_pasa_la_ruta_suelta(self):
-        assert "url=str(INDEX)" not in self._main(), (
-            "url=str(INDEX) hace que pywebview arranque su servidor HTTP "
+        assert "url=str(index)" not in self._main(), (
+            "url=str(index) hace que pywebview arranque su servidor HTTP "
             "en el puerto fijo 42001 y provoca el 404 al colisionar"
         )
 
@@ -279,7 +280,7 @@ class TestBorrado:
 class TestAnchoDeLectura:
     """Una columna, pero ancha.
 
-    Ayuda son 18 paneles y las columnas de periodico obligarian a leer hasta
+    Ayuda son 20 paneles y las columnas de periodico obligarian a leer hasta
     abajo y volver a subir, asi que se queda en una columna. Eso no obliga a
     leerla en una tira de 640 px con media pantalla vacia al lado.
     """
@@ -701,7 +702,10 @@ class TestPyprojectToml:
         Sin '==' una libreria puede actualizarse sola
         y romper la app sin avisar.
         """
-        deps = self._toml()["project"]["dependencies"]
+        proyecto = self._toml()["project"]
+        deps = list(proyecto["dependencies"])
+        for grupo in proyecto.get("optional-dependencies", {}).values():
+            deps.extend(grupo)
         sueltas = [d for d in deps if "==" not in d]
         assert not sueltas, f"Sin version fija: {sueltas}"
 
@@ -968,3 +972,149 @@ ids.forEach((id) => { const d = CB.catalogo.get(id).destreza; if (!CB.datos.MENS
 console.log(JSON.stringify(Object.keys(sin)));
 """)
         assert datos == []
+
+
+class TestAuditoria413:
+    """Lo que la auditoría de 4.13.0 encontró y no debe volver.
+
+    Cada test guarda un arreglo concreto: la reanudación que servía un ítem
+    fantasma, el reloj agotado que aceptaba una respuesta más, la pausa durante
+    el festejo, la copia de seguridad vacía que dejaba un perfil a medias, los
+    generadores con respuesta imposible o distractor equivalente, el diagnóstico
+    que veía errores en los decimales y la estabilidad que se clavaba en 180
+    días en una sola sesión.
+    """
+
+    @pytest.fixture
+    def js(self, web_dir):
+        return (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+
+    @pytest.fixture
+    def css(self, web_dir):
+        return (web_dir / "css" / "cubomatica.css").read_text(encoding="utf-8")
+
+    _cuerpo = staticmethod(TestBancoDePreguntas._cuerpo)
+    _node = staticmethod(TestBancoDePreguntas._node)
+    CARGADOR = TestBancoDePreguntas.CARGADOR
+
+    def test_reanudar_no_sirve_un_item_fantasma(self, js):
+        iniciar = self._cuerpo(js, "CB.partida.iniciar")
+        assert "if (!opciones.sinServir) CB.partida.servirItem()" in iniciar
+        reanudar = self._cuerpo(js, "CB.partida.reanudarGuardada")
+        assert "sinServir: true" in reanudar
+        assert "e.proximoDescanso = e.indice +" in reanudar, (
+            "sin recalcularlo, «Seguir jugando» abría el descanso en vez de una pregunta"
+        )
+
+    def test_el_tiempo_agotado_cierra_el_cerrojo(self, js):
+        agotado = self._cuerpo(js, "CB.partida.tiempoAgotado")
+        assert "e.respondido = true" in agotado
+
+    def test_pausar_durante_el_festejo_espera_a_reanudar(self, js):
+        assert "e.avancePendiente = true" in self._cuerpo(js, "CB.partida.siguiente")
+        assert "avancePendiente" in self._cuerpo(js, "CB.partida.reanudar")
+
+    def test_la_pantalla_de_error_apaga_la_partida(self, js):
+        fallo = self._cuerpo(js, "CB.pantallas.fallo")
+        assert "CB.partida.estado = null" in fallo
+
+    def test_las_nubes_y_el_h1_oculto_siguen_en_absoluto(self, css):
+        regla = [
+            linea for linea in css.splitlines()
+            if linea.startswith(".pantalla > *:not(.cielo)")
+        ]
+        assert len(regla) == 1
+        assert ":not(.nube)" in regla[0] and ":not(.solo-lectores)" in regla[0]
+
+    def test_alto_contraste_no_deja_blanco_sobre_blanco_en_quitar(self, css):
+        assert ":root.alto-contraste .btn-bloque--peligro:hover:not(:disabled)" in css
+
+    def test_una_copia_vacia_no_deja_un_perfil_a_medias(self, tmp_path):
+        datos = self._node(tmp_path, self.CARGADOR + """
+const motes = CB.datos.MOTES || null;
+const r1 = CB.almacen.validarImportado({ version: 4 }, motes);
+const r2 = CB.almacen.validarImportado([], motes);
+const r3 = CB.almacen.validarImportado({ version: 4, id: 'x', errores: { 'E-S-COL': null },
+                                         destrezas: { suma: null }, niveles: 'no' }, motes);
+let poda = 'ok';
+try { CB.almacen.podar(r3.perfil); } catch (e) { poda = e.message; }
+console.log(JSON.stringify({
+  completo: !!(r1.ok && r1.perfil.niveles && r1.perfil.respuestas && r1.perfil.mundos),
+  arrayRechazado: !r2.ok,
+  nivelesObjeto: typeof r3.perfil.niveles === 'object',
+  poda: poda
+}));
+""")
+        assert datos == {"completo": True, "arrayRechazado": True, "nivelesObjeto": True, "poda": "ok"}
+
+    def test_los_generadores_corregidos_no_recaen(self, tmp_path):
+        datos = self._node(tmp_path, self.CARGADOR + """
+const m = CB.util.mulberry32;
+function gen(id, seed, D, extra) {
+  const n = CB.catalogo.get(id);
+  return n.generar(m(seed), D, Object.assign({ bolsas: CB.gen.problemas.nuevoEstadoBolsas(), techo: n.techo || 999 }, extra || {}));
+}
+function val(f) { const p = String(f).split('/'); return p.length === 2 ? Number(p[0]) / Number(p[1]) : Number(f); }
+const malos = { N6: 0, N11: 0, S26: 0, M15: 0, F13: 0, equivalentes: 0, sobrante: 0, yI: 0, cero: 0 };
+for (let i = 0; i < 300; i++) {
+  const D = 1 + i % 3;
+  const n6 = gen('N6', i, D); const par = /número PAR/.test(n6.consigna);
+  if ((n6.respuesta % 2 === 0) !== par) malos.N6++;
+  const n11 = gen('N11', i, D); if (n11.orden.some((v) => v < 1 || v > 599)) malos.N11++;
+  const s26 = gen('S26', i, D); const mm = s26.consigna.match(/de ([\\d ]+) \\+ ([\\d ]+)\\?/);
+  const real = Number(mm[1].replace(/ /g, '')) + Number(mm[2].replace(/ /g, ''));
+  if (s26.distractoresFijos.some((d) => Math.abs(d - real) <= Math.abs(s26.respuesta - real))) malos.S26++;
+  const m15 = gen('M15', i, D); const [a, b] = m15.operandos;
+  if ((a % 10) * b < 10 && (Math.floor(a / 10) % 10) * b < 10) malos.M15++;
+  if (gen('F13', i, D).respuesta > 999) malos.F13++;
+  for (const id of ['F7', 'F8', 'F12', 'A6']) {
+    const it = gen(id, i, D);
+    if (it.distractoresFijos.some((d) => Math.abs(val(d) - val(it.respuesta)) < 1e-9)) malos.equivalentes++;
+  }
+  for (const id of ['P3', 'P4', 'P7']) {
+    const it = gen(id, i, 2, { datoSobrante: true, techo: 199 });
+    if (it.datoSobrante) {
+      const nums = (it.enunciado.match(/\\d+/g) || []).map(Number);
+      if (it.datos.some((d) => nums.indexOf(d) < 0)) malos.sobrante++;
+    }
+    if (/ y I/.test(it.enunciado)) malos.yI++;
+  }
+  const p5 = gen('P5', i, 2); if (p5.respuesta === 0) malos.cero++;
+}
+console.log(JSON.stringify(malos));
+""")
+        assert all(v == 0 for v in datos.values()), datos
+
+    def test_el_diagnostico_no_inventa_errores_en_los_decimales(self, tmp_path):
+        datos = self._node(tmp_path, self.CARGADOR + """
+const c4 = CB.catalogo.get('C4');
+let falsos = 0;
+for (let i = 0; i < 300; i++) {
+  const it = c4.generar(CB.util.mulberry32(i), 2, {}); it.nivelId = 'C4';
+  const h = CB.diagnosticar(it, 0);
+  if (h && h.length && Math.abs(it.respuesta) > 0.005) falsos++;
+}
+console.log(JSON.stringify(falsos));
+""")
+        assert datos == 0
+
+    def test_la_estabilidad_sube_una_vez_por_dia(self, tmp_path):
+        datos = self._node(tmp_path, self.CARGADOR + """
+const est = { estabilidadDias: 1, n: 0 };
+for (let i = 0; i < 8; i++) CB.memoria.repasado(est, true, '2026-08-24');
+const mismoDia = est.estabilidadDias;
+CB.memoria.repasado(est, true, '2026-08-25');
+console.log(JSON.stringify({ mismoDia: mismoDia, otroDia: est.estabilidadDias }));
+""")
+        assert datos["mismoDia"] < 5, "ocho aciertos seguidos no son ocho repasos"
+        assert datos["otroDia"] > datos["mismoDia"]
+
+    def test_comprobar_devuelve_error_si_hay_que_formatear(self, tmp_path):
+        una_linea = tmp_path / "una.html"
+        una_linea.write_text("<p>a</p><div><p>b</p></div>", encoding="utf-8")
+        salida = subprocess.run(
+            [sys.executable, str(ROOT / "herramientas" / "formatear-html.py"), "--comprobar", str(una_linea)],
+            capture_output=True, text=True, timeout=60,
+        )
+        assert salida.returncode == 1, salida.stdout
+        assert una_linea.read_text(encoding="utf-8") == "<p>a</p><div><p>b</p></div>", "--comprobar no escribe"

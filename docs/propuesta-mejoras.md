@@ -4,13 +4,13 @@ Diagnóstico sobre la versión 4.5.0 del shell y 3.4.7 del juego. Las referencia
 líneas de `src/cubomatica/web/js/cubomatica.js` **en aquel momento**: el bundle ha crecido
 desde entonces y ya no cuadran; búscalas por nombre de función.
 
-> **Estado a 24-08-2026 (app 4.7.0, juego 3.6.0).** Ya está hecho: la calibración al derecho
+> **Estado a 24-08-2026 (app 4.13.0, juego 3.12.0).** Ya está hecho: la calibración al derecho
 > y las 48 pistas por error en pantalla (§2 y §3, en 4.6.0); la puerta parental, retirada a
 > petición del autor (§1); y toda la deuda del §5 —fuera los gemelos `.min`, fuera el módulo
 > offline y el `manifest`, `api.py` sin los ejemplos de plantilla, e integración continua en
-> `.github/workflows/ci.yml`—. **Sigue pendiente** lo demás: exportar copia y CSV desde
-> `api.py`, imprimir, la copia de seguridad automática y los bugs de generadores del §2 que no
-> se tocaron. La parte de interfaz se abordó aparte, en [propuesta-ux-ui.md](propuesta-ux-ui.md).
+> `.github/workflows/ci.yml`—; exportar copia y CSV desde `api.py` e imprimir (4.9.0); y los
+> bugs de generadores del §2, revisados a fondo en la auditoría de 4.13.0. **Sigue pendiente**
+> solo la copia de seguridad automática. La parte de interfaz se abordó aparte, en [propuesta-ux-ui.md](propuesta-ux-ui.md).
 
 ## Resumen en cinco líneas
 

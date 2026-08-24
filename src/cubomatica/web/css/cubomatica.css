@@ -658,6 +658,11 @@ button:disabled {
   background: var(--btn-peligro-hundido);
   color: var(--blanco);
 }
+/* En alto contraste el «hundido» es blanco (es el bisel): el texto va en negro
+   o QUITAR desaparecía al pasar el ratón. */
+:root.alto-contraste .btn-bloque--peligro:hover:not(:disabled) {
+  color: var(--btn-peligro);
+}
 
 
 .btn-bloque--grande {
@@ -1602,6 +1607,10 @@ button:disabled {
 
 .premio--record .premio__marco {
   background: var(--deco-oro-cla);
+}
+
+.premio--logro .premio__marco {
+  background: var(--deco-hierba-cla);
 }
 
 .premio__nombre {
@@ -3257,7 +3266,7 @@ button:disabled {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .particula.particula--viva, .criatura--flota, .criatura--saltito, .criatura--asiente, .criatura--gotea, .criatura--gira, .nube, .veta--musgo, .btn-bloque--monta, .btn-bloque--destello, .reloj__arena.reloj__arena--voltea, .reloj__chorro, .reloj--prisa .reloj__arena, .reloj__cifra.reloj__cifra--late, .cinta.cinta--entra, .cinta--prisa.cinta--entra .cinta__texto, .insignia.insignia--brota, .cartel.cartel--brota, .cifra-viva.cifra-viva--sube, .zona-juego.zona-juego--sacude, .criatura--pica, .criatura--rasca, .criatura[data-quien=rocarr].criatura--asiente, .gema-vuelo.gema-vuelo--va, .pantalla.pantalla--cae {
+  .particula.particula--viva, .criatura--flota, .criatura--saltito, .criatura--asiente, .criatura--gotea, .criatura--gira, .nube, .veta--musgo, .btn-bloque--monta, .btn-bloque--destello, .reloj__arena.reloj__arena--voltea, .reloj__chorro, .reloj--prisa .reloj__arena, .reloj__cifra.reloj__cifra--late, .cinta.cinta--entra, .cinta--prisa.cinta--entra .cinta__texto, .insignia.insignia--brota, .cartel.cartel--brota, .cifra-viva.cifra-viva--sube, .zona-juego.zona-juego--sacude, .criatura--pica, .criatura--rasca, .criatura[data-quien=rocarr].criatura--asiente, .gema-vuelo.gema-vuelo--va, .pantalla.pantalla--cae, .btn-bloque.btn-bloque--toc, .luces__luz.luces__luz--recien-encendida, .gemas.gemas--parpadeo {
     animation: none !important;
   }
   .criatura--pica {
@@ -3293,7 +3302,7 @@ button:disabled {
     box-shadow: inset 0 0 0 8px var(--deco-oro);
   }
 }
-:root.sin-movimiento .particula.particula--viva, :root.sin-movimiento .criatura--flota, :root.sin-movimiento .criatura--saltito, :root.sin-movimiento .criatura--asiente, :root.sin-movimiento .criatura--gotea, :root.sin-movimiento .criatura--gira, :root.sin-movimiento .nube, :root.sin-movimiento .veta--musgo, :root.sin-movimiento .btn-bloque--monta, :root.sin-movimiento .btn-bloque--destello, :root.sin-movimiento .reloj__arena.reloj__arena--voltea, :root.sin-movimiento .reloj__chorro, :root.sin-movimiento .reloj--prisa .reloj__arena, :root.sin-movimiento .reloj__cifra.reloj__cifra--late, :root.sin-movimiento .cinta.cinta--entra, :root.sin-movimiento .cinta--prisa.cinta--entra .cinta__texto, :root.sin-movimiento .insignia.insignia--brota, :root.sin-movimiento .cartel.cartel--brota, :root.sin-movimiento .cifra-viva.cifra-viva--sube, :root.sin-movimiento .zona-juego.zona-juego--sacude, :root.sin-movimiento .criatura--pica, :root.sin-movimiento .criatura--rasca, :root.sin-movimiento .criatura[data-quien=rocarr].criatura--asiente, :root.sin-movimiento .gema-vuelo.gema-vuelo--va, :root.sin-movimiento .pantalla.pantalla--cae {
+:root.sin-movimiento .particula.particula--viva, :root.sin-movimiento .criatura--flota, :root.sin-movimiento .criatura--saltito, :root.sin-movimiento .criatura--asiente, :root.sin-movimiento .criatura--gotea, :root.sin-movimiento .criatura--gira, :root.sin-movimiento .nube, :root.sin-movimiento .veta--musgo, :root.sin-movimiento .btn-bloque--monta, :root.sin-movimiento .btn-bloque--destello, :root.sin-movimiento .reloj__arena.reloj__arena--voltea, :root.sin-movimiento .reloj__chorro, :root.sin-movimiento .reloj--prisa .reloj__arena, :root.sin-movimiento .reloj__cifra.reloj__cifra--late, :root.sin-movimiento .cinta.cinta--entra, :root.sin-movimiento .cinta--prisa.cinta--entra .cinta__texto, :root.sin-movimiento .insignia.insignia--brota, :root.sin-movimiento .cartel.cartel--brota, :root.sin-movimiento .cifra-viva.cifra-viva--sube, :root.sin-movimiento .zona-juego.zona-juego--sacude, :root.sin-movimiento .criatura--pica, :root.sin-movimiento .criatura--rasca, :root.sin-movimiento .criatura[data-quien=rocarr].criatura--asiente, :root.sin-movimiento .gema-vuelo.gema-vuelo--va, :root.sin-movimiento .pantalla.pantalla--cae, :root.sin-movimiento .btn-bloque.btn-bloque--toc, :root.sin-movimiento .luces__luz.luces__luz--recien-encendida, :root.sin-movimiento .gemas.gemas--parpadeo {
   animation: none !important;
 }
 
@@ -3345,7 +3354,10 @@ button:disabled {
   background: var(--cielo-0);
 }
 
-.pantalla > *:not(.cielo):not(.cinta):not(.cartel):not(.portada__llave):not(.portada__quien) {
+/* Las nubes y el h1 solo para lectores son hijos directos de .pantalla y viven
+   en absoluto: sin la exclusión, esta regla los volvía relativos (las nubes
+   pasaban a ser ítems del flex y empujaban el contenido). */
+.pantalla > *:not(.cielo):not(.cinta):not(.cartel):not(.portada__llave):not(.portada__quien):not(.nube):not(.solo-lectores) {
   position: relative;
   z-index: 1;
 }

@@ -1,7 +1,7 @@
 [project]
 name = "cubomatica"
-version = "4.12.0"
-description = "Cubomática — juego de matemáticas para 2.º de Primaria, app de escritorio con pywebview (HTML + CSS + JS vanilla)"
+version = "4.13.0"
+description = "Cubomática — juego de matemáticas de 1.º a 6.º de Primaria, app de escritorio con pywebview (HTML + CSS + JS vanilla)"
 requires-python = ">=3.11"
 
 # ---- LIBRERIAS CON VERSION FIJA ----
