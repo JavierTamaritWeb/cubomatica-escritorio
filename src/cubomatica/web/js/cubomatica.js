@@ -11967,7 +11967,15 @@ CB.ui.pintarHUD = function (estado) {
       if (j < hechos) b.setAttribute('data-caido', 'si');
       gal.appendChild(b);
     }
-    gal.setAttribute('aria-label', 'Bloque ' + hechos + ' de ' + estado.total);
+    /* En cual esta, no cuantas lleva hechas. Poner «Pregunta 0 de 20» con la
+       primera pregunta delante desconcierta a cualquiera, y a un nino de siete
+       anos mas. Se topa en el total para no decir «21 de 20» al contestar la
+       ultima antes de que cambie la pantalla. */
+    const enCual = Math.min(hechos + 1, estado.total);
+    const rotulo = document.getElementById('hud-galeria-rotulo');
+    const texto = 'Pregunta ' + enCual + ' de ' + estado.total;
+    gal.setAttribute('aria-label', texto);
+    if (rotulo) rotulo.textContent = texto;
     /* La versión corta, para cuando no caben los bloques. La escribe el JS
        porque CSS no sabe sumar. */
     gal.setAttribute('data-texto', hechos + '/' + estado.total);
@@ -13163,6 +13171,10 @@ CB.ui.reloj.pintar = function (restaMs) {
   const seg = Math.ceil(restaMs / 1000);
   if (seg === r._ultimoSeg) return;
   r._ultimoSeg = seg;
+  /* Segundos a pelo, y el rotulo de debajo dice «Segundos». El formato
+     1:19 lo entiende un adulto, pero en 2.º de Primaria aun no se ha
+     dado esa notacion: el reloj se ve a la hora y a la media. Un numero
+     que baja no hay que descifrarlo. */
   if (r.cifra) r.cifra.textContent = String(seg);
 
   if (seg <= CB.ui.reloj.SEG_PRISA) {

@@ -7,9 +7,13 @@
   font-style: normal;
 }
 :root {
+  /* Los rótulos de pixel art siguen delante para quien tenga esas fuentes
+     instaladas, que es la identidad del juego; detrás va OpenDyslexic en vez
+     de una monoespaciada del sistema, así el que no las tenga ve el juego
+     entero en la misma tipografía y no una mezcla. */
   --fuente-pixel: 'Bloque Pixel', 'Silkscreen', 'Press Start 2P',
-                  ui-monospace, 'SF Mono', Menlo, Consolas, 'Courier New', monospace;
-  --fuente-lectura: Verdana, Geneva, 'DejaVu Sans', Tahoma, sans-serif;
+                  'OpenDyslexic', ui-monospace, 'SF Mono', Menlo, monospace;
+  --fuente-lectura: 'OpenDyslexic', Verdana, Geneva, 'DejaVu Sans', Tahoma, sans-serif;
   --u: 4px;
   --e1: calc(var(--u) * 1);
   --e2: calc(var(--u) * 2);
@@ -23,8 +27,13 @@
   --tam-titulo: 40px;
   --tam-adulto: 16px;
   --interlineado: 1.6;
-  --espaciado-letra: .05em;
-  --espaciado-palabra: .16em;
+  /* Estos dos venían calculados para Verdana, donde separar letras y palabras
+     es una ayuda de lectura conocida. OpenDyslexic ya trae esa separación de
+     serie, así que sumarle .05em y .16em no ayudaba: dejaba las palabras
+     flotando sueltas y costaba ver dónde acaba una y empieza la siguiente,
+     que es justo lo contrario de lo que se busca. */
+  --espaciado-letra: 0;
+  --espaciado-palabra: .06em;
   --ancho-lectura: 34ch;
   --lado-deseado: 64px;
   --lado-techo: 96px;
@@ -3006,6 +3015,12 @@ button:disabled {
     display: block;
     columns: 2;
     column-gap: var(--e3);
+
+    /* Los paneles son bloques en línea, así que el salto de línea que los
+       separa en el HTML cuenta como texto y abre un hueco entre ellos.
+       Anulando el interlineado aquí ese hueco mide cero; cada panel se lo
+       devuelve para su propio contenido. */
+    line-height: 0;
   }
   .contenido--doble .contenido__paneles > .panel-bloque {
     -webkit-column-break-inside: avoid;
@@ -3015,6 +3030,151 @@ button:disabled {
        una tira oscura con la sombra del panel y sin contenido dentro. */
     display: inline-block;
     vertical-align: top;
+    line-height: var(--interlineado);
     margin-bottom: var(--e3);
   }
+}
+
+/* ── Barra de estado de la partida ──────────────────────────────────────
+   Tenía cuatro indicadores y ninguna palabra: tres cuadrados azules,
+   veinte cuadraditos grises, un número suelto y otro cuadrado azul. Había
+   que adivinarlos. Ahora cada uno lleva su rótulo debajo, que es el patrón
+   que la barra de herramientas de abajo (Pista, Pausa, Sonido) ya usaba;
+   el mismo tamaño de 12px, para que sean la misma cosa y no dos. */
+.indicador {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.indicador__rotulo {
+  font-family: var(--fuente-lectura);
+
+  /* No 12px como los botones de abajo: el juego declara --tam-texto-min como
+     suelo del texto y quien juega tiene siete años. Atarlo a ese token hace
+     además que «Letra grande» agrande también los rótulos. */
+  font-size: calc(var(--tam-texto-min) * 0.8);
+  line-height: 1;
+
+  /* En mayúsculas por decisión del autor. Van con algo de espaciado porque
+     las versalitas pierden la forma de la palabra y separarlas un poco
+     devuelve algo de lo que se llevan; el espaciado general del juego
+     (.05em, pensado para minúsculas) aquí se queda corto. */
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  word-spacing: normal;
+  white-space: nowrap;
+  color: var(--texto-sec-claro);
+}
+
+/* El reloj y las gemas eran filas; ahora la fila es de su interior y la
+   caja de fuera es la columna que sostiene el rótulo. */
+.reloj__medida,
+.gemas__cuenta {
+  display: flex;
+  align-items: center;
+  gap: var(--e2);
+}
+
+/* Los bloques medían 10px sobre fondo casi negro: se leían como una
+   textura, no como una cuenta. El ancho da para diez por fila, así que
+   veinte bloques siguen ocupando dos filas y la barra no crece. */
+.galeria-avance {
+  width: 200px;
+  max-height: 35px;
+}
+
+.galeria-avance__bloque {
+  width: 16px;
+  height: 16px;
+}
+
+@media (min-width: 480px) {
+  .galeria-avance {
+    gap: 3px;
+  }
+}
+
+/* La gema era un cuadrado de cristal con el mismo bisel que una luz
+   encendida, y solo se distinguían por el tamaño: dos significados
+   distintos dibujados igual. Ahora es un rombo de oro. */
+.gemas__icono {
+  width: 24px;
+  height: 24px;
+  background: var(--deco-oro);
+  box-shadow: inset 5px 5px 0 0 var(--deco-oro-cla), inset -5px -5px 0 0 var(--deco-oro-osc);
+  transform: rotate(45deg);
+}
+
+
+/* Los cuatro indicadores miden distinto de alto, así que centrarlos dejaba
+   los cuatro rótulos a cuatro alturas. Alineados abajo, los rótulos caen
+   todos en la misma línea y la barra deja de verse descuadrada. */
+.hud {
+  align-items: flex-end;
+}
+
+/* Los botones, en mayúsculas. Cubre a los dos únicos bloques de botón que
+   tiene el juego: .btn-bloque (todos los del niño, incluidas las teclas y las
+   opciones de respuesta) y .btn-adulto (los del panel de familia). El rótulo
+   de los botones rotulados —Pista, Pausa, Sonido— hereda de su botón, así que
+   no hace falta nombrarlo.
+
+   Con el mismo espaciado de letra extra que los rótulos de la barra de estado:
+   el .05em general está pensado para minúsculas y en versalitas se ve
+   apretado. A los números y a los emojis no les afecta ninguna de las dos
+   cosas. */
+.btn-bloque,
+.btn-adulto {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── OpenDyslexic ───────────────────────────────────────────────────────
+   La tipografía del juego. Va empaquetada, no se busca en el sistema: la
+   app se abre con file:// en el Mac de quien juega y ahí no hay ninguna
+   garantía de que esté instalada.
+
+   `font-display: block` y no `swap`: con swap el juego se pinta un instante
+   con la fuente de reserva y salta al cargar la buena, y el salto es de los
+   que marean. Estos ficheros son locales, así que el bloqueo dura lo que
+   tarda el disco.
+
+   Licencia CC BY 3.0, Abelardo Gonzalez. Exige atribución: está en la
+   pantalla de Créditos y en fonts/LICENCIA-OpenDyslexic.txt. */
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-Italic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: block;
+}
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("../fonts/OpenDyslexic-BoldItalic.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: block;
+}
+
+/* El rótulo de la veta —«La Pradera de los Números ▸ Sumas hasta 10»— también
+   en mayúsculas, para que la franja oscura de arriba hable toda igual. */
+.rotulo-veta {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }

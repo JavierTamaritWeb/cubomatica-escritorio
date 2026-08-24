@@ -3,15 +3,15 @@
   <h1>Cubomática</h1>
   <p><b>El juego de matemáticas de Educación Primaria,<br>como aplicación de escritorio para macOS.</b></p>
   <p>
-    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.2.0-2B7BB9" alt="Versión 4.2.0"></a>
+    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.3.0-2B7BB9" alt="Versión 4.3.0"></a>
     <a href=".python-version"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
     <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
     <a href="#requisitos"><img src="https://img.shields.io/badge/plataforma-macOS%2011%2B-555555?logo=apple" alt="macOS 11 o superior"></a>
-    <a href="#tests"><img src="https://img.shields.io/badge/tests-39%20passing-2EA043" alt="39 tests"></a>
+    <a href="#tests"><img src="https://img.shields.io/badge/tests-54%20passing-2EA043" alt="54 tests"></a>
   </p>
   <br>
-  <img src="docs/portada.png" width="840" alt="Portada de Cubomática ejecutándose como app de escritorio">
+  <img src="docs/partida.png" width="840" alt="Una partida de Cubomática a pantalla completa, con la barra de estado rotulada">
 </div>
 
 ---
@@ -47,6 +47,9 @@ y **no abre ningún puerto** en el equipo.
 > minificar viajan igualmente y son los que se leen para entender el código, así que **un cambio
 > va en los dos ficheros**: el `.min` es el que corre, el otro es el que se lee. Aquí no hay
 > minificador que los mantenga a la par.
+>
+> `index.html` es la excepción: no tiene gemelo, porque es el fichero que se carga. Se mantiene
+> formateado con `herramientas/formatear-html.py`, y un test avisa si vuelve a una sola línea.
 
 ---
 
@@ -113,6 +116,7 @@ uv run cubomatica
 | Revisar el estilo | `uv run ruff check .` |
 | Construir la app | `./build-mac.sh` |
 | Regenerar el icono | `./make-icon.sh` |
+| Dejar `index.html` legible | `python3 herramientas/formatear-html.py src/cubomatica/web/index.html` |
 | Añadir una librería | `uv add <librería>` |
 | Añadir una de desarrollo | `uv add --dev <librería>` |
 | Ver las instaladas | `uv pip list` |
@@ -123,7 +127,7 @@ uv run cubomatica
 ## Tests
 
 ```bash
-uv run pytest                                              # los 39
+uv run pytest                                              # los 54
 uv run pytest --cov=cubomatica --cov-report=term-missing   # con cobertura
 ```
 
@@ -138,6 +142,8 @@ revierte, rompe la app **en silencio**.
 | Todas las rutas del HTML son relativas | Que el `.app` abra una ventana en blanco |
 | `main.py` carga con `file://` | El `404 Not Found` por choque de puertos |
 | `main.py` usa `private_mode=False` | Perder los perfiles y el progreso al cerrar |
+| `index.html` sigue formateado | Que vuelva a una sola línea y deje de poder revisarse |
+| La fuente viaja dentro del paquete | Que el juego se caiga a Verdana sin avisar |
 | La pantalla completa se comprueba, no se pide | Que arranque en ventana una vez de cada tres |
 | `pyproject.toml` y el `.spec` declaran la misma versión | Que la app diga una versión y el paquete otra |
 | Todas las librerías están fijadas con `==` | Que una actualización silenciosa rompa la app |
@@ -153,7 +159,7 @@ revierte, rompe la app **en silencio**.
 El script limpia, sincroniza dependencias, compila con PyInstaller y **firma la app en local**.
 Esa firma *ad hoc* no es opcional en Apple Silicon: sin ella macOS cierra la app al abrirla.
 
-El resultado pesa unos 68 MB, de los cuales unos 42 MB son las nueve pistas de música.
+El resultado pesa unos 69 MB, de los cuales unos 42 MB son las nueve pistas de música.
 
 📄 El paso a paso completo, el icono y los problemas típicos están en **[EMPAQUETAR-MAC.md](EMPAQUETAR-MAC.md)**.
 
@@ -169,6 +175,8 @@ cubomatica/
 ├── Cubomatica.spec          # configuración del .app
 ├── build-mac.sh             # construye dist/Cubomatica.app
 ├── make-icon.sh             # regenera assets/icon.icns desde el SVG
+├── herramientas/
+│   └── formatear-html.py    # deja index.html legible sin cambiar lo que se pinta
 ├── assets/
 │   ├── icon.svg             # el dibujo del icono (el mismo que el favicon)
 │   └── icon.icns            # icono del .app
@@ -185,6 +193,7 @@ cubomatica/
         └── web/             # EL JUEGO
             ├── index.html
             ├── css/  js/    # ojo: solo cargan los .min (ver más arriba)
+            ├── fonts/       # OpenDyslexic + su licencia
             ├── img/
             └── audio/       # música, ~42 MB
 ```
@@ -193,8 +202,8 @@ cubomatica/
 
 ## Decisiones técnicas
 
-Cuatro decisiones sostienen la app. Ninguna es cosmética: revertir cualquiera de ellas la
-rompe, y en tres casos **sin dar ningún error**.
+Cinco decisiones sostienen la app. Ninguna es cosmética: revertir cualquiera de ellas la
+rompe, y en cuatro casos **sin dar ningún error**.
 
 ### La ventana arranca a pantalla completa
 
@@ -236,6 +245,26 @@ no persistente y se pierde todo.
 
 Como consecuencia, el `.app` (`es.javiertamarit.cubomatica`) y el modo desarrollo
 (`org.python.python`) **no comparten progreso**. Es lo deseable: probar no ensucia la partida real.
+
+### La tipografía viaja dentro del paquete
+
+El juego se lee en **OpenDyslexic**, pensada para que las letras que se parecen no se confundan.
+Las cuatro variantes (redonda, negrita, cursiva y negrita cursiva) van en `web/fonts/`, 256 KB en
+total, declaradas con rutas relativas: la app se abre en el Mac de otra persona, donde la fuente
+puede no estar instalada, y una ruta absoluta funcionaría sobre HTTP pero bajo `file://` no
+cargaría nada.
+
+Si faltase un `.otf` no saltaría ningún error: WebKit se cae a Verdana y el juego sigue
+funcionando, solo que sin la tipografía. Por eso lo comprueban los tests.
+
+> [!IMPORTANT]
+> OpenDyslexic es **CC BY 3.0**: se puede empaquetar y distribuir, pero **obliga a dar crédito**.
+> La atribución está en la pantalla de Créditos y el texto de la licencia viaja en
+> `web/fonts/LICENCIA-OpenDyslexic.txt`. Un test protege el crédito.
+
+El cambio trajo un ajuste que no es evidente: el juego separaba las letras `.05em` y las palabras
+`.16em`, bien pensado para Verdana, donde separar ayuda a leer. OpenDyslexic ya trae esa
+separación de fábrica y, sumadas, dejaban las palabras flotando sueltas. Están en `0` y `.06em`.
 
 ### El menú «Juego» está construido a mano
 
@@ -315,7 +344,7 @@ Los métodos que empiezan por `_` no se exponen, y hay un test que lo protege.
 
 | | |
 |---|---|
-| **Versión de la app** | **4.2.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
+| **Versión de la app** | **4.3.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
 | **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.4.7) |
 | **Identificador** | `es.javiertamarit.cubomatica` |
 

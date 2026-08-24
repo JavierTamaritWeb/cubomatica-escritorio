@@ -13,7 +13,7 @@ from pathlib import Path
 
 APP_NAME = "Cubomatica"
 BUNDLE_ID = "es.javiertamarit.cubomatica"
-VERSION = "4.2.0"
+VERSION = "4.3.0"
 
 ROOT = Path(SPECPATH)
 WEB_DIR = ROOT / "src" / "cubomatica" / "web"

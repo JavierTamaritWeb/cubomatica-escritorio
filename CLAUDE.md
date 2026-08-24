@@ -40,6 +40,20 @@ Three traps come with that, and each will waste an afternoon:
    regenerate a `.min` file from its twin. Minified CSS is one line: use a targeted replacement, not
    a rewrite.
 
+`index.html` is the exception: it has no twin, because it is the file the app loads. It was
+minified — one 21 KB line — and is now kept formatted, by `herramientas/formatear-html.py`.
+`tests/test_web.py::TestHtmlLegible` fails if it goes back to one line.
+
+**Reformatting HTML is not cosmetic: whitespace renders.** A newline plus indentation between two
+inline-level elements is a real space, and where there was none it opens a gap that was not there.
+So the tool never touches the inside of a text element (`p`, `h1`, `li`, `button`…), never splits
+mixed content, and splits only containers whose children are all elements. It also prints every
+place where it puts a break between two inline-level siblings that were glued together — check the
+CSS for those boxes before believing the result. In a flex or grid container a whitespace-only node
+is not an item and is ignored; in a normal block it is a space you will see. That check is why
+`.contenido--doble .contenido__paneles` carries `line-height: 0` with the panels restoring it: the
+panels are `inline-block`, so the newline between them would otherwise add a blank line.
+
 `cubomatica.js` is a concatenation of 56 modules whose boundary comments (`/* 00-nucleo.js`,
 `/* 07-musica.js` …) survive in the bundle — see the next section for the map. The CSS is BEM in
 Spanish, and the game's accessibility rules are legal requirements rather than preferences: root
@@ -47,9 +61,20 @@ classes `letra-grande`, `alto-contraste` and `sin-movimiento` must keep working,
 centres content while also scrolling needs the `safe` keyword (`justify-content: safe center`), or
 whatever overflows above becomes unreachable — `scrollTop` cannot go negative.
 
-`src/cubomatica/web/` carries no licence text (`LICENSE`, `AVISO-LEGAL.txt`,
-`LICENCIAS-TERCEROS.md` were never copied), so the shipped `.app` carries none either. Worth fixing
-before distributing it. There is no `sw.js` either, which is why the game's service-worker
+**The game is set in OpenDyslexic, and the font ships inside the bundle** (`web/fonts/`, 256 KB,
+four faces declared with relative `url("../fonts/…")`). Nothing looks it up in the system: the app
+runs from `file://` on a stranger's Mac. It is **CC BY 3.0**, which obliges attribution — the credit
+is on the Créditos screen and `fonts/LICENCIA-OpenDyslexic.txt` travels beside the files.
+`tests/test_web.py::TestTipografia` guards all of that, because a missing `.otf` raises nothing at
+all: WebKit silently falls back to Verdana and the game still runs.
+
+Two spacing tokens were retuned with it. `--espaciado-letra` went to `0` and `--espaciado-palabra`
+to `.06em`: the old `.05em`/`.16em` were right for Verdana, where extra tracking aids reading, but
+OpenDyslexic already builds that in and the two stacked left words floating apart.
+
+`src/cubomatica/web/` still carries no licence text for the game itself (`LICENSE`,
+`AVISO-LEGAL.txt`, `LICENCIAS-TERCEROS.md` were never copied), so the shipped `.app` covers the
+font but not the game. Worth fixing before distributing it. There is no `sw.js` either, which is why the game's service-worker
 registration silently no-ops — harmless, since a service worker cannot run under `file://` anyway.
 
 ## Orienting inside the bundle
@@ -111,16 +136,32 @@ Flow columns are right for a screen that fits in about one scroll. They are wron
 Ayuda has 18 panels, and newspaper columns would mean reading to the bottom and scrolling all the
 way back up. It stays in a single column on purpose.
 
+**The players are seven years old, and that decides wording as much as layout.** The in-game HUD
+labels (`.indicador__rotulo`) say what a thing is *for*, never what the fiction calls it: the
+helmet lights are labelled **Vidas**, not «Luces», because «Luces» only makes sense once you have
+read the Ayuda screen. For the same reason the clock counts plain seconds rather than `1:19`, and
+the progress reads «Pregunta 3 de 20» rather than «3/20» — minutes:seconds and fractions are both
+notations that 2.º de Primaria has not been taught. Label size is
+`calc(var(--tam-texto-min) * .8)` rather than a fixed px so the stored «Letra grande» preference
+scales it too. Apply the same test to any text you add.
+
+The labels are set in caps at the owner's request. All-caps costs a new reader the word shape, so
+size is doing the legibility work instead, and they carry `letter-spacing: .06em` — the game's
+global `.05em` is tuned for lower case and reads tight in caps. Keep both if you touch the rule.
+
 ## Commands
 
 ```bash
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (39 tests, fast)
+uv run pytest                        # full suite (54 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg
+
+# keep index.html readable (--comprobar only reports, writes nothing)
+python3 herramientas/formatear-html.py src/cubomatica/web/index.html
 ```
 
 Run one test or one class:
@@ -197,7 +238,7 @@ printing or exporting progress. `tests/test_api.py` locks the public/private con
 Cocoa/WebKit modules PyInstaller cannot detect, and excludes the Windows/GTK/Qt webview backends. It
 picks up `assets/icon.icns` automatically when present.
 
-The `.app` is ~68 MB, of which ~42 MB is the nine music tracks in `web/audio/` (Pixabay Content
+The `.app` is ~69 MB, of which ~42 MB is the nine music tracks in `web/audio/` (Pixabay Content
 License, credited in `web/audio/CREDITOS.txt`). All nine tracks and all twelve `web/img/*.webp`
 coin/banknote images are referenced by the game — none are dead files.
 

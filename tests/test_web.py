@@ -117,6 +117,89 @@ class TestUrlDeCarga:
         )
 
 
+class TestHtmlLegible:
+    """
+    index.html se mantiene formateado.
+
+    Es el unico fichero del bundle sin gemelo sin minificar: si vuelve a una
+    sola linea, deja de poder revisarse y nadie se entera hasta que hay que
+    tocarlo. El formateo es idempotente, asi que basta con comprobar que
+    volver a formatearlo no cambia nada.
+    """
+
+    def _formateador(self):
+        import importlib.util
+
+        ruta = ROOT / "herramientas" / "formatear-html.py"
+        spec = importlib.util.spec_from_file_location("formatear_html", ruta)
+        modulo = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(modulo)
+        return modulo
+
+    def test_no_esta_minificado(self, web_dir):
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        assert html.count("\n") > 100, "index.html ha vuelto a quedar en una sola linea"
+
+    def test_esta_formateado(self, web_dir):
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        assert self._formateador().formatear(html) == html, (
+            "index.html no esta formateado: pasa "
+            "python3 herramientas/formatear-html.py src/cubomatica/web/index.html"
+        )
+
+    def test_formatear_no_cambia_el_documento(self, web_dir):
+        modulo = self._formateador()
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        assert modulo.huella(modulo.formatear(html)) == modulo.huella(html)
+
+
+class TestTipografia:
+    """
+    El juego se lee con OpenDyslexic y la fuente viaja DENTRO del bundle.
+
+    Si falta un .otf no salta ningun error: el navegador se cae a Verdana y el
+    juego sigue funcionando, solo que sin la tipografia que es media razon de
+    ser de esta app. Por eso se comprueba aqui.
+
+    La licencia (CC BY 3.0) obliga a atribuir, asi que el credito en pantalla
+    tampoco puede desaparecer sin que nadie se entere.
+    """
+
+    CARAS = [
+        "OpenDyslexic-Regular.otf",
+        "OpenDyslexic-Bold.otf",
+        "OpenDyslexic-Italic.otf",
+        "OpenDyslexic-BoldItalic.otf",
+    ]
+
+    def _css(self, web_dir) -> str:
+        return (web_dir / "css" / "cubomatica.min.css").read_text(encoding="utf-8")
+
+    @pytest.mark.parametrize("cara", CARAS)
+    def test_la_fuente_viaja_en_el_paquete(self, web_dir, cara):
+        assert (web_dir / "fonts" / cara).is_file(), f"Falta fonts/{cara}"
+
+    @pytest.mark.parametrize("cara", CARAS)
+    def test_el_css_la_declara(self, web_dir, cara):
+        assert f"../fonts/{cara}" in self._css(web_dir), f"El CSS no declara {cara}"
+
+    def test_es_la_fuente_de_lectura(self, web_dir):
+        assert '--fuente-lectura:"OpenDyslexic"' in self._css(web_dir)
+
+    def test_la_ruta_de_la_fuente_es_relativa(self, web_dir):
+        # Una ruta absoluta funciona sobre HTTP y bajo file:// no carga nada.
+        css = self._css(web_dir)
+        assert 'url("/fonts' not in css and "url('/fonts" not in css
+        assert "url(http" not in css, "la fuente no puede venir de la red: la app es offline"
+
+    def test_la_licencia_viaja_al_lado(self, web_dir):
+        assert (web_dir / "fonts" / "LICENCIA-OpenDyslexic.txt").is_file()
+
+    def test_los_creditos_atribuyen(self, web_dir):
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        assert "OpenDyslexic" in html, "CC BY 3.0 exige el credito en pantalla"
+
+
 class TestPantallaCompleta:
     """
     La app abre a pantalla completa, como al pulsar el boton verde.

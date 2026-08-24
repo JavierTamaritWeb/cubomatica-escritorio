@@ -1,0 +1,28 @@
+OpenDyslexic — versión 2.020
+============================
+
+Tipografía usada por Cubomática para todo el texto del juego.
+
+Autoría
+-------
+Abelardo Gonzalez — https://opendyslexic.org
+
+Licencia
+--------
+Las formas originales son © Bitstream. Los cambios de OpenDyslexic y los
+glifos añadidos por Abelardo Gonzalez están licenciados bajo una licencia
+Creative Commons Attribution 3.0 Unported (CC BY 3.0).
+
+Obra derivada de un trabajo en http://dyslexicfonts.com
+© 2012 Abelardo Gonzalez.
+
+La licencia de Bitstream está disponible en http://opendyslexic.org/legal/
+
+Qué obliga
+----------
+CC BY 3.0 permite usar, copiar, modificar y redistribuir la tipografía,
+también con fines comerciales, A CONDICIÓN de dar crédito a su autoría. Por
+eso Cubomática la acredita en su pantalla de Créditos y conserva este
+archivo junto a los ficheros .otf.
+
+Los ficheros no se han modificado.
