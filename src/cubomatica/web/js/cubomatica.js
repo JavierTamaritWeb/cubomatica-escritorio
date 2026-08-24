@@ -1525,7 +1525,7 @@ CB.bus = new CB.util.EventoSimple();
 
 /* CB.LEGAL */
 /* Versión */
-CB.VERSION = '3.9.0';
+CB.VERSION = '3.9.1';
 
 CB.LEGAL = {
   /* El texto completo viaja en web/LICENCIA.txt. Aquí va solo la línea que
@@ -15663,6 +15663,12 @@ CB.partida.microDescanso = function () {
     })();
   }
 
+  /* Este es el de la pantalla de descanso. La portada tiene el suyo
+     -«Seguir cavando en el Bosque»-, y hasta 4.10.1 los DOS se llamaban
+     `btn-seguir`: getElementById devuelve el primero del documento, o sea el
+     de la portada, que está `hidden`. Resultado: el botón que se ve no hacía
+     nada, y el de la portada se quedaba además con este onclick pegado, así
+     que al pulsarlo arrancaba la expedición Y servía un ítem de más. */
   const seguir = document.getElementById('btn-seguir');
   if (seguir) {
     seguir.onclick = function () {
@@ -18451,7 +18457,7 @@ CB.arranque = function () {
     });
   }
 
-  const seguir = document.getElementById('btn-seguir');
+  const seguir = document.getElementById('btn-seguir-expedicion');
   if (seguir) {
     seguir.addEventListener('click', function () {
       CB.audio.iniciar();
@@ -18590,7 +18596,7 @@ CB.pantallas.alEntrar['p-portada'] = function () {
   if (p) p.textContent = CB.arranque.pistaJugar(CB.perfil);
   /* Para quien vuelve: «Seguir cavando en el Bosque» encima de JUGAR, en vez
      de JUGAR → mapa → tarjeta → cavar para lo que hacía ayer. */
-  const seguir = document.getElementById('btn-seguir');
+  const seguir = document.getElementById('btn-seguir-expedicion');
   if (seguir) {
     const m = CB.arranque.mundoReciente(CB.perfil);
     seguir.hidden = !m;

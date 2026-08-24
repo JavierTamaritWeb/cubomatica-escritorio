@@ -170,6 +170,43 @@ class TestHtmlLegible:
         assert modulo.huella(modulo.formatear(html)) == modulo.huella(html)
 
 
+class TestIdsUnicos:
+    """
+    Dos elementos con el mismo `id` no dan ningun error: `getElementById`
+    devuelve el PRIMERO del documento y el segundo se queda mudo para siempre.
+
+    Paso de verdad en 4.10.0. La portada estrenaba un boton «Seguir cavando en
+    el Bosque» y lo llamo `btn-seguir`, que era el nombre del boton de la
+    pantalla de descanso desde el principio. El de descanso -el unico que se
+    veia- dejo de responder, y encima el de la portada se quedaba con su
+    `onclick` pegado: al pulsarlo arrancaba la expedicion y ademas servia un
+    item de mas.
+    """
+
+    def _ids(self, web_dir):
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        return re.findall(r'\sid="([^"]+)"', html)
+
+    def test_ningun_id_se_repite(self, web_dir):
+        repes = sorted(
+            {i for i in self._ids(web_dir) if self._ids(web_dir).count(i) > 1}
+        )
+        assert not repes, "ids repetidos en index.html: " + ", ".join(repes)
+
+    def test_los_dos_seguir_cavando_se_llaman_distinto(self, web_dir):
+        """
+        Son dos botones con el mismo rotulo y distinto trabajo: el de la
+        portada retoma la expedicion de ayer, el del descanso vuelve al item.
+        """
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        js = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+        assert 'id="btn-seguir-expedicion"' in html
+        assert 'id="btn-seguir"' in html
+        # cada uno se busca por su nombre, y el del descanso desde la partida
+        assert js.count("getElementById('btn-seguir-expedicion')") == 2
+        assert js.count("getElementById('btn-seguir')") == 1
+
+
 class TestIconografia:
     """Los iconos son sprites de 03-sprites, no emojis.
 

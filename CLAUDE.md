@@ -8,9 +8,9 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.10.0**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.10.1**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
-apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.9.0); it tracks the
+apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.9.1); it tracks the
 game's content, moves on its own schedule, and nothing on the Python side reads it.
 
 The Python here is deliberately thin (two short modules); nearly everything else is the game bundle.
@@ -128,6 +128,14 @@ resolving in relative mode. Both portada corners are excluded from that rule and
 `z-index`; `TestEleccionDeCurso` fails if the exclusions go. Anything else absolutely positioned
 directly under `.pantalla` needs the same treatment.
 
+**Two elements must never share an `id`, and nothing warns you when they do.**
+`getElementById` returns the first in document order and the second is mute for good. It happened
+in 4.10.0: the portada's new «Seguir cavando en el Bosque» took `btn-seguir`, which the descanso
+screen's button had carried from the start. The visible one stopped responding, and the portada's
+kept the descanso's `onclick` bolted on, so pressing it started the expedition *and* served an extra
+item. They are now `btn-seguir-expedicion` (portada) and `btn-seguir` (descanso), and
+`TestIdsUnicos` fails on any repeat anywhere in `index.html`.
+
 **Undoing is a first-class action, and it is gated by a mode, not by an X.** «¿Quién juega?»
 carries `#btn-quitar-minero`: it flips `CB.perfiles.modoQuitar`, hides «Nuevo minero», paints the
 cards in brasa and swaps each JUGAR for QUITAR; the card itself then asks, with the miner's face
@@ -232,7 +240,7 @@ global `.05em` is tuned for lower case and reads tight in caps. Keep both if you
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (79 tests, fast)
+uv run pytest                        # full suite (81 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg

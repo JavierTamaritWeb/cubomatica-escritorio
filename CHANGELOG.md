@@ -9,6 +9,39 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.10.1] — 2026-08-24
+
+«Seguir cavando» del descanso vuelve a funcionar. Juego 3.9.1.
+
+### Corregido
+
+- **El botón «Seguir cavando» de la pantalla de descanso no hacía nada.**
+  Dos elementos compartían el `id` `btn-seguir`: el del descanso, que lo tenía
+  desde siempre, y el que estrenó la portada («Seguir cavando en el Bosque»).
+  `getElementById` devuelve el **primero del documento** —el de la portada, que
+  está `hidden`— así que el único botón visible se quedó sin manejador. No
+  daba ningún error: ni en consola, ni en los tests.
+- El mismo choque tenía una segunda consecuencia, más callada: el botón de la
+  portada se quedaba con el `onclick` del descanso pegado encima del suyo, de
+  modo que al pulsarlo arrancaba la expedición **y además** servía un ítem de
+  más.
+- Ahora son `btn-seguir-expedicion` (portada) y `btn-seguir` (descanso).
+
+### Añadido
+
+- `TestIdsUnicos`: falla si **cualquier** `id` se repite en `index.html`, no
+  solo estos dos. Es la clase entera de fallo la que hay que cerrar (79 → 81).
+
+### Notas
+
+- Se revisaron los demás botones, uno a uno y con la app abierta: los 108 `id`
+  son únicos, ningún `data-ir` apunta a una pantalla que no existe, ningún
+  `getElementById` del JS busca un `id` que el HTML no tenga, y las cuatro
+  acciones delegadas (`pista`, `pausa`, `sonido`, `salir-partida`) tienen quien
+  las atienda. No apareció ningún otro botón mudo.
+
+---
+
 ## [4.10.0] — 2026-08-24
 
 La partida dice en qué curso se está. Juego 3.9.0.
