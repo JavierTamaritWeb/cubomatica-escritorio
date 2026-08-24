@@ -3656,6 +3656,33 @@ button:disabled {
   width: 100%;
 }
 
+/* Una columna, pero ANCHA. La Ayuda tiene 18 paneles y las columnas de
+   periódico obligarían a leer hasta abajo y volver a subir —por eso se quedan
+   para Créditos, que cabe en un scroll—, pero eso no obliga a leerla en una
+   tira de 640px con media pantalla vacía al lado. El contenedor declara y el
+   bloque consume, como siempre: aquí el panel llena el ancho y la línea sube
+   de 34 a 52 caracteres, que sigue siendo medida cómoda para quien tiene siete
+   años. Lo que sobra a los lados es margen, no desperdicio: una línea de 100
+   caracteres se lee peor. */
+@media (min-width: 1200px) {
+  .contenido--ancho {
+    --ancho-contenido: 1040px;
+    --ancho-panel: 100%;
+    --ancho-lectura: 52ch;
+  }
+}
+
+/* Un escalón más para el iMac y cualquier pantalla de 1920: a pantalla
+   completa, 1040 seguía dejando 440 px muertos a cada lado. 60 caracteres es
+   el techo; de ahí para arriba el ojo pierde el principio del renglón
+   siguiente, y eso a los siete años se paga caro. */
+@media (min-width: 1600px) {
+  .contenido--ancho {
+    --ancho-contenido: 1240px;
+    --ancho-lectura: 60ch;
+  }
+}
+
 @media (min-width: 1200px) {
   /* En escritorio la ventana es apaisada y ancha, y una columna de 720px deja
      media pantalla vacía. La pantalla que lo quiera lo declara con

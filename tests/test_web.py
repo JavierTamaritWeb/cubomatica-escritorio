@@ -196,6 +196,55 @@ class TestIconografia:
         assert ".icono-px" in css
 
 
+class TestAnchoDeLectura:
+    """Una columna, pero ancha.
+
+    Ayuda son 18 paneles y las columnas de periodico obligarian a leer hasta
+    abajo y volver a subir, asi que se queda en una columna. Eso no obliga a
+    leerla en una tira de 640 px con media pantalla vacia al lado.
+    """
+
+    PANTALLAS_ANCHAS = ["p-perfiles", "p-cantera", "p-casa", "p-ayuda"]
+
+    def test_el_modificador_declara_los_tres_anchos(self, web_dir):
+        css = (web_dir / "css" / "cubomatica.css").read_text(encoding="utf-8")
+        assert ".contenido--ancho" in css
+        assert "--ancho-contenido: 1040px" in css
+        assert "--ancho-lectura: 52ch" in css
+        # y el escalon de las pantallas de 1920
+        assert "--ancho-contenido: 1240px" in css
+        assert "--ancho-lectura: 60ch" in css
+
+    def test_la_linea_no_pasa_de_60_caracteres(self, web_dir):
+        """
+        60 es el techo: mas alla el ojo pierde el principio del renglon
+        siguiente, y quien lee tiene siete anos.
+        """
+        css = (web_dir / "css" / "cubomatica.css").read_text(encoding="utf-8")
+        anchos = [int(n) for n in re.findall(r"--ancho-lectura:\s*(\d+)ch", css)]
+        assert anchos, "ha desaparecido --ancho-lectura"
+        assert max(anchos) <= 60, f"linea demasiado larga: {max(anchos)}ch"
+
+    def test_lo_consumen_las_pantallas_que_lo_ganan(self, web_dir):
+        """
+        Ajustes y el Diccionario se probaron y se revirtieron: una etiqueta con
+        sus bloques, o un termino con su definicion de una linea, solo ganan
+        hueco vacio.
+        """
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        secciones = re.findall(
+            r'<section id="(p-[a-z-]+)".*?</section>', html, re.S
+        )
+        assert secciones, "no se han encontrado las pantallas"
+        cuerpos = dict(
+            zip(secciones, re.findall(r'<section id="p-[a-z-]+".*?</section>', html, re.S))
+        )
+        for pid in self.PANTALLAS_ANCHAS:
+            assert "contenido--ancho" in cuerpos[pid], f"{pid} ha perdido el ancho"
+        for pid in ("p-ajustes", "p-glosario"):
+            assert "contenido--ancho" not in cuerpos[pid], f"{pid} no lo quiere"
+
+
 class TestEleccionDeCurso:
     """El curso manda en todo el contenido y se declara una sola vez.
 

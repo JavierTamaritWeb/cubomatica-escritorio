@@ -3,12 +3,12 @@
   <h1>Cubomática</h1>
   <p><b>El juego de matemáticas de Educación Primaria,<br>como aplicación de escritorio para macOS.</b></p>
   <p>
-    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.8.0-2B7BB9" alt="Versión 4.8.0"></a>
+    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.8.1-2B7BB9" alt="Versión 4.8.1"></a>
     <a href=".python-version"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
     <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
     <a href="#requisitos"><img src="https://img.shields.io/badge/plataforma-macOS%2011%2B-555555?logo=apple" alt="macOS 11 o superior"></a>
-    <a href="#tests"><img src="https://img.shields.io/badge/tests-59%20passing-2EA043" alt="59 tests"></a>
+    <a href="#tests"><img src="https://img.shields.io/badge/tests-62%20passing-2EA043" alt="62 tests"></a>
   </p>
   <br>
   <img src="docs/partida.png" width="840" alt="Una partida de Cubomática: el bloque acertado hundido y en verde, los demás apagados a piedra, y el mensaje junto a las opciones">
@@ -128,7 +128,7 @@ uv run cubomatica
 ## Tests
 
 ```bash
-uv run pytest                                              # los 59
+uv run pytest                                              # los 62
 uv run pytest --cov=cubomatica --cov-report=term-missing   # con cobertura
 ```
 
@@ -156,6 +156,7 @@ revierte, rompe la app **en silencio**.
 | La portada dice quién juega y en qué curso | Que colarse de curso al crear el perfil siga siendo invisible |
 | Las esquinas de la portada conservan su `absolute` | Que la llave del panel adulto vuelva a la esquina contraria |
 | La ficha del minero pinta su sprite | Volver al cuadrado de color con `CB.sprites.avatar` sin llamar |
+| Ayuda, Mis vetas, el álbum y los perfiles se ensanchan | Leer una tira de 640 px con media pantalla vacía al lado |
 
 ---
 
@@ -380,8 +381,8 @@ Los métodos que empiezan por `_` no se exponen, y `tests/test_api.py` protege e
 
 | | |
 |---|---|
-| **Versión de la app** | **4.8.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
-| **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.7.0) |
+| **Versión de la app** | **4.8.1**, declarada en `pyproject.toml` y `Cubomatica.spec` |
+| **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.7.1) |
 | **Identificador** | `es.javiertamarit.cubomatica` |
 
 Son dos números distintos a propósito: esta app empaqueta el juego, pero el juego se versiona en

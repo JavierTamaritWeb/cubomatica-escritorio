@@ -8,9 +8,9 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.8.0**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.8.1**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
-apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.7.0); it tracks the
+apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.7.1); it tracks the
 game's content, moves on its own schedule, and nothing on the Python side reads it.
 
 The Python here is deliberately thin (two short modules); nearly everything else is the game bundle.
@@ -180,7 +180,12 @@ and the exit button fragments the multicol and scrambles the panel order.
 
 Flow columns are right for a screen that fits in about one scroll. They are wrong for a long one:
 Ayuda has 18 panels, and newspaper columns would mean reading to the bottom and scrolling all the
-way back up. It stays in a single column on purpose.
+way back up. It stays in a single column on purpose — but a **wide** one. `.contenido--ancho`
+(3.7.1) declares `--ancho-contenido: 1040px / --ancho-panel: 100% / --ancho-lectura: 52ch` at
+1200px and 1240px / 60ch at 1600px, and Ayuda, Mis vetas, Mi álbum and «¿Quién juega?» consume it.
+60 characters is the ceiling: past that the eye loses the start of the next line, which costs a
+seven-year-old more than it costs you. Ajustes and the Diccionario were tried and reverted — a
+label with its blocks, or a term with its one-line definition, only gains empty space.
 
 **The players are seven years old, and that decides wording as much as layout.** The in-game HUD
 labels (`.indicador__rotulo`) say what a thing is *for*, never what the fiction calls it: the
@@ -208,7 +213,7 @@ global `.05em` is tuned for lower case and reads tight in caps. Keep both if you
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (59 tests, fast)
+uv run pytest                        # full suite (62 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg

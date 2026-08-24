@@ -9,6 +9,30 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.8.1] — 2026-08-24
+
+Una columna, pero ancha. Juego 3.7.1.
+
+### Cambiado
+
+- **Ayuda, Mis vetas, Mi álbum y «¿Quién juega?» dejan de leerse en una tira de
+  640 px con media pantalla vacía al lado.** El modificador `contenido--ancho`
+  declara `--ancho-contenido: 1040px`, `--ancho-panel: 100%` y
+  `--ancho-lectura: 52ch` a partir de 1200 px, y 1240 px / 60ch a partir de
+  1600 —que es la pantalla del iMac, donde 1040 seguía dejando 440 px muertos a
+  cada lado—. El contenedor declara y el bloque consume, como el resto del CSS.
+- Sigue **sin** columnas de periódico: Ayuda tiene 18 paneles y leerlas
+  obligaría a bajar del todo y volver a subir. Eso vale para Créditos, que cabe
+  en un scroll, y no para una pantalla larga.
+- 60 caracteres es el techo de línea, no un número redondo: más allá el ojo
+  pierde el principio del renglón siguiente, y eso a los siete años se paga.
+  Un test lo comprueba.
+- Ajustes y el Diccionario se probaron ensanchados y **se revirtieron**: una
+  etiqueta con sus bloques, o un término con su definición de una línea, solo
+  ganan hueco vacío, y el control acababa a media pantalla de su rótulo.
+
+---
+
 ## [4.8.0] — 2026-08-24
 
 Elegir curso dejaba de ser una decisión y pasaba a ser un descuido: la pregunta

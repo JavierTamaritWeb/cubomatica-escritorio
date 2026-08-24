@@ -1525,7 +1525,7 @@ CB.bus = new CB.util.EventoSimple();
 
 /* CB.LEGAL */
 /* Versión */
-CB.VERSION = '3.7.0';
+CB.VERSION = '3.7.1';
 
 CB.LEGAL = {
   /* El texto completo viaja en web/LICENCIA.txt. Aquí va solo la línea que
