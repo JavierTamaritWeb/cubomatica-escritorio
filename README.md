@@ -3,7 +3,7 @@
   <h1>Cubomática</h1>
   <p><b>El juego de matemáticas de Educación Primaria,<br>como aplicación de escritorio para macOS.</b></p>
   <p>
-    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.0.0-2B7BB9" alt="Versión 4.0.0"></a>
+    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.1.0-2B7BB9" alt="Versión 4.1.0"></a>
     <a href=".python-version"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
     <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
@@ -29,6 +29,7 @@
 - [El puente JavaScript ↔ Python](#el-puente-javascript--python)
 - [Limitaciones conocidas](#limitaciones-conocidas)
 - [Versionado](#versionado)
+- [Registro de cambios](CHANGELOG.md)
 
 ---
 
@@ -169,6 +170,7 @@ cubomatica/
 ├── assets/
 │   ├── icon.svg             # el dibujo del icono (el mismo que el favicon)
 │   └── icon.icns            # icono del .app
+├── CHANGELOG.md             # novedades de cada versión
 ├── docs/                    # imágenes de este README
 ├── tests/
 │   ├── conftest.py          # fixtures compartidas
@@ -303,7 +305,7 @@ Los métodos que empiezan por `_` no se exponen, y hay un test que lo protege.
 
 | | |
 |---|---|
-| **Versión de la app** | **4.0.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
+| **Versión de la app** | **4.1.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
 | **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.4.7) |
 | **Identificador** | `es.javiertamarit.cubomatica` |
 

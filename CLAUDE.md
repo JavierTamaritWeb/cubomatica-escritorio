@@ -8,7 +8,7 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.0.0**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.1.0**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
 apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.4.7), which is set
 upstream and must not be edited here.
@@ -131,6 +131,10 @@ optional** on Apple Silicon — macOS kills an unsigned bundle on launch.
 
 `tests/test_web.py::TestPersistencia` and `::TestUrlDeCarga` guard the first and third; do not
 "simplify" them away.
+
+The window opens **maximized** (`maximized=True`) because the game targets landscape, full screen.
+`width`/`height` (1280×800) are therefore the *restored* size, not the startup size — a detail worth
+knowing before "fixing" them.
 
 **The native "Juego" menu is hand-built with PyObjC on purpose.** `webview.start(menu=...)` is
 broken on macOS in pywebview 5.3.2 in two independent ways, and both fail silently: `start()`

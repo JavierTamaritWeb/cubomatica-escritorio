@@ -120,7 +120,8 @@ Si falla, déjalo en `None` (compila solo para tu Mac).
 
 | Síntoma | Causa | Solución |
 |---|---|---|
-| Ventana en blanco | La web no se copió | Revisa `datas=` en el `.spec` |
+| Ventana en blanco | La web no se copió, o la ruta no se resolvió | Revisa `datas=` en el `.spec`. Arranca con `CUBOMATICA_DEBUG=1` para ver qué ruta usa |
+| `Error: 404 Not Found` en `127.0.0.1:42001` | La ventana carga con una ruta suelta y choca con otra instancia | `main.py` debe usar `url=index.as_uri()`. Busca instancias colgadas con `lsof -nP -iTCP:42001` |
 | "La app está dañada" | Falta firma | Ejecuta el `codesign` |
 | Se cierra al instante | Error de Python | Ver comando de abajo |
 | No encuentra `index.html` | Ruta absoluta en HTML | Usa rutas relativas |
