@@ -8,9 +8,9 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.7.0**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.8.0**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
-apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.6.0); it tracks the
+apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.7.0); it tracks the
 game's content, moves on its own schedule, and nothing on the Python side reads it.
 
 The Python here is deliberately thin (two short modules); nearly everything else is the game bundle.
@@ -96,6 +96,28 @@ sinks and colours it from those two attributes; the clock is parked between ques
 `.reloj--parado` (`visibility: hidden`) rather than `hidden`, so the HUD never reflows; and
 `CB.pantallas.caer` gives the incoming screen its 150 ms «block drop» — entrance only, because
 `[hidden]` is `display: none`. Any new animation goes in **both** `sin-movimiento` lists.
+
+**Avatars are sprites too, and `CB.sprites.avatar` draws them** — all sixteen miners, helmet,
+face and clothes recoloured from `CB.datos.AVATARES`. It existed from 3.0.0 and nothing called
+it: the profile card painted a flat square of the helmet colour until 3.7.0. It forces
+`imagen: true`, because 7×7 sits under `UMBRAL_BOXSHADOW` and `CB.sprites.aplicar`'s box-shadow
+branch is the buggier path. The two base maps carry a real face — eyes on one row, mouth on the
+next; a solid band of the feature colour read as a balaclava at 84 px.
+
+**The course (1.º–6.º) is declared once and must stay visible.** `CB.perfiles.crear` borrows the
+`#titulo-perfiles` h1 for its own question and `CB.perfiles.pintar` gives it back — if you add a
+path out of that step, restore the title there too. `CB.almacen.guardarPerfil` stamps `curso` on
+the index entry beside mote and avatar, so the card can show it without reading every profile;
+`pintar` back-fills older entries once. The portada prints `CB.arranque.quienJuega` in its top-left
+corner, facing the key that changes it. Four questions of calibration deduce the *trimester*, never
+the course, and every wording around them has to keep saying so.
+
+**`.pantalla > *:not(.cielo):not(.cinta):not(.cartel)` sets `position: relative` to lift content
+over the sky, and it outweighs a plain `.portada__llave { position: absolute }`.** That is how the
+parent-panel key spent releases in the top-*left* corner, shoved there by its own `right: 16px`
+resolving in relative mode. Both portada corners are excluded from that rule and carry their own
+`z-index`; `TestEleccionDeCurso` fails if the exclusions go. Anything else absolutely positioned
+directly under `.pantalla` needs the same treatment.
 
 There is no parental gate either. The key on the title screen opens the parent panel directly: the
 old gate (type the n-th word of a sentence shown on screen) was removed in 4.6.0 at the owner's
@@ -186,7 +208,7 @@ global `.05em` is tuned for lower case and reads tight in caps. Keep both if you
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (55 tests, fast)
+uv run pytest                        # full suite (59 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg

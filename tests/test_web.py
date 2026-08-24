@@ -196,6 +196,59 @@ class TestIconografia:
         assert ".icono-px" in css
 
 
+class TestEleccionDeCurso:
+    """El curso manda en todo el contenido y se declara una sola vez.
+
+    Hasta 3.7.0 la pregunta iba debajo de un h1 que seguia diciendo «¿Quien
+    juega?», en letra mas pequena que el titulo, y despues de contestarla el
+    curso no volvia a aparecer en ninguna pantalla: colarse al crear el perfil
+    solo se notaba porque las preguntas salian raras.
+    """
+
+    def test_el_paso_de_crear_se_lleva_el_titular(self, web_dir):
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        js = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+        assert 'id="titulo-perfiles"' in html
+        assert "CB.perfiles.PREGUNTA_CURSO" in js
+        assert "h1.textContent = CB.perfiles.PREGUNTA_CURSO" in js
+        # y vuelve a su sitio al pintar la lista
+        assert "h1.textContent = CB.perfiles.TITULO" in js
+
+    def test_la_portada_dice_quien_juega_y_en_que_curso(self, web_dir):
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        js = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+        assert 'id="portada-quien"' in html
+        assert "CB.arranque.quienJuega = function" in js
+        assert "de Primaria" in js
+
+    def test_la_ficha_del_minero_pinta_el_sprite(self, web_dir):
+        """
+        CB.sprites.avatar dibuja los 16 mineros desde 3.0.0 y no lo llamaba
+        nadie: la ficha pintaba un cuadrado del color del casco.
+        """
+        js = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+        css = (web_dir / "css" / "cubomatica.css").read_text(encoding="utf-8")
+        assert "CB.sprites.aplicar(av, 'avatar'" in js
+        assert ".tarjeta-perfil__mote" in css
+        assert ".tarjeta-perfil__jugar" in css
+
+    def test_las_esquinas_de_la_portada_conservan_su_absolute(self, web_dir):
+        """
+        `.pantalla > *:not(.cielo)...` levanta el contenido sobre el cielo con
+        `position: relative`, y pisaba el `absolute` de las dos esquinas: la
+        llave acababa arriba a la IZQUIERDA, movida por su propio `right`.
+        """
+        css = (web_dir / "css" / "cubomatica.css").read_text(encoding="utf-8")
+        regla = [
+            linea
+            for linea in css.splitlines()
+            if linea.startswith(".pantalla > *:not(.cielo)")
+        ]
+        assert regla, "ha desaparecido la regla de capas de .pantalla"
+        assert ":not(.portada__llave)" in regla[0]
+        assert ":not(.portada__quien)" in regla[0]
+
+
 class TestAjustesAccesibilidad:
     """Alto contraste y animaciones son requisitos, y Ajustes es su sitio."""
 

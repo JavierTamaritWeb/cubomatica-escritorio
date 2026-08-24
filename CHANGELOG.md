@@ -9,6 +9,62 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.8.0] — 2026-08-24
+
+Elegir curso dejaba de ser una decisión y pasaba a ser un descuido: la pregunta
+que manda en todo el contenido del juego era el texto más pequeño de su
+pantalla, y una vez contestada no volvía a verse nunca. Juego 3.7.0.
+
+### Cambiado
+
+- **Elegir curso es un paso, no una línea suelta.** «Nuevo minero» ya no deja la
+  pantalla titulada «¿Quién juega?» con la pregunta de verdad debajo en letra
+  menuda: la pregunta se lleva el titular, y bajo ella va la única frase que
+  hacía falta —quién la contesta, qué decide y cómo se deshace—. Los seis
+  cursos van en su fila y **«Volver» en la suya**: compartiéndola parecía un
+  séptimo curso.
+- **El curso se ve.** En la portada, arriba a la izquierda: «Juega Vagón Cargado
+  · 2.º de Primaria», enfrente de la llave con la que un adulto lo cambia. Y en
+  cada ficha de «¿Quién juega?», bajo el mote. Hasta ahora, colarse al crear el
+  perfil solo se notaba porque las preguntas salían raras, y para entonces ya
+  nadie lo relacionaba con aquella pantalla del primer día.
+- **La pista de la portada nombra el curso**: «4 preguntas para ver por dónde
+  empezar **en 2.º**». Sin él sonaba a que ahí se elegía el nivel, y no: la
+  calibración solo mira por dónde empezar dentro del curso ya elegido.
+- La Ayuda lo cuenta igual: dónde se ve el curso, quién lo cambia y que las
+  cuatro preguntas no lo eligen.
+- **Las fichas de «¿Quién juega?» enseñan al minero.** `CB.sprites.avatar`
+  llevaba desde 3.0.0 dibujando los 16 mineros —casco, cara y ropa con la
+  paleta del perfil— sin que lo llamara nadie: la ficha pintaba un cuadrado
+  del color del casco y ya. Ahora sale el sprite a 84 px, y los dos mapas base
+  tienen cara: las dos filas del rostro eran una banda maciza del color de los
+  rasgos, que a ese tamaño se leía como un pasamontañas; ahora son dos ojos y
+  una boca con piel alrededor. La ficha reserva dos renglones para el mote y
+  pega JUGAR al fondo, así que el curso y el botón quedan a la misma altura en
+  todas aunque un mote ocupe una línea y otro dos. Y lleva el marco de piedra
+  de los demás bloques, blanco en alto contraste como ellos.
+
+### Corregido
+
+- `CB.sprites.aplicar` medía la caja con el tamaño de CELDA en su rama de
+  box-shadow (`s.px` en vez de `s.ancho`), así que un sprite servido por esa
+  vía se salía de un hueco de 8×8. Todavía no lo llamaba nadie.
+
+- **La llave del panel adulto estaba en la esquina equivocada.** Se declara
+  `position: absolute` arriba a la derecha, pero
+  `.pantalla > *:not(.cielo)…` —la regla que levanta el contenido sobre el
+  cielo— la pisaba con `position: relative`, y su propio `right: 16px` acababa
+  moviéndola 16 px a la **izquierda** del borde izquierdo. Las dos esquinas de
+  la portada quedan fuera de esa regla y llevan su `z-index` escrito.
+- **Las fichas de «¿Quién juega?» se apilaban de una en una.** `.contenido`
+  centra con `align-items`, así que la lista se encogía a 0 de ancho y cada
+  ficha envolvía sola. Con un perfil no se veía; con dos, sí.
+- El índice de perfiles guarda el curso, como ya guardaba mote y avatar, para
+  no leer los ocho perfiles enteros solo para pintar la lista. Los perfiles
+  anteriores lo rellenan solos la primera vez.
+
+---
+
 ## [4.7.0] — 2026-08-24
 
 La propuesta de UX/UI de `docs/propuesta-ux-ui.md`, implementada entera en el

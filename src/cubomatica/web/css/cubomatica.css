@@ -508,6 +508,7 @@ button:disabled {
 :root.alto-contraste .cromo,
 :root.alto-contraste .premio,
 :root.alto-contraste .ajuste,
+:root.alto-contraste .tarjeta-perfil,
 :root.alto-contraste .portada__titulo {
   border-image: none;
   border-color: #FFFFFF;
@@ -1918,6 +1919,28 @@ button:disabled {
   max-width: none;
 }
 
+/* En la esquina, enfrente de la llave: quién juega y en qué curso a la
+   izquierda, y a la derecha el botón con el que un adulto lo cambia. En la
+   pila central no cabía —la portada ya llega justa al suelo en una ventana de
+   900 px de alto— y empujaba la fila de botones contra el suelo de biomas. */
+.portada__quien {
+  position: absolute;
+  top: var(--e3);
+  left: var(--e3);
+  z-index: 1;
+  font-family: var(--fuente-lectura);
+  font-size: calc(var(--tam-texto-min) * .8);
+  background: var(--bg-texto-panel);
+  color: var(--texto-principal);
+  padding: var(--e1) var(--e2);
+  max-width: calc(100% - 96px - var(--e3) * 3);
+  margin: 0;
+}
+
+.portada__quien:empty {
+  display: none;
+}
+
 .suelo-hierba {
   height: 64px;
   flex: 0 0 auto;
@@ -1951,6 +1974,7 @@ button:disabled {
   position: absolute;
   top: var(--e3);
   right: var(--e3);
+  z-index: 1;
 }
 
 .lista-perfiles {
@@ -1958,14 +1982,40 @@ button:disabled {
   flex-wrap: wrap;
   gap: var(--e3);
   justify-content: center;
+  /* .contenido centra con align-items, así que sus hijos se encogen a su
+     contenido: sin esto la lista medía 0 de ancho y las fichas se apilaban de
+     una en una en vez de llenar la fila. */
+  width: 100%;
+}
+
+/* Elegir curso no es elegir minero: el mismo hueco pasa a columna para que la
+   nota, los seis cursos y Volver caigan cada uno en su renglón. */
+.lista-perfiles--paso {
+  flex-direction: column;
+  align-items: center;
+}
+
+.paso-crear__nota {
+  font-family: var(--fuente-lectura);
+  max-width: 46ch;
+  text-align: center;
+  margin: 0;
+}
+
+/* El título de esta pantalla lo reescribe crear(): centrado, porque con dos
+   renglones la caja va centrada pero el texto se quedaba a la izquierda. */
+#titulo-perfiles {
+  text-align: center;
 }
 
 .tarjeta-perfil {
-  flex: 0 1 176px;
-  max-width: 176px;
+  flex: 0 1 200px;
+  max-width: 200px;
   padding: var(--e3);
   background: var(--bg-texto-panel);
   color: var(--texto-principal);
+  border: 8px solid transparent;
+  border-image: var(--tex-piedra) 4 / 8px round;
   box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--blanco), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--btn-borde-sombra);
   display: flex;
   flex-direction: column;
@@ -1974,10 +2024,37 @@ button:disabled {
   font-size: var(--tam-texto-min);
 }
 
+/* El sprite se mide solo (CB.sprites.aplicar escribe su ancho y su alto); aquí
+   solo se reserva el hueco para que las fichas no bailen mientras se pinta. */
 .tarjeta-perfil__avatar {
-  width: 64px;
-  height: 64px;
-  box-shadow: inset 8px 8px 0 0 rgba(255, 255, 255, 0.5), inset -8px -8px 0 0 rgba(0, 0, 0, 0.35);
+  flex: 0 0 auto;
+  width: 84px;
+  height: 84px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* Dos renglones SIEMPRE: «Cristal Claro» ocupa uno y «Vagón Cargado» dos, y sin
+   esto el curso y el botón de una ficha caían a distinta altura que los de la
+   de al lado. */
+.tarjeta-perfil__mote {
+  font-family: var(--fuente-pixel);
+  line-height: 1.3;
+  min-height: calc(var(--tam-texto-min) * 2.6);
+  display: flex;
+  align-items: center;
+  text-align: center;
+}
+
+.tarjeta-perfil__curso {
+  font-family: var(--fuente-lectura);
+  font-size: calc(var(--tam-texto-min) * .8);
+  color: var(--texto-secundario);
+}
+
+/* Al fondo de la ficha, todas a la misma altura. */
+.tarjeta-perfil__jugar {
+  margin-top: auto;
 }
 
 .pantalla--juego {
@@ -3183,7 +3260,7 @@ button:disabled {
   background: var(--cielo-0);
 }
 
-.pantalla > *:not(.cielo):not(.cinta):not(.cartel) {
+.pantalla > *:not(.cielo):not(.cinta):not(.cartel):not(.portada__llave):not(.portada__quien) {
   position: relative;
   z-index: 1;
 }

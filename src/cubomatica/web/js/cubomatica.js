@@ -1525,7 +1525,7 @@ CB.bus = new CB.util.EventoSimple();
 
 /* CB.LEGAL */
 /* Versión */
-CB.VERSION = '3.6.0';
+CB.VERSION = '3.7.0';
 
 CB.LEGAL = {
   /* El texto completo viaja en web/LICENCIA.txt. Aquí va solo la línea que
@@ -1952,13 +1952,14 @@ CB.almacen.guardarPerfil = function (perfil) {
   for (i = 0; i < idx.length; i++) {
     if (idx[i].id === perfil.id) {
       idx[i].mote = perfil.mote; idx[i].avatar = perfil.avatar;
+      idx[i].curso = perfil.curso;
       idx[i].ultimoISO = CB.util.hoyISO();
       hallado = true;
     }
   }
   if (!hallado) {
     idx.push({ id: perfil.id, mote: perfil.mote, avatar: perfil.avatar,
-               ultimoISO: CB.util.hoyISO() });
+               curso: perfil.curso, ultimoISO: CB.util.hoyISO() });
   }
   CB.almacen.guardarIndice(idx);
   return ok;
@@ -2520,18 +2521,23 @@ CB.sprites.MAPAS = {
   bloqueMusgo:  ['2121212','1212121','1111111','1211121','1111111','2121212','1212121'],
 
   /* 2 mapas base de avatar (16 variantes por permutación de paleta) */
+  /* 0 casco · 1 piel · 2 rasgos · 3 ropa · 4 botas. La cara ocupa DOS filas y
+     hasta 3.7.0 las dos eran una banda del color de los rasgos: a 84 px no se
+     leía un minero, sino un pasamontañas. Ahora la fila de arriba lleva los
+     dos ojos y la de abajo la boca, con piel alrededor. Las dos bases se
+     distinguen por el ala del casco y por los brazos. */
   avatarBase1: ['..000..',
                 '.01110.',
-                '.12221.',
-                '.02220.',
+                '.12121.',
+                '.11211.',
                 '.33333.',
                 '.3.3.3.',
                 '.4...4.'],
 
   avatarBase2: ['..000..',
-                '.01110.',
+                '.00000.',
                 '.12121.',
-                '.02220.',
+                '.11211.',
                 '.33333.',
                 '.33.33.',
                 '.4...4.']
@@ -2670,7 +2676,7 @@ CB.sprites.avatar = function (indice, px) {
   const pal = CB.datos.AVATARES[i];
   const base = (i % 2 === 0) ? 'avatarBase1' : 'avatarBase2';
   return CB.sprites.desdeMapa(base, {
-    px: px || 8, paletaId: i,
+    px: px || 8, paletaId: i, imagen: true,
     paleta: [pal.casco, pal.piel, '#241C14', pal.ropa, '#3A3A3A']
   });
 };
@@ -2684,6 +2690,8 @@ CB.sprites.aplicar = function (el, nombre, opciones) {
   el.style.width = s.px + 'px';
   el.style.height = s.px + 'px';
   if (s.tipo === 'sombra') {
+    el.style.width = s.px + 'px';
+    el.style.height = s.px + 'px';
     el.style.boxShadow = s.valor;
     el.style.backgroundImage = 'none';
   } else {
@@ -17805,22 +17813,54 @@ CB.calibracion.terminar = function () {
 /* Perfiles */
 CB.perfiles = {};
 
+CB.perfiles.TITULO = '¿Quién juega?';
+
 CB.perfiles.pintar = function () {
   const cont = document.getElementById('lista-perfiles');
   if (!cont) return;
   CB.ui.vaciar(cont);
 
+  /* crear() se lleva prestado el h1 para su propia pregunta. Al volver hay que
+     devolvérselo, o la lista de mineros se queda titulada «¿En qué curso…?». */
+  const h1 = document.getElementById('titulo-perfiles');
+  if (h1) h1.textContent = CB.perfiles.TITULO;
+  cont.classList.remove('lista-perfiles--paso');
+
   const idx = CB.almacen.indice();
+  /* El curso llega al índice en 3.7.0. Los perfiles anteriores lo tienen en su
+     propio fichero: se rellena una vez, aquí, y no se vuelve a leer. */
+  let rellenados = false;
+  idx.forEach(function (e) {
+    if (e.curso != null) return;
+    const p = CB.almacen.leerPerfil(e.id);
+    if (p && !p.error) { e.curso = CB.catalogo.cursoDe(p); rellenados = true; }
+  });
+  if (rellenados) CB.almacen.guardarIndice(idx);
+
   idx.forEach(function (e) {
     const t = CB.ui.crear('div', 'tarjeta-perfil');
+    /* CB.sprites.avatar lleva desde 3.0.0 dibujando los 16 mineros —casco,
+       cara y ropa, con la paleta del perfil— y no lo llamaba nadie: la ficha
+       pintaba un cuadrado del color del casco y ya. */
+    const indice = CB.util.clamp(e.avatar || 0, 0, 15);
     const av = CB.ui.crear('div', 'tarjeta-perfil__avatar');
-    const pal = CB.datos.AVATARES[CB.util.clamp(e.avatar || 0, 0, 15)];
-    av.style.background = pal.casco;
+    if (!CB.sprites.aplicar(av, 'avatar', { indice: indice, px: 12 })) {
+      /* Sin canvas no hay sprite; antes que un hueco, el color del casco. */
+      av.style.background = CB.datos.AVATARES[indice].casco;
+    }
     t.appendChild(av);
-    t.appendChild(CB.ui.crear('div', null, e.mote));
-    t.appendChild(CB.ui.boton('Jugar', 'btn-bloque--primario btn-bloque--ancho', function () {
-      CB.perfiles.activar(e.id);
-    }));
+    /* Dos renglones reservados: con un mote de una palabra y otro de dos, las
+       fichas se descolocaban entre sí de la mitad para abajo. */
+    t.appendChild(CB.ui.crear('div', 'tarjeta-perfil__mote', e.mote));
+    /* El curso, a la vista: elegirlo mal al crear el perfil era invisible hasta
+       que las preguntas salían raras, y para entonces nadie lo relacionaba. */
+    if (e.curso != null) {
+      t.appendChild(CB.ui.crear('div', 'tarjeta-perfil__curso', e.curso + '.º de Primaria'));
+    }
+    t.appendChild(CB.ui.boton('Jugar',
+      'btn-bloque--primario btn-bloque--ancho tarjeta-perfil__jugar', function () {
+        CB.perfiles.activar(e.id);
+      }));
     cont.appendChild(t);
   });
 
@@ -17838,6 +17878,8 @@ CB.perfiles.pintar = function () {
    después solo el panel del adulto puede cambiarlo; el trimestre, en cambio,
    se sigue DEDUCIENDO en la calibración (§7.2). Los cursos ofrecidos salen de
    cursosDisponibles(): cuando una fase añada 3.º-6.º, aparecerán solos. */
+CB.perfiles.PREGUNTA_CURSO = '¿En qué curso de Primaria está?';
+
 CB.perfiles.crear = function () {
   const cont = document.getElementById('lista-perfiles');
   const btnNuevo = document.getElementById('btn-nuevo-perfil');
@@ -17846,13 +17888,24 @@ CB.perfiles.crear = function () {
   CB.ui.vaciar(cont);
   if (btnNuevo) btnNuevo.hidden = true;
 
-  const pregunta = CB.ui.crear('p', 'texto', '¿En qué curso de Primaria está?');
-  pregunta.id = 'pregunta-curso';
-  cont.appendChild(pregunta);
+  /* La pregunta se lleva el h1. Hasta 3.7.0 la pantalla seguía titulada
+     «¿Quién juega?» y la pregunta de verdad iba debajo, en letra más pequeña
+     que el título: la decisión que manda en todo el contenido del juego era
+     el texto más discreto de la pantalla. */
+  const h1 = document.getElementById('titulo-perfiles');
+  if (h1) h1.textContent = CB.perfiles.PREGUNTA_CURSO;
+
+  /* Deja de ser una rejilla de mineros y pasa a ser un paso en columna. */
+  cont.classList.add('lista-perfiles--paso');
+
+  /* Contesta un adulto, así que se dice para qué sirve y cómo se deshace. */
+  cont.appendChild(CB.ui.crear('p', 'texto paso-crear__nota',
+    'Lo elige una persona mayor. Manda las preguntas que salen durante todo el ' +
+    'juego. Después se cambia con la llave de la portada.'));
 
   const fila = CB.ui.crear('div', 'fila fila--centro');
   fila.setAttribute('role', 'group');
-  fila.setAttribute('aria-labelledby', 'pregunta-curso');
+  fila.setAttribute('aria-labelledby', 'titulo-perfiles');
   CB.catalogo.cursosDisponibles().forEach(function (c) {
     fila.appendChild(CB.ui.boton(c + '.º', 'btn-bloque--primario', function () {
       CB.perfiles.crearConCurso(c);
@@ -17860,10 +17913,15 @@ CB.perfiles.crear = function () {
   });
   cont.appendChild(fila);
 
-  cont.appendChild(CB.ui.boton('Volver', '', function () {
+  /* Volver, en su propia fila y en piedra: compartiendo fila con los seis
+     cursos parecía un séptimo curso. */
+  const salida = CB.ui.crear('div', 'fila fila--centro');
+  salida.appendChild(CB.ui.boton('Volver', 'btn-bloque--secundario', function () {
     CB.perfiles.pintar();
   }, { icono: 'flecha' }));
-  CB.a11y.anunciar('¿En qué curso de Primaria está?');
+  cont.appendChild(salida);
+
+  CB.a11y.anunciar(CB.perfiles.PREGUNTA_CURSO);
 };
 
 CB.perfiles.crearConCurso = function (curso) {
@@ -18298,7 +18356,8 @@ CB.arranque.pistaJugar = function (perfil) {
   if (!perfil) return 'Primero elegimos quién juega.';
   if (!perfil.calibrado) {
     return 'Primero, ' + CB.calibracion.ITEMS.length +
-           ' preguntas para saber por dónde empezar. Sin reloj y sin puntos.';
+           ' preguntas para ver por dónde empezar en ' +
+           CB.catalogo.cursoDe(perfil) + '.º. Sin reloj y sin puntos.';
   }
   if (CB.partida.hayPartidaGuardada(perfil)) return 'Tienes una expedición a medias.';
   return '';
@@ -18318,9 +18377,18 @@ CB.arranque.mundoReciente = function (perfil) {
   return (m && perfil.mundos[m.id] && perfil.mundos[m.id].desbloqueado) ? m : null;
 };
 
+/* Quién juega y en qué curso. El mote lo pedía cualquiera que compartiera el
+   aparato; el curso, quien quisiera comprobar que no se coló al crearlo. */
+CB.arranque.quienJuega = function (perfil) {
+  if (!perfil) return '';
+  return 'Juega ' + perfil.mote + ' · ' + CB.catalogo.cursoDe(perfil) + '.º de Primaria';
+};
+
 CB.pantallas.alEntrar['p-portada'] = function () {
   const b = document.getElementById('btn-jugar');
   if (b) b.textContent = CB.arranque.rotuloJugar(CB.perfil);
+  const quien = document.getElementById('portada-quien');
+  if (quien) quien.textContent = CB.arranque.quienJuega(CB.perfil);
   const p = document.getElementById('portada-pista');
   if (p) p.textContent = CB.arranque.pistaJugar(CB.perfil);
   /* Para quien vuelve: «Seguir cavando en el Bosque» encima de JUGAR, en vez
