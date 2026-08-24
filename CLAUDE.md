@@ -186,7 +186,7 @@ global `.05em` is tuned for lower case and reads tight in caps. Keep both if you
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (52 tests, fast)
+uv run pytest                        # full suite (55 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg

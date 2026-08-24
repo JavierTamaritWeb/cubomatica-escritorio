@@ -48,6 +48,10 @@ capa DOM, CSS e `index.html`.
 - **Portada:** «Cantera tranquila» dice «Sin reloj y sin vidas»; quien vuelve
   tiene «Seguir cavando en el Bosque» encima de JUGAR; el suelo anticipa los
   cuatro biomas.
+- **La Ayuda del juego cuenta la interfaz nueva**: cómo se lee el frente de mina de «Mis
+  vetas», que los cromos y los premios que faltan salen en sombra, los dos ajustes de
+  accesibilidad, que los modos son bloques que se hunden (y que también están en el mapa) y
+  que las flechas del teclado mueven de un bloque a otro.
 - **Transición** de caída de bloque (150 ms, a saltos) al cambiar de pantalla,
   marcos de piedra texturizada en paneles, tarjetas y ajustes, y `:focus-visible`
   que conserva el bisel. Los botones con `aria-pressed`/`aria-checked` se ven
@@ -65,6 +69,8 @@ capa DOM, CSS e `index.html`.
 - `CB.partida.hayPartidaGuardada` leía `iniciadaTs`, que nunca se escribía, y la
   partida guardada no caducaba a las 24 h.
 - Chispa al girar abría una barra de scroll horizontal bajo el enunciado.
+- El «+N» de las gemas brotaba hacia arriba desde el contador y se salía por el techo del HUD:
+  ahora brota a su izquierda.
 
 ## [4.6.0] — 2026-08-24
 

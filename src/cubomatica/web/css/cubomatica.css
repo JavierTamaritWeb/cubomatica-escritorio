@@ -989,10 +989,13 @@ button:disabled {
   color: var(--deco-oro-cla);
 }
 
+/* Brota al lado del contador, no encima: la animación lo sube 8px y arriba
+   está el borde de la ventana, así que se salía por el techo del HUD. */
 .insignia {
   position: absolute;
-  left: 0;
-  bottom: 100%;
+  right: 100%;
+  bottom: 0;
+  margin-right: var(--e1);
   font-family: var(--fuente-pixel);
   font-size: var(--tam-texto-min);
   color: var(--deco-oro-cla);

@@ -1,8 +1,16 @@
 # Cubomática — propuesta de mejoras (24-08-2026)
 
-Diagnóstico sobre la versión 4.5.0 del shell y 3.4.7 del juego. Nada está implementado:
-es una lista para decidir. Las referencias `js:NNNN` son líneas de
-`src/cubomatica/web/js/cubomatica.js`; las he verificado leyendo el código.
+Diagnóstico sobre la versión 4.5.0 del shell y 3.4.7 del juego. Las referencias `js:NNNN` son
+líneas de `src/cubomatica/web/js/cubomatica.js` **en aquel momento**: el bundle ha crecido
+desde entonces y ya no cuadran; búscalas por nombre de función.
+
+> **Estado a 24-08-2026 (app 4.7.0, juego 3.6.0).** Ya está hecho: la calibración al derecho
+> y las 48 pistas por error en pantalla (§2 y §3, en 4.6.0); la puerta parental, retirada a
+> petición del autor (§1); y toda la deuda del §5 —fuera los gemelos `.min`, fuera el módulo
+> offline y el `manifest`, `api.py` sin los ejemplos de plantilla, e integración continua en
+> `.github/workflows/ci.yml`—. **Sigue pendiente** lo demás: exportar copia y CSV desde
+> `api.py`, imprimir, la copia de seguridad automática y los bugs de generadores del §2 que no
+> se tocaron. La parte de interfaz se abordó aparte, en [propuesta-ux-ui.md](propuesta-ux-ui.md).
 
 ## Resumen en cinco líneas
 

@@ -8,10 +8,10 @@
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
     <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
     <a href="#requisitos"><img src="https://img.shields.io/badge/plataforma-macOS%2011%2B-555555?logo=apple" alt="macOS 11 o superior"></a>
-    <a href="#tests"><img src="https://img.shields.io/badge/tests-62%20passing-2EA043" alt="62 tests"></a>
+    <a href="#tests"><img src="https://img.shields.io/badge/tests-55%20passing-2EA043" alt="55 tests"></a>
   </p>
   <br>
-  <img src="docs/partida.png" width="840" alt="Una partida de Cubomática a pantalla completa, con la barra de estado rotulada">
+  <img src="docs/partida.png" width="840" alt="Una partida de Cubomática: el bloque acertado hundido y en verde, los demás apagados a piedra, y el mensaje junto a las opciones">
 </div>
 
 ---
@@ -128,7 +128,7 @@ uv run cubomatica
 ## Tests
 
 ```bash
-uv run pytest                                              # los 62
+uv run pytest                                              # los 55
 uv run pytest --cov=cubomatica --cov-report=term-missing   # con cobertura
 ```
 
@@ -150,6 +150,8 @@ revierte, rompe la app **en silencio**.
 | Todas las librerías están fijadas con `==` | Que una actualización silenciosa rompa la app |
 | El aviso de licencia viaja dentro de `web/` | Distribuir el juego sin decir de quién es |
 | La reserva de derechos deja fuera fuente y música | Reclamar derechos sobre obra ajena |
+| No queda ni un emoji en `index.html` | Que un icono vuelva a pintarse con la fuente del sistema |
+| Ajustes expone alto contraste y animaciones | Esconder dos requisitos de accesibilidad en el panel del adulto |
 
 ---
 
@@ -187,7 +189,7 @@ cubomatica/
 │   └── icon.icns            # icono del .app
 ├── CHANGELOG.md             # novedades de cada versión
 ├── LICENSE                  # copyright del repositorio entero
-├── docs/                    # imágenes de este README
+├── docs/                    # imágenes de este README y las propuestas de mejora
 ├── tests/
 │   ├── conftest.py          # fixtures compartidas
 │   ├── test_api.py          # contrato del puente JS ↔ Python
@@ -209,7 +211,7 @@ cubomatica/
 
 ## Decisiones técnicas
 
-Cinco decisiones sostienen la app. Ninguna es cosmética: revertir cualquiera de ellas la
+Seis decisiones sostienen la app. Ninguna es cosmética: revertir cualquiera de ellas la
 rompe, y en cuatro casos **sin dar ningún error**.
 
 ### La ventana arranca a pantalla completa
@@ -272,6 +274,24 @@ funcionando, solo que sin la tipografía. Por eso lo comprueban los tests.
 El cambio trajo un ajuste que no es evidente: el juego separaba las letras `.05em` y las palabras
 `.16em`, bien pensado para Verdana, donde separar ayuda a leer. OpenDyslexic ya trae esa
 separación de fábrica y, sumadas, dejaban las palabras flotando sueltas. Están en `0` y `.06em`.
+
+### Los iconos son píxeles, no emojis
+
+Hasta 4.6.0 la llave, la bombilla de la pista, el altavoz, la pausa, las criaturas y los cromos
+eran **emojis**: los pintaba la fuente del sistema, suavizados y con otro estilo, encima de un
+juego hecho de bloques. Era lo que más delataba «web» frente a «juego».
+
+Desde 4.7.0 los dibuja el propio juego. `03-sprites.js` guarda cada icono como un mapa de
+caracteres (`'.'` es transparente, cada dígito un color de su paleta), lo rasteriza una sola vez
+al arrancar —**un píxel por celda**— y lo publica como propiedad personalizada de CSS
+(`--sprite-llave`, `--sprite-cubi`…), igual que `02-texturas.js` hace con las texturas del
+suelo. El HTML solo pone `<span class="icono-px" data-icono="llave">`, y el CSS lo escala con
+`--px-icono`; como todo el proyecto lleva `image-rendering: pixelated`, a múltiplos enteros sale
+nítido y sin volver a generar nada.
+
+Eso deja el juego con una sola familia de dibujos —las mismas texturas, la misma paleta— y de
+paso da al minero trabajo que hacer: pica el bloque al acertar y se rasca la cabeza al fallar.
+Un test comprueba que no vuelva a colarse un emoji en `index.html`.
 
 ### El menú «Juego» está construido a mano
 
