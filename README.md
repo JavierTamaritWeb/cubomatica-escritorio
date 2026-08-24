@@ -1,163 +1,238 @@
-# Cubomática 4.0.0
+<div align="center">
+  <img src="docs/icono.png" width="112" alt="Icono de Cubomática">
+  <h1>Cubomática</h1>
+  <p><b>El juego de matemáticas de Educación Primaria,<br>como aplicación de escritorio para macOS.</b></p>
+  <p>
+    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.0.0-2B7BB9" alt="Versión 4.0.0"></a>
+    <a href=".python-version"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
+    <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
+    <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
+    <a href="#requisitos"><img src="https://img.shields.io/badge/plataforma-macOS%2011%2B-555555?logo=apple" alt="macOS 11 o superior"></a>
+    <a href="#tests"><img src="https://img.shields.io/badge/tests-36%20passing-2EA043" alt="36 tests"></a>
+  </p>
+  <br>
+  <img src="docs/portada.png" width="840" alt="Portada de Cubomática ejecutándose como app de escritorio">
+</div>
 
-App **de escritorio** del juego **Cubomática** (matemáticas de Educación Primaria).
-Carga la web del juego (HTML + CSS + JS vanilla) en una ventana nativa con pywebview.
-**La apariencia visual es identica a la del navegador.**
+---
 
-Ya no es una web ni una PWA: se instala y se abre como cualquier app del Mac,
-funciona sin conexion y no abre ningun puerto en el equipo.
+## Tabla de contenidos
+
+- [Qué es esto](#qué-es-esto)
+- [Requisitos](#requisitos)
+- [Puesta en marcha](#puesta-en-marcha)
+- [Uso diario](#uso-diario)
+- [Tests](#tests)
+- [Empaquetado](#empaquetado)
+- [Estructura del proyecto](#estructura-del-proyecto)
+- [Decisiones técnicas](#decisiones-técnicas)
+- [El puente JavaScript ↔ Python](#el-puente-javascript--python)
+- [Limitaciones conocidas](#limitaciones-conocidas)
+- [Versionado](#versionado)
+
+---
+
+## Qué es esto
+
+Una ventana nativa de macOS que carga el juego **Cubomática** (HTML, CSS y JavaScript sin
+frameworks) mediante [pywebview](https://pywebview.flowrl.com/), empaquetada con PyInstaller
+como `Cubomatica.app`. **La apariencia es idéntica a la del navegador.**
+
+Ya no es una web ni una PWA. Se abre como cualquier aplicación del Mac, funciona sin conexión
+y **no abre ningún puerto** en el equipo.
+
+> [!IMPORTANT]
+> La carpeta `src/cubomatica/web/` es **salida generada**: es una copia del `dist/` del proyecto
+> del juego. Los cambios en el juego se hacen allí y se vuelven a copiar. Aquí solo vive la
+> cáscara de escritorio (`main.py` y `api.py`).
+
+---
+
+## Requisitos
 
 | | |
 |---|---|
-| Version de la app | **4.0.0** (`pyproject.toml` y `Cubomatica.spec`) |
-| Version del juego | `CB.VERSION` dentro del bundle web (hoy 3.4.7) |
-| Identificador | `es.javiertamarit.cubomatica` |
+| **Sistema** | macOS 11 o superior |
+| **Motor web** | WebKit — ya viene con el sistema, no hay que instalar nada |
+| **Python** | 3.11, que instala `uv` automáticamente |
+| **uv** | 0.12.0 o superior |
 
-Son dos numeros distintos a proposito: esta app empaqueta el juego, pero el juego
-se versiona en su propio proyecto. Un test comprueba que las dos declaraciones de
-la version de la app no se desincronicen.
+<details>
+<summary>Otros sistemas operativos</summary>
+
+El código es portable, pero el empaquetado de este repositorio es solo de macOS.
+
+| Sistema | Motor web | Hay que instalar |
+|---|---|---|
+| Windows | WebView2 (Edge) | Normalmente ya viene en Windows 10 y 11 |
+| Linux | GTK + WebKit2 | `sudo apt install python3-gi gir1.2-webkit2-4.1` |
+
+</details>
 
 ---
 
-## 1. Instalar `uv` (una sola vez)
+## Puesta en marcha
 
-**macOS / Linux:**
+**1. Instalar `uv`** (una sola vez):
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
+uv --version          # debe ser 0.12.0 o superior
 ```
 
-**Windows (PowerShell):**
-```powershell
-powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
-```
+Si tu versión es más antigua, `uv` avisa y no continúa. Actualiza con `uv self update`.
 
-Comprobar:
-```bash
-uv --version
-```
-
-Este proyecto exige **uv 0.12.0 o superior**.
-Si tienes uno mas viejo, uv te avisa y no continua. Actualiza con:
-```bash
-uv self update
-```
-
----
-
-## 2. Instalar el proyecto
-
-Desde la carpeta del proyecto:
+**2. Instalar el proyecto**, desde su carpeta:
 
 ```bash
 uv sync
 ```
 
-Esto hace 3 cosas solo:
-1. Crea el entorno virtual en `.venv/`
-2. Instala las librerias del `pyproject.toml`
-3. Crea `uv.lock` con las versiones exactas
+Eso hace tres cosas: crea el entorno virtual en `.venv/`, instala las librerías declaradas en
+`pyproject.toml` y genera `uv.lock` con las versiones exactas. **No hace falta activar el
+entorno**: `uv` se encarga.
 
-**No hace falta activar el entorno.** `uv` lo hace por ti.
-
----
-
-## 3. Ejecutar
+**3. Arrancar el juego:**
 
 ```bash
 uv run cubomatica
 ```
 
-O tambien:
-```bash
-uv run python -m cubomatica.main
-```
-
-Con DevTools (inspeccionar elemento):
-```bash
-CUBOMATICA_DEBUG=1 uv run cubomatica
-```
-
 ---
 
-## 4. Pasar los tests
+## Uso diario
 
-```bash
-uv run pytest
-```
-
-Los tests comprueban:
-- La logica de `api.py`
-- Que los metodos privados NO se exponen a JavaScript
-- Que existen `index.html`, CSS, JS, imagenes y audio
-- Que las rutas son relativas (si no, el .app se abre en blanco)
-- Que `main.py` desactiva el modo privado (si no, se pierde el progreso)
-- Que la ventana carga con `file://` (si no, sale un 404 al chocar de puertos)
-- Que la version de `pyproject.toml` y la del `.spec` coinciden
-- Que todas las librerias tienen version fija
-
-Con informe de cobertura:
-```bash
-uv run pytest --cov=cubomatica --cov-report=term-missing
-```
-
----
-
-## Comandos utiles
-
-| Que quiero | Comando |
+| Qué quiero | Comando |
 |---|---|
-| Anadir una libreria | `uv add nombre-libreria` |
-| Quitar una libreria | `uv remove nombre-libreria` |
-| Anadir libreria de desarrollo | `uv add --dev nombre-libreria` |
-| Ver librerias instaladas | `uv pip list` |
-| Actualizar el lock | `uv lock --upgrade` |
-| Instalar exacto que el lock | `uv sync --frozen` |
+| Arrancar la app | `uv run cubomatica` |
+| Arrancar con DevTools y trazas | `CUBOMATICA_DEBUG=1 uv run cubomatica` |
 | Pasar los tests | `uv run pytest` |
-| Un solo test | `uv run pytest tests/test_api.py -v` |
+| Pasar un solo test | `uv run pytest tests/test_api.py -v` |
+| Revisar el estilo | `uv run ruff check .` |
+| Construir la app | `./build-mac.sh` |
+| Regenerar el icono | `./make-icon.sh` |
+| Añadir una librería | `uv add <librería>` |
+| Añadir una de desarrollo | `uv add --dev <librería>` |
+| Ver las instaladas | `uv pip list` |
+| Instalar exactamente lo del lock | `uv sync --frozen` |
 
 ---
 
-## Estructura
+## Tests
+
+```bash
+uv run pytest                                              # los 36
+uv run pytest --cov=cubomatica --cov-report=term-missing   # con cobertura
+```
+
+No comprueban solo la lógica de Python: casi todos protegen alguna decisión que, si se
+revierte, rompe la app **en silencio**.
+
+| Comprobación | Qué evita |
+|---|---|
+| La lógica de `api.py` | Regresiones en el puente |
+| Los métodos `_privados` no se exponen a JavaScript | Filtrar API interna al navegador |
+| Existen `index.html`, CSS, JS, imágenes y audio | Empaquetar una app incompleta |
+| Todas las rutas del HTML son relativas | Que el `.app` abra una ventana en blanco |
+| `main.py` carga con `file://` | El `404 Not Found` por choque de puertos |
+| `main.py` usa `private_mode=False` | Perder los perfiles y el progreso al cerrar |
+| `pyproject.toml` y el `.spec` declaran la misma versión | Que la app diga una versión y el paquete otra |
+| Todas las librerías están fijadas con `==` | Que una actualización silenciosa rompa la app |
+
+---
+
+## Empaquetado
+
+```bash
+./build-mac.sh        # -> dist/Cubomatica.app
+```
+
+El script limpia, sincroniza dependencias, compila con PyInstaller y **firma la app en local**.
+Esa firma *ad hoc* no es opcional en Apple Silicon: sin ella macOS cierra la app al abrirla.
+
+El resultado pesa unos 68 MB, de los cuales unos 42 MB son las nueve pistas de música.
+
+📄 El paso a paso completo, el icono y los problemas típicos están en **[EMPAQUETAR-MAC.md](EMPAQUETAR-MAC.md)**.
+
+---
+
+## Estructura del proyecto
 
 ```
 cubomatica/
-├── pyproject.toml          <- ficha del proyecto + librerias + version de uv
-├── uv.lock                 <- versiones exactas (lo crea uv)
-├── .python-version         <- version de Python fijada (3.11)
-├── .gitignore
-├── README.md
-├── CLAUDE.md               <- guia para Claude Code
-├── EMPAQUETAR-MAC.md
-├── Cubomatica.spec         <- config del .app de Mac
-├── build-mac.sh            <- construye dist/Cubomatica.app
-├── make-icon.sh            <- regenera el icono desde assets/icon.svg
+├── pyproject.toml           # librerías, versión y comando de arranque
+├── uv.lock                  # versiones exactas (lo genera uv)
+├── .python-version          # Python fijado en 3.11
+├── Cubomatica.spec          # configuración del .app
+├── build-mac.sh             # construye dist/Cubomatica.app
+├── make-icon.sh             # regenera assets/icon.icns desde el SVG
 ├── assets/
-│   ├── icon.svg            <- dibujo del icono (igual que el favicon)
-│   └── icon.icns           <- icono del .app (lo genera make-icon.sh)
+│   ├── icon.svg             # el dibujo del icono (el mismo que el favicon)
+│   └── icon.icns            # icono del .app
+├── docs/                    # imágenes de este README
 ├── tests/
-│   ├── conftest.py         <- fixtures compartidas
-│   ├── test_api.py         <- logica Python
-│   └── test_web.py         <- archivos web + rutas + persistencia
+│   ├── conftest.py          # fixtures compartidas
+│   ├── test_api.py          # lógica de Python
+│   └── test_web.py          # ficheros, rutas, persistencia y versión
 └── src/
     └── cubomatica/
-        ├── __init__.py
-        ├── main.py         <- abre la ventana
-        ├── api.py          <- puente JS <-> Python (listo para el futuro)
-        └── web/            <- EL JUEGO, tal cual
+        ├── main.py          # abre la ventana y monta el menú
+        ├── api.py           # puente JavaScript ↔ Python
+        └── web/             # EL JUEGO (generado, no editar aquí)
             ├── index.html
-            ├── manifest.webmanifest
-            ├── css/        <- cubomatica.css + cubomatica.min.css
-            ├── js/         <- cubomatica.js + cubomatica.min.js
-            ├── img/        <- piezas (webp)
-            └── audio/      <- musica (mp3, ~42 MB)
+            ├── css/  js/  img/
+            └── audio/       # música, ~42 MB
 ```
 
 ---
 
-## El menu "Juego"
+## Decisiones técnicas
 
-En la barra de macOS, junto a `Cubomatica` y `View`, hay un menu **Juego** que
-lleva a cuatro pantallas sin tener que volver a la portada:
+Cuatro decisiones sostienen la app. Ninguna es cosmética: revertir cualquiera de ellas la
+rompe, y en tres casos **sin dar ningún error**.
+
+### La ventana arranca maximizada
+
+El juego está pensado para apaisado y a pantalla completa, así que nadie tiene que colocar nada
+antes de jugar. `width` y `height` (1280 × 800) no son el tamaño de arranque, sino el que tendrá
+la ventana si se restaura. El mínimo es 1024 × 640.
+
+### El juego se carga con `file://`
+
+`main.py` abre la ventana con `url=index.as_uri()`.
+
+Si se le pasa la ruta suelta, pywebview la considera «local» y **levanta un servidor HTTP
+interno**. Con `private_mode=False` ese servidor usa siempre el **puerto fijo 42001**, así que
+basta con que quede otra instancia viva para que la siguiente no pueda abrirlo y la ventana
+muestre `Error: 404 Not Found` en lugar del juego.
+
+Con `file://` no hay servidor, no hay puerto y no queda ningún socket a la escucha. La ruta se
+resuelve además con `.resolve()`: dentro del `.app` la web cuelga de un enlace simbólico
+(`Contents/Frameworks` → `Contents/Resources`) y WKWebView lo carga como una ventana en blanco
+si no se resuelve.
+
+### El progreso persiste gracias a `private_mode=False`
+
+El juego guarda perfiles, progreso y ajustes en `localStorage`. Lo único que hace que sobrevivan
+al cierre es arrancar con `private_mode=False`: en modo privado, el backend Cocoa usa un almacén
+no persistente y se pierde todo.
+
+> [!WARNING]
+> **`storage_path` no tiene efecto en macOS.** pywebview lo ignora y usa siempre
+> `WKWebsiteDataStore.defaultDataStore()`, es decir `~/Library/WebKit/<identificador>/WebsiteData/`.
+> Se mantiene en el código porque Windows y Linux sí lo respetan.
+
+Como consecuencia, el `.app` (`es.javiertamarit.cubomatica`) y el modo desarrollo
+(`org.python.python`) **no comparten progreso**. Es lo deseable: probar no ensucia la partida real.
+
+### El menú «Juego» está construido a mano
+
+<img src="docs/menu.png" width="640" alt="El menú Juego desplegado en la barra de macOS">
+
+En la barra de macOS, junto a `Cubomatica` y `View`, hay un menú **Juego** que lleva a cuatro
+pantallas sin pasar por la portada. Cada entrada ejecuta `CB.pantallas.ir('<pantalla>')`, el
+mismo router que usan los botones del juego; para añadir o quitar entradas basta con tocar la
+lista `MENU_PANTALLAS` de `main.py`.
 
 | Elemento | Pantalla |
 |---|---|
@@ -166,145 +241,87 @@ lleva a cuatro pantallas sin tener que volver a la portada:
 | Ayuda | `p-ayuda` |
 | Créditos | `p-creditos` |
 
-Cada uno ejecuta `CB.pantallas.ir('<pantalla>')`, el mismo router que usan los
-botones del juego. Para añadir o quitar entradas basta con tocar la lista
-`MENU_PANTALLAS` de `main.py`.
+<details>
+<summary><b>Por qué no se usa el parámetro <code>menu=</code> de pywebview</b></summary>
 
-### Por que el menu esta hecho a mano
+En pywebview 5.3.2 ese camino **no funciona en macOS**, por dos motivos independientes y ambos
+silenciosos:
 
-No se usa el parametro `menu=` de `webview.start()`. En pywebview 5.3.2 ese
-camino **no funciona en macOS**, por dos motivos independientes:
+1. `start()` monta el menú **antes** de crear la ventana, y al crearla pywebview ejecuta
+   `_clear_main_menu()` y lo borra. El menú ni siquiera llega a aparecer.
+2. Aunque aparezca, los objetos internos que reciben el clic se pierden por recolección de
+   basura, porque Cocoa **no retiene** el `target` de un `NSMenuItem`. El menú se despliega, se
+   deja pulsar y no ocurre nada.
 
-1. `start()` monta el menu ANTES de crear la ventana, y al crearla pywebview
-   ejecuta `_clear_main_menu()` y lo borra. El menu no llega a aparecer, y no
-   se registra ningun error.
-2. Aunque aparezca, los objetos internos que reciben el clic se pierden por
-   recoleccion de basura, porque Cocoa **no retiene** el `target` de un
-   `NSMenuItem`. El menu se despliega, se deja pulsar, y no pasa nada.
+Por eso `instalar_menu()` lo construye con PyObjC después del evento `loaded` —ya pasado el
+borrado— y guarda las referencias en `_REFERENCIAS_MENU`.
 
-Por eso `instalar_menu()` lo construye con PyObjC despues del evento `loaded`
-(ya pasado el borrado) y guarda las referencias en `_REFERENCIAS_MENU`.
+Cuidado además con el hilo: `evaluate_js` espera al hilo de la interfaz, así que llamarlo desde
+la acción de un menú sin sacarlo a otro hilo **congela la aplicación**.
 
-Ojo tambien con el hilo: `evaluate_js` espera al hilo de la interfaz, asi que
-llamarlo desde la accion de un menu sin sacarlo a otro hilo **congela la app**.
+</details>
 
 ---
 
-## La ventana
+## El puente JavaScript ↔ Python
 
-Arranca **maximizada**, ocupando toda la pantalla (`maximized=True`). El juego
-esta pensado para apaisado y a pantalla completa: asi el niño no tiene que
-colocar nada antes de jugar.
+El juego es autocontenido y hoy no lo usa, pero está listo para cuando haga falta disco, red o
+sistema.
 
-`width` y `height` (1280x800) no son el tamaño de arranque, sino el que tendra
-la ventana si se restaura. El minimo es 1024x640.
+**En Python** (`api.py`), cada método público queda expuesto:
 
----
-
-## Como se carga el juego (y por que con `file://`)
-
-`main.py` abre la ventana con `url=index.as_uri()`, es decir un `file://`.
-
-Si se le pasa la ruta suelta (`/Users/.../index.html`), pywebview la considera
-"local" y **levanta un servidor HTTP interno**. Con `private_mode=False` ese
-servidor usa siempre el **puerto fijo 42001**, asi que basta con que quede otra
-instancia viva para que la siguiente no pueda abrirlo y la ventana muestre
-`Error: 404 Not Found` en lugar del juego.
-
-Con `file://` no hay servidor, no hay puerto y no queda ningun socket a la
-escucha en el equipo. La ruta se resuelve ademas con `.resolve()`: dentro del
-`.app` la web cuelga de un enlace simbolico (`Contents/Frameworks` ->
-`Contents/Resources`) y WKWebView no lo carga bien sin resolver.
-
----
-
-## Donde se guarda el progreso
-
-El juego guarda perfiles, progreso y ajustes en `localStorage`.
-Lo unico que hace que persista es arrancar con **`private_mode=False`**: con el
-modo privado, el backend Cocoa usa un almacen no persistente y se pierde TODO al
-cerrar.
-
-**`storage_path` no tiene efecto en macOS.** pywebview lo ignora aqui: usa
-siempre `WKWebsiteDataStore.defaultDataStore()`, que guarda en
-
-```
-~/Library/WebKit/<identificador del bundle>/WebsiteData/
-```
-
-Se mantiene en el codigo porque en Windows y Linux si se respeta.
-
-Consecuencia practica: el `.app` (`es.javiertamarit.cubomatica`) y el modo
-desarrollo (`org.python.python`) **no comparten progreso**. Son dos almacenes
-distintos. Es lo esperable: asi las pruebas no ensucian la partida real.
-
----
-
-## Como conectar JavaScript con Python
-
-El juego actual es autocontenido y no usa el puente, pero queda listo:
-
-**En Python** (`api.py`) — creas un metodo:
 ```python
 class Api:
     def saludar(self, nombre: str) -> str:
         return f"Hola, {nombre}"
 ```
 
-**En JavaScript** — lo llamas:
+**En JavaScript**, se llama así:
+
 ```javascript
 const texto = await window.pywebview.api.saludar("Javi");
 ```
 
-**Regla clave:** espera siempre al evento `pywebviewready` antes de usar la API.
+Los métodos que empiezan por `_` no se exponen, y hay un test que lo protege.
+
+> [!TIP]
+> Espera siempre al evento `pywebviewready` antes de usar la API: `window.pywebview.api` no
+> existe todavía cuando la página termina de cargar.
 
 ---
 
-## Limitaciones conocidas (escritorio)
+## Limitaciones conocidas
 
-- **Imprimir el informe** (`window.print()`): WKWebView (macOS) no implementa
-  `window.print()`. El boton «Imprimir» del informe no hace nada dentro de la app.
-  Posible mejora futura: exponer la impresion via `api.py`.
-- **Service worker** (`sw.js`): la web lo registra si el navegador lo soporta;
-  dentro de la app (protocolo `file://`) no se activa. Es inofensivo:
-  la app ya funciona 100 % sin conexion.
+| Limitación | Detalle |
+|---|---|
+| **Imprimir el informe** | WKWebView no implementa `window.print()`, así que el botón «Imprimir» del informe no hace nada dentro de la app. Se podría resolver exponiendo la impresión desde `api.py`. |
+| **Service worker** | El juego lo registra si el navegador lo soporta; bajo `file://` no se activa. Es inofensivo: la app ya funciona sin conexión. |
 
 ---
 
-## Requisitos por sistema operativo
+## Versionado
 
-| Sistema | Motor web | Instalar algo |
+| | |
+|---|---|
+| **Versión de la app** | **4.0.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
+| **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.4.7) |
+| **Identificador** | `es.javiertamarit.cubomatica` |
+
+Son dos números distintos a propósito: esta app empaqueta el juego, pero el juego se versiona en
+su propio proyecto. Un test comprueba que las dos declaraciones de la versión de la app no se
+desincronicen.
+
+### Qué queda bajo control
+
+| Qué | Dónde | Valor |
 |---|---|---|
-| Windows | WebView2 (Edge) | Normalmente ya viene en Win 10/11 |
-| macOS | WebKit | Nada, ya viene |
-| Linux | GTK + WebKit2 | `sudo apt install python3-gi gir1.2-webkit2-4.1` |
+| Librerías | `pyproject.toml` | `pywebview==5.3.2` |
+| Versiones exactas de todo | `uv.lock` | lo genera `uv` |
+| Versión de Python | `.python-version` | `3.11` |
+| Versión de la herramienta `uv` | `pyproject.toml` → `[tool.uv]` | `>=0.12.0` |
 
----
+Los cuatro archivos deben subirse a git, **`uv.lock` incluido**.
 
-## Empaquetar en .exe / .app
-
-Ver **EMPAQUETAR-MAC.md** para el paso a paso completo de macOS:
-
-```bash
-./build-mac.sh        # -> dist/Cubomatica.app
-```
-
-En Windows (desde un Windows):
-```bash
-uv run pyinstaller --noconfirm --windowed --name "Cubomatica" ^
-  --add-data "src/cubomatica/web;cubomatica/web" ^
-  src/cubomatica/main.py
-```
-
----
-
-## Que versiones estan controladas
-
-| Que | Donde | Valor |
-|---|---|---|
-| Librerias | `pyproject.toml` | `pywebview==5.3.2` |
-| Versiones exactas de TODO | `uv.lock` | lo genera uv |
-| Version de Python | `.python-version` | `3.11` |
-| Version de la herramienta uv | `pyproject.toml` -> `[tool.uv]` | `>=0.12.0` |
-
-Los 4 archivos deben subirse a git. Incluido `uv.lock`.
+<div align="center">
+<sub>© 2026 Javier Tamarit</sub>
+</div>
