@@ -13,7 +13,7 @@ from pathlib import Path
 
 APP_NAME = "Cubomatica"
 BUNDLE_ID = "es.javiertamarit.cubomatica"
-VERSION = "4.3.0"
+VERSION = "4.4.0"
 
 ROOT = Path(SPECPATH)
 WEB_DIR = ROOT / "src" / "cubomatica" / "web"
@@ -26,7 +26,7 @@ a = Analysis(
 
     # ---- ARCHIVOS QUE HAY QUE METER DENTRO DEL .app ----
     # Formato: (origen, destino_dentro_del_bundle)
-    # web/ incluye html, css, js, img y audio.
+    # web/ incluye html, css, js, fonts, img, audio y los avisos de licencia.
     datas=[
         (str(WEB_DIR), "cubomatica/web"),
     ],

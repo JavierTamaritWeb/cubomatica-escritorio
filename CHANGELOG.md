@@ -9,6 +9,43 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.4.0] — 2026-08-24
+
+### Añadido
+
+- **El juego dice de quién es y qué se puede hacer con él.** `LICENSE` en la
+  raíz y `web/LICENCIA.txt` dentro del bundle, con el copyright de
+  **JavierTamaritWeb** y todos los derechos reservados. Se puede usar en casa y
+  en el aula en cuantos equipos haga falta; copiarlo, modificarlo o reutilizar
+  su código necesita permiso.
+- El copyright también en pantalla, encabezando el «Aviso legal» de los
+  Créditos: un `.txt` dentro del paquete no lo abre nadie.
+- Ocho tests (`TestLicencia`) que lo protegen, incluido que la reserva de
+  derechos siga dejando fuera el material de terceros.
+
+### Cambiado
+
+- **La Ayuda y la barra de estado ya hablan el mismo idioma.** El panel se
+  llama «Tus vidas: las luces del casco» y empieza por «Arriba, donde pone
+  VIDAS, tienes tres luces en el casco», que es lo que enlaza el rótulo con la
+  ficción. Donde «luz» salía antes de esa explicación ahora dice «vida».
+- Quien oye el juego oye lo mismo que se ve: el estado de las luces se anuncia
+  como «Vidas: 3 luces encendidas de 3».
+
+### Notas técnicas
+
+Reservarse todos los derechos sin excluir la tipografía y la música sería
+reclamar derechos sobre obra ajena, así que ambos textos dejan fuera
+OpenDyslexic (CC BY 3.0) y las pistas de Pixabay, y remiten a sus licencias,
+que siguen viajando al lado de los ficheros. Hay un test para eso: es el tipo
+de frase que se pierde en una reescritura sin que nadie lo note.
+
+La ficción de las luces del casco no se ha tocado: está en los sonidos, en los
+sprites y en la lógica del juego, y funciona. Lo que faltaba era el puente
+entre la palabra que el niño lee en la barra y la que lee en la Ayuda.
+
+---
+
 ## [4.3.0] — 2026-08-24
 
 ### Cambiado
@@ -187,6 +224,7 @@ ningún puerto en el equipo.
 - **Se perdía el progreso al cerrar.** `private_mode=False` es lo único que hace
   persistir `localStorage`, donde el juego guarda perfiles y avance.
 
+[4.4.0]: #440--2026-08-24
 [4.3.0]: #430--2026-08-24
 [4.2.0]: #420--2026-08-24
 [4.1.0]: #410--2026-08-24

@@ -1,0 +1,39 @@
+Copyright © 2026 JavierTamaritWeb. Todos los derechos reservados.
+
+Este repositorio contiene dos cosas:
+
+  · La envoltura de escritorio (Python, pywebview, PyInstaller y los scripts
+    de empaquetado), en src/cubomatica/, tests/, herramientas/ y la raíz.
+  · El juego Cubomática, en src/cubomatica/web/.
+
+Ambas son obra original de JavierTamaritWeb y se publican con todos los
+derechos reservados. Se puede usar la aplicación libremente, en casa o en el
+aula, en tantos equipos como haga falta. Copiarla, redistribuirla, modificarla
+o reutilizar su código en otro proyecto necesita permiso por escrito.
+
+El aviso completo del juego, con lo que se puede y lo que no, está en
+src/cubomatica/web/LICENCIA.txt y viaja dentro de la aplicación empaquetada.
+
+
+MATERIAL DE TERCEROS
+--------------------
+
+Dos elementos del juego no son propios y esta reserva de derechos no los
+alcanza. Conservan su licencia y su atribución:
+
+  · Tipografía OpenDyslexic, de Abelardo Gonzalez — Creative Commons
+    Attribution 3.0. Formas subyacentes de Bitstream.
+    src/cubomatica/web/fonts/LICENCIA-OpenDyslexic.txt
+
+  · Nueve pistas de música, de sus autores — Pixabay Content License.
+    src/cubomatica/web/audio/CREDITOS.txt
+
+La CC BY 3.0 obliga a mantener la atribución de la tipografía. El crédito está
+en la pantalla de Créditos del juego y no puede retirarse sin incumplirla.
+
+
+SIN GARANTÍA
+------------
+
+El software se ofrece tal cual, sin garantía de ningún tipo, expresa o
+implícita. El autor no responde de ningún daño derivado de su uso.

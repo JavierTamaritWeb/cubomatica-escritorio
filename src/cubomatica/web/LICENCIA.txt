@@ -1,0 +1,80 @@
+CUBOMÁTICA — LICENCIA
+=====================
+
+Copyright © 2026 JavierTamaritWeb. Todos los derechos reservados.
+
+Cubomática es una obra original e independiente. El código, los textos, el
+diseño, los nombres, las criaturas, las texturas y los sonidos del juego son de
+creación propia y están generados por código.
+
+
+QUÉ CUBRE ESTE AVISO
+--------------------
+
+Todo lo que hay en esta carpeta salvo el material de terceros que se detalla
+más abajo: el código HTML, CSS y JavaScript, el contenido curricular, los
+textos de las pantallas y las imágenes.
+
+
+QUÉ SE PUEDE HACER
+------------------
+
+  · Usar el juego, en casa o en el aula, con quien se quiera y las veces que
+    se quiera. No hay que pedir permiso ni pagar nada.
+  · Instalar la aplicación en tantos equipos como haga falta.
+  · Enseñarlo, recomendarlo y hablar de él.
+
+
+QUÉ NECESITA PERMISO POR ESCRITO
+--------------------------------
+
+  · Copiar, publicar o redistribuir el juego o parte de él, incluido subirlo a
+    otro sitio web o a una tienda de aplicaciones.
+  · Modificarlo o hacer obras derivadas.
+  · Reutilizar su código, sus textos o su contenido curricular en otro
+    proyecto.
+  · Venderlo o incluirlo en algo que se venda.
+
+Para pedir permiso: JavierTamaritWeb.
+
+
+MATERIAL DE TERCEROS
+--------------------
+
+Dos cosas de este juego NO son propias, y la reserva de derechos de arriba no
+las alcanza. Cada una tiene su licencia y su crédito, y ambos viajan con los
+ficheros:
+
+  · La tipografía OpenDyslexic, de Abelardo Gonzalez, bajo licencia Creative
+    Commons Attribution 3.0. Las formas subyacentes son de Bitstream.
+    Ficheros: fonts/*.otf — Licencia: fonts/LICENCIA-OpenDyslexic.txt
+
+  · Las nueve pistas de música, de sus respectivos autores, bajo la Pixabay
+    Content License.
+    Ficheros: audio/*.mp3 — Créditos y licencia: audio/CREDITOS.txt
+
+Los créditos de ambos están además en la pantalla de Créditos del juego, que
+es donde los ve quien juega. La CC BY 3.0 obliga a mantener esa atribución;
+retirarla incumple la licencia de la tipografía.
+
+
+SIN GARANTÍA
+------------
+
+El juego se ofrece tal cual, sin garantía de ningún tipo.
+
+Cubomática acompaña al aula y no la sustituye. Su distribución del currículo
+por curso y trimestre es una secuenciación propia del proyecto, no la del Real
+Decreto 157/2022, que fija los saberes por ciclo. Debe confirmarse con la
+programación didáctica del centro.
+
+Cubomática no recoge datos personales. No hay servidor, ni red, ni cuentas, ni
+analítica. Todo el progreso vive en el equipo y no sale de él.
+
+
+NO AFILIACIÓN
+-------------
+
+Cubomática no está afiliada, patrocinada ni respaldada por Mojang Studios ni
+por Microsoft. La estética de mundo de cubos es un género artístico y no es
+apropiable.

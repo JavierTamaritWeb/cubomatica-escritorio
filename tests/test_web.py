@@ -200,6 +200,58 @@ class TestTipografia:
         assert "OpenDyslexic" in html, "CC BY 3.0 exige el credito en pantalla"
 
 
+class TestLicencia:
+    """
+    El juego se distribuye, asi que tiene que decir de quien es y que se puede
+    hacer con el.
+
+    El aviso viaja DENTRO de web/, no solo en la raiz del repositorio: quien
+    recibe el .app no recibe el repositorio. Y el credito de la tipografia no
+    es una cortesia, es lo que exige su CC BY 3.0.
+    """
+
+    AUTOR = "JavierTamaritWeb"
+
+    def test_el_juego_lleva_su_licencia(self, web_dir):
+        assert (web_dir / "LICENCIA.txt").is_file(), (
+            "web/LICENCIA.txt viaja dentro del .app; sin el, lo que se "
+            "distribuye no dice de quien es"
+        )
+
+    def test_el_repositorio_lleva_su_licencia(self):
+        assert (ROOT / "LICENSE").is_file()
+
+    @pytest.mark.parametrize("ruta", ["LICENSE", "src/cubomatica/web/LICENCIA.txt"])
+    def test_declara_el_copyright(self, ruta):
+        texto = (ROOT / ruta).read_text(encoding="utf-8")
+        assert self.AUTOR in texto, f"{ruta} no declara el copyright"
+
+    @pytest.mark.parametrize("ruta", ["LICENSE", "src/cubomatica/web/LICENCIA.txt"])
+    def test_excluye_el_material_de_terceros(self, ruta):
+        """
+        Reservarse todos los derechos SIN excluir la fuente y la musica seria
+        reclamar derechos sobre obra ajena.
+        """
+        texto = (ROOT / ruta).read_text(encoding="utf-8")
+        assert "OpenDyslexic" in texto and "Pixabay" in texto, (
+            f"{ruta} no deja fuera el material de terceros"
+        )
+
+    def test_el_juego_ensena_el_copyright(self, web_dir):
+        """En pantalla, no solo en un .txt que nadie abre."""
+        js = (web_dir / "js" / "cubomatica.min.js").read_text(encoding="utf-8")
+        assert self.AUTOR in js, "el copyright no aparece en los creditos del juego"
+        assert "CB.LEGAL.COPYRIGHT" in js, "el panel de aviso legal no lo pinta"
+
+    def test_los_dos_js_dicen_lo_mismo(self, web_dir):
+        """
+        Aqui no hay minificador: el gemelo se mantiene a mano y es lo unico
+        que alguien lee para entender el codigo.
+        """
+        legible = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+        assert self.AUTOR in legible and "COPYRIGHT" in legible
+
+
 class TestPantallaCompleta:
     """
     La app abre a pantalla completa, como al pulsar el boton verde.

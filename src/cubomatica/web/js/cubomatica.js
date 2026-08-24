@@ -1528,6 +1528,12 @@ CB.bus = new CB.util.EventoSimple();
 CB.VERSION = '3.4.7';
 
 CB.LEGAL = {
+  /* El texto completo viaja en web/LICENCIA.txt. Aquí va solo la línea que
+     ve quien juega: el aviso largo no es para un niño de siete años. */
+  COPYRIGHT: '© 2026 JavierTamaritWeb. Todos los derechos reservados. La ' +
+             'tipografía y la música son de otras personas y tienen su propia ' +
+             'licencia: están aquí al lado.',
+
   AVISO: 'Cubomática es una obra original e independiente. No está afiliada, ' +
          'patrocinada ni respaldada por Mojang Studios ni por Microsoft. La estética ' +
          'de mundo de cubos es un género artístico y no es apropiable; todos los ' +
@@ -2969,10 +2975,12 @@ CB.a11y.aplicarAjustes = function (ajustes, ajustesAparato) {
 };
 
 /* Descripción textual del estado de las luces, para lector de pantalla.
-   Nunca «has perdido una vida»: mismo vocabulario que ve el niño. */
+   Empieza por «Vidas» porque es lo que pone en el rótulo de la barra: quien
+   oye el juego y quien lo ve tienen que estar hablando de lo mismo. Luego va
+   la ficción, en el mismo vocabulario que lee el niño en la Ayuda. */
 CB.a11y.textoLuces = function (luces, tope) {
-  if (luces <= 0) return 'Se han apagado todas las luces del casco.';
-  return luces + (luces === 1 ? ' luz encendida' : ' luces encendidas') +
+  if (luces <= 0) return 'Vidas: se han apagado todas las luces del casco.';
+  return 'Vidas: ' + luces + (luces === 1 ? ' luz encendida' : ' luces encendidas') +
          ' de ' + tope + '.';
 };
 
@@ -17748,6 +17756,7 @@ CB.creditos = function () {
   if (legal) {
     CB.ui.vaciar(legal);
     legal.appendChild(CB.ui.crear('h2', null, 'Aviso legal'));
+    legal.appendChild(CB.ui.crear('p', 'texto texto--menor', CB.LEGAL.COPYRIGHT));
     legal.appendChild(CB.ui.crear('p', 'texto texto--menor', CB.LEGAL.AVISO));
     /* La versión se enseña aquí y en ningún otro sitio del juego: es lo que un
        adulto necesita decir por teléfono cuando algo no le funciona. */

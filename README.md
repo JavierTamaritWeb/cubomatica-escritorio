@@ -3,12 +3,12 @@
   <h1>Cubomática</h1>
   <p><b>El juego de matemáticas de Educación Primaria,<br>como aplicación de escritorio para macOS.</b></p>
   <p>
-    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.3.0-2B7BB9" alt="Versión 4.3.0"></a>
+    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.4.0-2B7BB9" alt="Versión 4.4.0"></a>
     <a href=".python-version"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
     <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
     <a href="#requisitos"><img src="https://img.shields.io/badge/plataforma-macOS%2011%2B-555555?logo=apple" alt="macOS 11 o superior"></a>
-    <a href="#tests"><img src="https://img.shields.io/badge/tests-54%20passing-2EA043" alt="54 tests"></a>
+    <a href="#tests"><img src="https://img.shields.io/badge/tests-62%20passing-2EA043" alt="62 tests"></a>
   </p>
   <br>
   <img src="docs/partida.png" width="840" alt="Una partida de Cubomática a pantalla completa, con la barra de estado rotulada">
@@ -29,6 +29,7 @@
 - [El puente JavaScript ↔ Python](#el-puente-javascript--python)
 - [Limitaciones conocidas](#limitaciones-conocidas)
 - [Versionado](#versionado)
+- [Licencia](#licencia)
 - [Registro de cambios](CHANGELOG.md)
 
 ---
@@ -127,7 +128,7 @@ uv run cubomatica
 ## Tests
 
 ```bash
-uv run pytest                                              # los 54
+uv run pytest                                              # los 62
 uv run pytest --cov=cubomatica --cov-report=term-missing   # con cobertura
 ```
 
@@ -147,6 +148,8 @@ revierte, rompe la app **en silencio**.
 | La pantalla completa se comprueba, no se pide | Que arranque en ventana una vez de cada tres |
 | `pyproject.toml` y el `.spec` declaran la misma versión | Que la app diga una versión y el paquete otra |
 | Todas las librerías están fijadas con `==` | Que una actualización silenciosa rompa la app |
+| El aviso de licencia viaja dentro de `web/` | Distribuir el juego sin decir de quién es |
+| La reserva de derechos deja fuera fuente y música | Reclamar derechos sobre obra ajena |
 
 ---
 
@@ -181,6 +184,7 @@ cubomatica/
 │   ├── icon.svg             # el dibujo del icono (el mismo que el favicon)
 │   └── icon.icns            # icono del .app
 ├── CHANGELOG.md             # novedades de cada versión
+├── LICENSE                  # copyright del repositorio entero
 ├── docs/                    # imágenes de este README
 ├── tests/
 │   ├── conftest.py          # fixtures compartidas
@@ -192,6 +196,7 @@ cubomatica/
         ├── api.py           # puente JavaScript ↔ Python
         └── web/             # EL JUEGO
             ├── index.html
+            ├── LICENCIA.txt # el aviso que viaja dentro del .app
             ├── css/  js/    # ojo: solo cargan los .min (ver más arriba)
             ├── fonts/       # OpenDyslexic + su licencia
             ├── img/
@@ -344,7 +349,7 @@ Los métodos que empiezan por `_` no se exponen, y hay un test que lo protege.
 
 | | |
 |---|---|
-| **Versión de la app** | **4.3.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
+| **Versión de la app** | **4.4.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
 | **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.4.7) |
 | **Identificador** | `es.javiertamarit.cubomatica` |
 
@@ -362,6 +367,28 @@ desincronicen.
 | Versión de la herramienta `uv` | `pyproject.toml` → `[tool.uv]` | `>=0.12.0` |
 
 Los cuatro archivos deben subirse a git, **`uv.lock` incluido**.
+
+---
+
+## Licencia
+
+**© 2026 JavierTamaritWeb. Todos los derechos reservados.**
+
+Se puede usar la aplicación libremente, en casa o en el aula, en tantos equipos como haga falta.
+Copiarla, redistribuirla, modificarla o reutilizar su código en otro proyecto necesita permiso
+por escrito.
+
+El aviso completo está en **[LICENSE](LICENSE)** para el repositorio y en
+`src/cubomatica/web/LICENCIA.txt` para el juego. Ese segundo **viaja dentro del `.app`**, porque
+quien recibe la aplicación no recibe el repositorio; el copyright aparece además en la pantalla
+de Créditos, que es donde lo ve quien juega.
+
+> [!IMPORTANT]
+> Dos elementos del juego no son propios y la reserva de derechos **no los alcanza**: la
+> tipografía **OpenDyslexic** (CC BY 3.0, de Abelardo Gonzalez) y las nueve pistas de **música**
+> (Pixabay Content License). Cada una conserva su licencia junto a sus ficheros, en
+> `web/fonts/` y `web/audio/`. La CC BY obliga a mantener la atribución en pantalla: retirarla
+> incumple la licencia. Hay un test para cada cosa.
 
 <div align="center">
 <sub>© 2026 Javier Tamarit</sub>

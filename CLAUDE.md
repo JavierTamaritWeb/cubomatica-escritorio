@@ -72,10 +72,15 @@ Two spacing tokens were retuned with it. `--espaciado-letra` went to `0` and `--
 to `.06em`: the old `.05em`/`.16em` were right for Verdana, where extra tracking aids reading, but
 OpenDyslexic already builds that in and the two stacked left words floating apart.
 
-`src/cubomatica/web/` still carries no licence text for the game itself (`LICENSE`,
-`AVISO-LEGAL.txt`, `LICENCIAS-TERCEROS.md` were never copied), so the shipped `.app` covers the
-font but not the game. Worth fixing before distributing it. There is no `sw.js` either, which is why the game's service-worker
-registration silently no-ops — harmless, since a service worker cannot run under `file://` anyway.
+The game's own licence is `web/LICENCIA.txt` — **inside the bundle**, because whoever receives the
+`.app` does not receive the repository; `LICENSE` at the root covers the repo. Both are © 2026
+JavierTamaritWeb, all rights reserved, and both **carve out the third-party material**: reserving
+every right without excepting OpenDyslexic (CC BY 3.0) and the Pixabay music would be claiming
+rights over someone else's work. `TestLicencia` guards that carve-out, the on-screen copyright
+(`CB.LEGAL.COPYRIGHT`, painted at the head of the Créditos «Aviso legal» panel) and the two files.
+
+There is no `sw.js`, which is why the game's service-worker registration silently no-ops —
+harmless, since a service worker cannot run under `file://` anyway.
 
 ## Orienting inside the bundle
 
@@ -144,6 +149,13 @@ the progress reads «Pregunta 3 de 20» rather than «3/20» — minutes:seconds
 notations that 2.º de Primaria has not been taught. Label size is
 `calc(var(--tam-texto-min) * .8)` rather than a fixed px so the stored «Letra grande» preference
 scales it too. Apply the same test to any text you add.
+
+**The fiction stays, but it has to be bridged.** The helmet lights run through the sprites, the
+SFX and the game rules, so they were not renamed. What was added is the bridge: the Ayuda panel
+is «Tus vidas: las luces del casco» and opens with «Arriba, donde pone VIDAS, tienes tres luces
+en el casco», and `CB.a11y.textoLuces` announces «Vidas: 3 luces encendidas de 3» so a screen
+reader says what the label shows. Where «luz» appeared *before* that panel it now says «vida».
+If you add fiction vocabulary to a label, add the bridge in the same change.
 
 The labels are set in caps at the owner's request. All-caps costs a new reader the word shape, so
 size is doing the legibility work instead, and they carry `letter-spacing: .06em` — the game's
