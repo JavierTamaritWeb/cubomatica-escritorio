@@ -9,6 +9,61 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.11.0] — 2026-08-24
+
+El juego deja de repetir preguntas por costumbre, y el banco de enunciados se
+dobla. Juego 3.10.0.
+
+### Corregido
+
+- **Salir a medias y volver a entrar el mismo día daba las mismas preguntas en
+  el mismo orden.** La semilla de cada expedición salía de `perfil + fecha +
+  n.º de partidas`, y esa cuenta solo sube al terminar: dos arranques seguidos
+  con la misma cuenta eran la misma partida, y el niño se las aprendía. Ahora
+  la semilla es nueva en cada partida (`CB.util.semillaAleatoria`,
+  `crypto.getRandomValues`). Los generadores siguen siendo puros y la semilla
+  sigue viajando con la partida guardada.
+- **Reanudar una expedición guardada cambiaba de preguntas si había cambiado el
+  día.** `reanudarGuardada` volvía a llamar a `iniciar()`, que recalculaba la
+  semilla con la fecha; ahora le pasa la que guardó (`semillaPartida`). El ítem
+  que estaba en pantalla al guardar se regenera con otros números, como siempre
+  —ya consta como servido—; el resto del guion es el mismo.
+- **Un reto del jefe perdido y repetido el mismo día traía las mismas cuentas**,
+  así que se podía ganar de memoria. También estrena semilla en cada combate.
+
+### Añadido
+
+- **Memoria de ítems entre partidas** (`2C-vistos.js`, `CB.vistos`). El juego
+  guarda por veta los últimos 40 ítems servidos (`perfil.items`, un campo del
+  esquema 1 que nadie escribía) y, al servir, pide al generador hasta 40
+  candidatos y se queda con el primero que no haya salido ni en la sesión ni en
+  esa memoria; si todos han salido, sirve el más antiguo. Con ello una veta de
+  N ≤ 40 preguntas las recorre todas antes de repetir una: en la tabla del 2,
+  medio de cada partida ya había salido en la anterior y ahora es el suelo
+  matemático (una de seis); en «¿Con qué se mide?» y «Complementos a 10 y a
+  100» la repetición entre partidas seguidas baja a cero. Nunca se bloquea y
+  dentro de una sesión sigue sin repetirse nada. La poda del almacén recorta
+  la memoria y la importación la sanea.
+- **El banco de enunciados se dobla:** 80 nombres (40 F + 40 M) y 120 objetos
+  contables para los problemas. Los objetos nuevos entran solos en la lista
+  blanca, y un test genera 17.000 enunciados y los pasa por el validador de
+  lectura fácil del juego: ninguno tropieza.
+- **Las listas cerradas de siete vetas crecen:** «¿Con qué se mide?» 7 → 14
+  casos, «La fracción y el decimal» 4 → 8 pares, «El denominador común» 8 → 16,
+  «Los ejes de simetría» 4 → 8 figuras, «Caras, aristas y vértices» 3 → 6
+  cuerpos, «Las figuras por sus lados» 5 → 7 polígonos y «Seguro o imposible»
+  cuatro colores → seis a partir del segundo escalón. Los bancos acotados por
+  las matemáticas o por lo que la interfaz sabe dibujar (la tabla del 2 tiene
+  once preguntas; hay cuatro figuras planas dibujables) no se tocan.
+- `herramientas/cargar-bundle.js` carga el juego en node sin navegador, y
+  `herramientas/medir-banco.js` mide el banco real de cada veta (D1–D3) y la
+  repetición entre partidas con y sin memoria.
+- `TestBancoDePreguntas`: siete tests, dos de ellos cargan el bundle en node
+  (la tabla del 2 sale entera antes de repetir; los 120 objetos pasan el
+  validador). Total, 88.
+
+---
+
 ## [4.10.1] — 2026-08-24
 
 «Seguir cavando» del descanso vuelve a funcionar. Juego 3.9.1.

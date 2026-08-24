@@ -6,7 +6,10 @@ la ventana se abre en blanco porque falta un archivo
 o porque una ruta es absoluta.
 """
 
+import json
 import re
+import shutil
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -773,3 +776,124 @@ class TestVersionDeUv:
         assert (may_f, min_f) >= (may_r, min_r), (
             f".python-version ({version}) es menor que requires-python ({requiere})"
         )
+
+
+class TestBancoDePreguntas:
+    """El juego no repite preguntas por costumbre (3.10.0).
+
+    Hasta 3.9.x la semilla de cada expedición salía de perfil + fecha + n.º de
+    partidas: salir a medias y volver a entrar el mismo día daba el mismo guion
+    y las mismas preguntas, y nada recordaba entre partidas qué ítems se habían
+    servido. Ahora la semilla es nueva en cada partida (y viaja con la partida
+    guardada para poder reanudarla), y `2C-vistos.js` guarda por veta los
+    últimos ítems servidos para preferir lo que el niño no ha visto. De paso,
+    el banco de enunciados se dobla: 80 nombres y 120 objetos.
+    """
+
+    @pytest.fixture
+    def js(self, web_dir):
+        return (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+
+    @staticmethod
+    def _cuerpo(js, nombre):
+        """El texto de `nombre = function` hasta la siguiente definición CB.*."""
+        ini = js.index(f"{nombre} = function")
+        fin = js.find("\nCB.", ini + 1)
+        return js[ini:fin]
+
+    @staticmethod
+    def _node(tmp_path, script):
+        node = shutil.which("node")
+        if not node:
+            pytest.skip("hace falta node para cargar el bundle sin navegador")
+        fichero = tmp_path / "sonda.js"
+        fichero.write_text(script, encoding="utf-8")
+        salida = subprocess.run([node, str(fichero)], capture_output=True, text=True, timeout=180)
+        assert salida.returncode == 0, salida.stderr
+        return json.loads(salida.stdout.strip().splitlines()[-1])
+
+    CARGADOR = "const { CB } = require(" + json.dumps(str(ROOT / "herramientas" / "cargar-bundle.js")) + ");\n"
+
+    def test_la_semilla_de_la_partida_no_sale_de_la_fecha(self, js):
+        assert "CB.util.semillaAleatoria = function" in js
+        iniciar = self._cuerpo(js, "CB.partida.iniciar")
+        assert "CB.util.semillaAleatoria()" in iniciar
+        assert "hoyISO" not in iniciar, "la semilla volvería a repetirse dentro del mismo día"
+
+    def test_reanudar_conserva_la_semilla_guardada(self, js):
+        reanudar = self._cuerpo(js, "CB.partida.reanudarGuardada")
+        assert "semilla: p.semillaPartida" in reanudar
+
+    def test_el_combate_del_jefe_tampoco_se_repite(self, js):
+        jefes = js[js.index("/* 42-jefes.js"):js.index("/* 43-mapa-destrezas.js")]
+        assert "rng: CB.util.mulberry32(CB.util.semillaAleatoria())" in jefes
+
+    def test_hay_memoria_de_items_entre_partidas(self, js):
+        assert "/* 2C-vistos.js" in js
+        servir = self._cuerpo(js, "CB.partida.servirItem")
+        assert "CB.vistos.elegir(perfil, nivelId" in servir
+        assert "CB.vistos.anotar(perfil, nivelId" in servir
+        podar = self._cuerpo(js, "CB.almacen.podar")
+        assert "CB.vistos.podar(perfil, factor)" in podar
+
+    def test_el_banco_de_enunciados_se_ha_doblado(self, js):
+        def lista(nombre):
+            ini = js.index(f"CB.datos.{nombre} = [")
+            return re.findall(r"'([^']+)'", js[ini:js.index("];", ini)])
+
+        assert len(lista("NOMBRES_F")) >= 40
+        assert len(lista("NOMBRES_M")) >= 40
+        objetos = js[js.index("CB.datos.OBJETOS = ["):]
+        objetos = objetos[:objetos.index("];")]
+        assert objetos.count("{ sing:") >= 120
+
+    def test_recorre_el_banco_entero_antes_de_repetir(self, tmp_path):
+        """La tabla del 2 tiene once preguntas: las once salen antes de que
+        vuelva ninguna, y la que vuelve es la más antigua."""
+        datos = self._node(tmp_path, self.CARGADOR + """
+const n = CB.catalogo.get('M4');
+const perfil = { items: {} }, servidos = [];
+for (let i = 0; i < 22; i++) {
+  const el = CB.vistos.elegir(perfil, 'M4',
+    (k) => n.generar(CB.util.mulberry32(i * 7919 + k * 104729 + 1), 2, { techo: 999, ajustes: {} }),
+    () => false);
+  servidos.push(el.item.expr);
+  CB.vistos.anotar(perfil, 'M4', el.clave);
+}
+console.log(JSON.stringify({
+  primeraVuelta: new Set(servidos.slice(0, 11)).size,
+  segundaVuelta: new Set(servidos.slice(11)).size,
+  vuelveElMasAntiguo: servidos[11] === servidos[0],
+  guardado: perfil.items.M4.length
+}));
+""")
+        assert datos["primeraVuelta"] == 11
+        assert datos["segundaVuelta"] == 11
+        assert datos["vuelveElMasAntiguo"] is True
+        assert datos["guardado"] == 11
+
+    def test_los_enunciados_nuevos_pasan_el_validador(self, tmp_path):
+        """Los 120 objetos aparecen en los problemas y ninguno tropieza con el
+        validador de lectura fácil del juego (lista blanca, ancho, tildes)."""
+        datos = self._node(tmp_path, self.CARGADOR + """
+const ids = (CB.catalogo._ids || Object.keys(CB.catalogo._porId)).filter((id) => id[0] === 'P');
+let total = 0, rechazados = 0;
+const vistos = {};
+ids.forEach((id) => {
+  const n = CB.catalogo.get(id), bolsas = CB.gen.problemas.nuevoEstadoBolsas();
+  for (let k = 0; k < 400; k++) {
+    const it = n.generar(CB.util.mulberry32(k * 7919 + 13), 1 + (k % 3), { bolsas, techo: 999, ajustes: {} });
+    if (!it) continue;
+    total++;
+    if (!CB.gen.problemas.validar(it).ok) rechazados++;
+    (it.frases || []).forEach((f) => CB.datos.OBJETOS.forEach((o) => {
+      if (f.indexOf(' ' + o.plur) !== -1) vistos[o.sing] = true;
+    }));
+  }
+});
+console.log(JSON.stringify({ total, rechazados, objetos: Object.keys(vistos).length,
+                             deLaTabla: CB.datos.OBJETOS.length }));
+""")
+        assert datos["total"] > 1000
+        assert datos["rechazados"] == 0
+        assert datos["objetos"] == datos["deLaTabla"] == 120

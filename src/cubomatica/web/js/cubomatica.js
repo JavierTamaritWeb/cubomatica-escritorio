@@ -175,26 +175,33 @@ CB.CURRICULO = {
   }
 };
 
-/* nombres.js — 40 nombres propios para los enunciados (20 F + 20 M) */
+/* nombres.js — 80 nombres propios para los enunciados (40 F + 40 M). Los 40
+   segundos llegan en 3.10.0, al doblar el banco de enunciados. */
 
 var CB = CB || {};
 CB.datos = CB.datos || {};
 
 CB.datos.NOMBRES_F = [
   'Ana', 'Eva', 'Sara', 'Marta', 'Julia', 'Laia', 'Noa', 'Emma', 'Iris', 'Alba',
-  'Nora', 'Elsa', 'Lola', 'Vega', 'Aixa', 'Nadia', 'Yasmin', 'Fatma', 'Lin', 'Zoe'
+  'Nora', 'Elsa', 'Lola', 'Vega', 'Aixa', 'Nadia', 'Yasmin', 'Fatma', 'Lin', 'Zoe',
+  'Lucía', 'María', 'Carla', 'Paula', 'Clara', 'Vera', 'Irene', 'Aina', 'Ona', 'Inés',
+  'Gala', 'Lara', 'Mía', 'Ada', 'Leire', 'Naia', 'Amira', 'Dana', 'Mei', 'Sofía'
 ];
 
 CB.datos.NOMBRES_M = [
   'Leo', 'Hugo', 'Bruno', 'Pablo', 'Marc', 'Pau', 'Jan', 'Nil', 'Iker', 'Mario',
-  'Nico', 'Iván', 'Adam', 'Omar', 'Amir', 'Karim', 'Wei', 'Dani', 'Raúl', 'Toño'
+  'Nico', 'Iván', 'Adam', 'Omar', 'Amir', 'Karim', 'Wei', 'Dani', 'Raúl', 'Toño',
+  'Luca', 'Enzo', 'Martín', 'Diego', 'Mateo', 'Marcos', 'Joel', 'Biel', 'Aitor', 'Unai',
+  'Oier', 'Samu', 'Teo', 'Izan', 'Youssef', 'Ali', 'Kai', 'Rubén', 'Pedro', 'Jorge'
 ];
 
 /* Nombres prohibidos: colisionan con la lista negra de marca o con personajes
    de terceros. `pruebas/casos-problemas.js` comprueba que ninguno aparece. */
 CB.datos.NOMBRES_PROHIBIDOS = ['Alex', 'Álex', 'Steve', 'Herobrine', 'Notch'];
 
-/* objetos.js — 60 objetos contables para los enunciados */
+/* objetos.js — 120 objetos contables para los enunciados. Los 60 segundos llegan
+   en 3.10.0, al doblar el banco de enunciados; van detrás de los suyos, por
+   categoría, y entran solos en la lista blanca. */
 
 var CB = CB || {};
 CB.datos = CB.datos || {};
@@ -222,6 +229,14 @@ CB.datos.OBJETOS = [
   { sing: 'sello',     plur: 'sellos',     g: 'm', cat: 'coleccion', sprite: '🏷' },
   { sing: 'gema',      plur: 'gemas',      g: 'f', cat: 'coleccion', sprite: '💎' },
   { sing: 'dado',      plur: 'dados',      g: 'm', cat: 'coleccion', sprite: '🎲' },
+  { sing: 'chapa',     plur: 'chapas',     g: 'f', cat: 'coleccion', sprite: '🔘' },
+  { sing: 'imán',      plur: 'imanes',     g: 'm', cat: 'coleccion', sprite: '🧲' },
+  { sing: 'botón',     plur: 'botones',    g: 'm', cat: 'coleccion', sprite: '🔘' },
+  { sing: 'llavero',   plur: 'llaveros',   g: 'm', cat: 'coleccion', sprite: '🔑' },
+  { sing: 'postal',    plur: 'postales',   g: 'f', cat: 'coleccion', sprite: '📮' },
+  { sing: 'tapón',     plur: 'tapones',    g: 'm', cat: 'coleccion', sprite: '🔵' },
+  { sing: 'pulsera',   plur: 'pulseras',   g: 'f', cat: 'coleccion', sprite: '📿' },
+  { sing: 'medalla',   plur: 'medallas',   g: 'f', cat: 'coleccion', sprite: '🏅' },
 
   /* — comida — */
   { sing: 'manzana',   plur: 'manzanas',   g: 'f', cat: 'comida', sprite: '🍎' },
@@ -237,6 +252,19 @@ CB.datos.OBJETOS = [
   { sing: 'patata',    plur: 'patatas',    g: 'f', cat: 'comida', sprite: '🥔' },
   { sing: 'nuez',      plur: 'nueces',     g: 'f', cat: 'comida', sprite: '🌰' },
   { sing: 'seta',      plur: 'setas',      g: 'f', cat: 'comida', sprite: '🍄' },
+  { sing: 'plátano',   plur: 'plátanos',   g: 'm', cat: 'comida', sprite: '🍌' },
+  { sing: 'cereza',    plur: 'cerezas',    g: 'f', cat: 'comida', sprite: '🍒' },
+  { sing: 'ciruela',   plur: 'ciruelas',   g: 'f', cat: 'comida', sprite: '🟣' },
+  { sing: 'kiwi',      plur: 'kiwis',      g: 'm', cat: 'comida', sprite: '🥝' },
+  { sing: 'mandarina', plur: 'mandarinas', g: 'f', cat: 'comida', sprite: '🍊' },
+  { sing: 'bombón',    plur: 'bombones',   g: 'm', cat: 'comida', sprite: '🍫' },
+  { sing: 'churro',    plur: 'churros',    g: 'm', cat: 'comida', sprite: '🥖' },
+  { sing: 'bocadillo', plur: 'bocadillos', g: 'm', cat: 'comida', sprite: '🥪' },
+  { sing: 'yogur',     plur: 'yogures',    g: 'm', cat: 'comida', sprite: '🥛' },
+  { sing: 'pimiento',  plur: 'pimientos',  g: 'm', cat: 'comida', sprite: '🫑' },
+  { sing: 'pepino',    plur: 'pepinos',    g: 'm', cat: 'comida', sprite: '🥒' },
+  { sing: 'almendra',  plur: 'almendras',  g: 'f', cat: 'comida', sprite: '🌰' },
+  { sing: 'aceituna',  plur: 'aceitunas',  g: 'f', cat: 'comida', sprite: '🫒' },
 
   /* — juguete — */
   { sing: 'pelota',    plur: 'pelotas',    g: 'f', cat: 'juguete', sprite: '⚽' },
@@ -251,6 +279,18 @@ CB.datos.OBJETOS = [
   { sing: 'aro',       plur: 'aros',       g: 'm', cat: 'juguete', sprite: '⭕' },
   { sing: 'pala',      plur: 'palas',      g: 'f', cat: 'juguete', sprite: '🥄' },
   { sing: 'cubo',      plur: 'cubos',      g: 'm', cat: 'juguete', sprite: '🪣' },
+  { sing: 'muñeca',    plur: 'muñecas',    g: 'f', cat: 'juguete', sprite: '🪆' },
+  { sing: 'muñeco',    plur: 'muñecos',    g: 'm', cat: 'juguete', sprite: '🧸' },
+  { sing: 'puzle',     plur: 'puzles',     g: 'm', cat: 'juguete', sprite: '🧩' },
+  { sing: 'camión',    plur: 'camiones',   g: 'm', cat: 'juguete', sprite: '🚚' },
+  { sing: 'moto',      plur: 'motos',      g: 'f', cat: 'juguete', sprite: '🏍' },
+  { sing: 'robot',     plur: 'robots',     g: 'm', cat: 'juguete', sprite: '🤖' },
+  { sing: 'dinosaurio',plur: 'dinosaurios',g: 'm', cat: 'juguete', sprite: '🦕' },
+  { sing: 'peonza',    plur: 'peonzas',    g: 'f', cat: 'juguete', sprite: '🪀' },
+  { sing: 'tambor',    plur: 'tambores',   g: 'm', cat: 'juguete', sprite: '🥁' },
+  { sing: 'silbato',   plur: 'silbatos',   g: 'm', cat: 'juguete', sprite: '📯' },
+  { sing: 'balón',     plur: 'balones',    g: 'm', cat: 'juguete', sprite: '🏀' },
+  { sing: 'patín',     plur: 'patines',    g: 'm', cat: 'juguete', sprite: '🛼' },
 
   /* — escolar — */
   { sing: 'lápiz',     plur: 'lápices',    g: 'm', cat: 'escolar', sprite: '✏' },
@@ -261,6 +301,14 @@ CB.datos.OBJETOS = [
   { sing: 'tijera',    plur: 'tijeras',    g: 'f', cat: 'escolar', sprite: '✂' },
   { sing: 'rotulador', plur: 'rotuladores',g: 'm', cat: 'escolar', sprite: '🖊' },
   { sing: 'carpeta',   plur: 'carpetas',   g: 'f', cat: 'escolar', sprite: '📁' },
+  { sing: 'bolígrafo', plur: 'bolígrafos', g: 'm', cat: 'escolar', sprite: '🖊' },
+  { sing: 'pincel',    plur: 'pinceles',   g: 'm', cat: 'escolar', sprite: '🖌' },
+  { sing: 'cera',      plur: 'ceras',      g: 'f', cat: 'escolar', sprite: '🖍' },
+  { sing: 'clip',      plur: 'clips',      g: 'm', cat: 'escolar', sprite: '📎' },
+  { sing: 'tiza',      plur: 'tizas',      g: 'f', cat: 'escolar', sprite: '🩹' },
+  { sing: 'folio',     plur: 'folios',     g: 'm', cat: 'escolar', sprite: '📄' },
+  { sing: 'libreta',   plur: 'libretas',   g: 'f', cat: 'escolar', sprite: '📒' },
+  { sing: 'estuche',   plur: 'estuches',   g: 'm', cat: 'escolar', sprite: '👝' },
 
   /* — natura — */
   { sing: 'hoja',      plur: 'hojas',      g: 'f', cat: 'natura', sprite: '🍂' },
@@ -272,6 +320,15 @@ CB.datos.OBJETOS = [
   { sing: 'semilla',   plur: 'semillas',   g: 'f', cat: 'natura', sprite: '🌱' },
   { sing: 'bellota',   plur: 'bellotas',   g: 'f', cat: 'natura', sprite: '🌰' },
   { sing: 'estrella',  plur: 'estrellas',  g: 'f', cat: 'natura', sprite: '⭐' },
+  { sing: 'piña',      plur: 'piñas',      g: 'f', cat: 'natura', sprite: '🌲' },
+  { sing: 'rama',      plur: 'ramas',      g: 'f', cat: 'natura', sprite: '🌿' },
+  { sing: 'castaña',   plur: 'castañas',   g: 'f', cat: 'natura', sprite: '🌰' },
+  { sing: 'pétalo',    plur: 'pétalos',    g: 'm', cat: 'natura', sprite: '🌸' },
+  { sing: 'margarita', plur: 'margaritas', g: 'f', cat: 'natura', sprite: '🌼' },
+  { sing: 'girasol',   plur: 'girasoles',  g: 'm', cat: 'natura', sprite: '🌻' },
+  { sing: 'trébol',    plur: 'tréboles',   g: 'm', cat: 'natura', sprite: '🍀' },
+  { sing: 'rosa',      plur: 'rosas',      g: 'f', cat: 'natura', sprite: '🌹' },
+  { sing: 'tulipán',   plur: 'tulipanes',  g: 'm', cat: 'natura', sprite: '🌷' },
 
   /* — animal — */
   { sing: 'pez',       plur: 'peces',      g: 'm', cat: 'animal', sprite: '🐟' },
@@ -282,10 +339,20 @@ CB.datos.OBJETOS = [
   { sing: 'oveja',     plur: 'ovejas',     g: 'f', cat: 'animal', sprite: '🐑' },
   { sing: 'rana',      plur: 'ranas',      g: 'f', cat: 'animal', sprite: '🐸' },
   { sing: 'abeja',     plur: 'abejas',     g: 'f', cat: 'animal', sprite: '🐝' },
+  { sing: 'caracol',   plur: 'caracoles',  g: 'm', cat: 'animal', sprite: '🐌' },
+  { sing: 'pato',      plur: 'patos',      g: 'm', cat: 'animal', sprite: '🦆' },
+  { sing: 'gallina',   plur: 'gallinas',   g: 'f', cat: 'animal', sprite: '🐔' },
+  { sing: 'tortuga',   plur: 'tortugas',   g: 'f', cat: 'animal', sprite: '🐢' },
+  { sing: 'mariposa',  plur: 'mariposas',  g: 'f', cat: 'animal', sprite: '🦋' },
+  { sing: 'hormiga',   plur: 'hormigas',   g: 'f', cat: 'animal', sprite: '🐜' },
+  { sing: 'ratón',     plur: 'ratones',    g: 'm', cat: 'animal', sprite: '🐭' },
+  { sing: 'caballo',   plur: 'caballos',   g: 'm', cat: 'animal', sprite: '🐴' },
 
   /* — bloque — */
   { sing: 'bloque',    plur: 'bloques',    g: 'm', cat: 'bloque', sprite: '🟫' },
-  { sing: 'ladrillo',  plur: 'ladrillos',  g: 'm', cat: 'bloque', sprite: '🧱' }
+  { sing: 'ladrillo',  plur: 'ladrillos',  g: 'm', cat: 'bloque', sprite: '🧱' },
+  { sing: 'baldosa',   plur: 'baldosas',   g: 'f', cat: 'bloque', sprite: '🟫' },
+  { sing: 'tablón',    plur: 'tablones',   g: 'm', cat: 'bloque', sprite: '🪵' }
 ];
 
 /* Se completan artículo y verbos en tiempo de definición: así el objeto que
@@ -1316,6 +1383,27 @@ CB.util.hash32 = function (texto) {
   return h >>> 0;
 };
 
+/* Semilla NUEVA para cada partida (3.10.0). Hasta 3.9.x la semilla de la
+   expedición salía de hash32(perfil + fecha + n.º de partidas): dos arranques
+   el mismo día con la misma cuenta de partidas —salir a medias y volver a
+   entrar— daban el mismo guion y las mismas preguntas en el mismo orden, y el
+   niño se las aprendía. Lo aleatorio es DE DÓNDE sale la semilla, no lo que se
+   hace con ella: se guarda con la partida (semillaPartida), reanudar reproduce
+   los ítems, y los generadores siguen recibiendo un rng derivado, nunca
+   Math.random. Sin crypto (no debería pasar en WebKit) se mezcla el reloj. */
+CB.util.semillaAleatoria = function () {
+  try {
+    if (typeof crypto !== 'undefined' && crypto && crypto.getRandomValues) {
+      const u = new Uint32Array(1);
+      crypto.getRandomValues(u);
+      return u[0] >>> 0;
+    }
+  } catch (e) { }
+  const fino = (typeof performance !== 'undefined' && performance && performance.now)
+    ? Math.floor(performance.now() * 1000) : 0;
+  return (Date.now() ^ fino ^ 0x9E3779B9) >>> 0;
+};
+
 /* Entero en [min, max], ambos incluidos. */
 CB.util.ent = function (rng, min, max) {
   if (max < min) { const t = min; min = max; max = t; }
@@ -1525,7 +1613,7 @@ CB.bus = new CB.util.EventoSimple();
 
 /* CB.LEGAL */
 /* Versión */
-CB.VERSION = '3.9.1';
+CB.VERSION = '3.10.0';
 
 CB.LEGAL = {
   /* El texto completo viaja en web/LICENCIA.txt. Aquí va solo la línea que
@@ -2013,7 +2101,10 @@ CB.almacen.podar = function (perfil, opciones) {
       if (d.ejemplosFallados && d.ejemplosFallados.length > 3) d.ejemplosFallados.length = 3;
     }
   }
+  /* items: la memoria de ítems vistos por veta (2C-vistos.js). Se recorta
+     cada lista a su ventana y, por si acaso, el número de vetas. */
   if (perfil.items) {
+    if (CB.vistos && CB.vistos.podar) CB.vistos.podar(perfil, factor);
     const claves = Object.keys(perfil.items);
     while (claves.length > 400) delete perfil.items[claves.shift()];
   }
@@ -2064,6 +2155,20 @@ CB.almacen.validarImportado = function (crudo, motesValidos) {
   }
   if (!limpio.id || !/^[A-Za-z0-9-]{1,32}$/.test(String(limpio.id))) {
     limpio.id = 'p-' + CB.util.hash32(String(limpio.mote) + limpio.avatar).toString(16);
+  }
+  /* items: la memoria de ítems vistos (2C-vistos.js), un objeto de listas de
+     claves cortas por veta. Lo que no tenga esa forma se descarta: perderla
+     solo cuesta que alguna pregunta vuelva antes de tiempo. */
+  if (!limpio.items || typeof limpio.items !== 'object' || Array.isArray(limpio.items)) {
+    limpio.items = {};
+  } else {
+    Object.keys(limpio.items).forEach(function (k) {
+      const l = limpio.items[k];
+      if (!Array.isArray(l) || !/^[A-Z]\d{1,3}$/.test(k)) { delete limpio.items[k]; return; }
+      limpio.items[k] = l.filter(function (c) {
+        return typeof c === 'string' && /^[0-9a-z]{1,8}$/.test(c);
+      }).slice(-40);
+    });
   }
 
   if (limpio.respuestas && limpio.respuestas.length > 800) limpio.respuestas = limpio.respuestas.slice(-800);
@@ -6603,7 +6708,13 @@ CB.gen.fracciones.F9 = function (rng, D) {
     [['0,5'], 1, 2, [[1, 5], [2, 5], [1, 4]]],
     [['0,25'], 1, 4, [[1, 2], [2, 5], [1, 5]]],
     [['0,75'], 3, 4, [[7, 5], [1, 4], [3, 5]]],
-    [['0,1'], 1, 10, [[1, 2], [1, 5], [10, 1]]]
+    [['0,1'], 1, 10, [[1, 2], [1, 5], [10, 1]]],
+    /* 3.10.0: el banco se dobla. Ningún distractor vale lo mismo que la
+       respuesta (2/10 sería 0,2 otra vez). */
+    [['0,2'], 1, 5, [[1, 2], [2, 1], [1, 4]]],
+    [['0,4'], 2, 5, [[1, 4], [4, 1], [1, 2]]],
+    [['0,3'], 3, 10, [[1, 3], [3, 1], [1, 5]]],
+    [['0,9'], 9, 10, [[1, 9], [9, 1], [3, 4]]]
   ]);
   return itemFrac('¿Qué fracción es ' + par[0][0] + '?', par[1], par[2],
     par[3].map(function (p) { return fstr(p[0], p[1]); }),
@@ -6623,7 +6734,10 @@ CB.gen.fracciones.F10 = function (rng, D) {
 
 /* F11 El denominador común (5.º) */
 CB.gen.fracciones.F11 = function (rng, D) {
-  const pares = [[2, 3], [3, 4], [2, 5], [4, 6], [3, 5], [4, 10], [6, 8], [2, 7]];
+  /* Los cuatro primeros son el escalón fácil; los ocho últimos llegan en
+     3.10.0 al doblar el banco. */
+  const pares = [[2, 3], [3, 4], [2, 5], [4, 6], [3, 5], [4, 10], [6, 8], [2, 7],
+                 [3, 6], [5, 10], [4, 8], [6, 9], [5, 6], [3, 8], [4, 5], [6, 10]];
   const p = CB.util.elegir(rng, (D === 1) ? pares.slice(0, 4) : pares);
   return {
     formato: 'teclado',
@@ -7267,7 +7381,15 @@ CB.gen.medida.B3 = function (rng, D) {
     ['lo que dura el recreo', 'minutos'],
     ['lo que pesa una carta', 'gramos'],
     ['el alto de una puerta', 'metros'],
-    ['la leche de una jarra', 'litros']
+    ['la leche de una jarra', 'litros'],
+    /* 3.10.0: el banco se dobla, con las mismas cinco unidades. */
+    ['el agua de una piscina', 'litros'],
+    ['lo que pesa un saco de patatas', 'kilos'],
+    ['el largo de un campo de fútbol', 'metros'],
+    ['lo que dura una película', 'minutos'],
+    ['lo que pesa una moneda', 'gramos'],
+    ['el ancho de una mesa', 'metros'],
+    ['lo que pesa un elefante', 'kilos']
   ];
   const c = CB.util.elegir(rng, casos);
   const todas = ['litros', 'kilos', 'metros', 'minutos', 'gramos'];
@@ -7916,7 +8038,9 @@ CB.gen.datos.G12 = function (rng, D) {
 /* A1 Seguro o imposible (1.º): la respuesta es un COLOR, nunca la palabra
    «posible» (cuando algo es seguro, también es posible: sería ambiguo). */
 CB.gen.azar.A1 = function (rng, D) {
-  const colores = CB.util.barajar(COLORES_BOLA.slice(0, 4), rng);
+  /* Cuatro colores en el escalón fácil; los seis a partir del segundo (3.10.0):
+     con cuatro, la pregunta «seguro» solo tenía cuatro versiones. */
+  const colores = CB.util.barajar(COLORES_BOLA.slice(0, (D === 1) ? 4 : 6), rng);
   if (D === 1 || rng() < 0.5) {
     return {
       formato: 'opciones4',
@@ -8499,14 +8623,20 @@ const FIGURAS_PLANAS = [
 /* Polígonos por número de lados (4.º, solo de palabra). */
 const POLIGONOS_LADOS = [
   ['el triángulo', 3], ['el cuadrilátero', 4], ['el pentágono', 5],
-  ['el hexágono', 6], ['el octógono', 8]
+  ['el hexágono', 6], ['el octógono', 8],
+  /* 3.10.0: dos más. No hay diez polígonos que un niño de 4.º deba nombrar. */
+  ['el heptágono', 7], ['el decágono', 10]
 ];
 
 /* Cuerpos geométricos: nombre, caras, aristas y vértices. */
 const CUERPOS_GEO = [
   ['un cubo', 6, 12, 8],
   ['una pirámide de base cuadrada', 5, 8, 5],
-  ['un prisma de base triangular', 5, 9, 6]
+  ['un prisma de base triangular', 5, 9, 6],
+  /* 3.10.0: el banco se dobla. El cubo sigue siendo el escalón fácil. */
+  ['un prisma de base cuadrada', 6, 12, 8],
+  ['una pirámide de base triangular', 4, 6, 4],
+  ['un prisma de base hexagonal', 8, 18, 12]
 ];
 
 /* Tipos de ángulo con los grados que los dibujan. «llano» incluido: 180 se ve. */
@@ -8526,7 +8656,12 @@ const SIMETRIAS_FIGURA = [
   ['un cuadrado', 4],
   ['un rectángulo que no es cuadrado', 2],
   ['un triángulo equilátero, con los tres lados iguales', 3],
-  ['un rombo que no es cuadrado', 2]
+  ['un rombo que no es cuadrado', 2],
+  /* 3.10.0: el banco se dobla. Las dos primeras siguen siendo el escalón fácil. */
+  ['un pentágono regular, con los cinco lados iguales', 5],
+  ['un hexágono regular, con los seis lados iguales', 6],
+  ['un triángulo isósceles, con solo dos lados iguales', 1],
+  ['un triángulo escaleno, con los tres lados distintos', 0]
 ];
 
 /* Letras para las casillas: mayúsculas bien distintas entre sí. */
@@ -8719,7 +8854,7 @@ CB.gen.espacio.K2 = function (rng, D) {
 
 /* K3 Los ejes de simetría (3.º) */
 CB.gen.espacio.K3 = function (rng, D) {
-  const s = SIMETRIAS_FIGURA[CB.util.ent(rng, 0, (D === 1) ? 1 : 3)];
+  const s = SIMETRIAS_FIGURA[CB.util.ent(rng, 0, (D === 1) ? 1 : SIMETRIAS_FIGURA.length - 1)];
   return {
     formato: 'teclado',
     consigna: 'Piensa en ' + s[0] + '. ¿Cuántos ejes de simetría tiene?',
@@ -8920,7 +9055,7 @@ CB.catalogo.TABLAS = {
   ['H1','La hora en punto','tiempo',0,12,0,3,'teclado','B1.b',['5.2','6.1'],['N18'],8,false,null],
   /* Datos y azar (3.3.0): 2 */
   ['G1','El gráfico de los juguetes','datos',0,9,0,2,'teclado','E1.a',['1.2','5.2'],['N17'],6693,false,null],
-  ['A1','Seguro o imposible','azar',0,0,0,3,'opciones4','E1.b',['3.1','5.2'],['N17'],19,false,null],
+  ['A1','Seguro o imposible','azar',0,0,0,3,'opciones4','E1.b',['3.1','5.2'],['N17'],366,false,null],
   /* Álgebra y espacio (3.4.0): 4 */
   ['U1','Seguir la serie','patrones',0,20,0,2,'teclado','D1.a',['3.1','5.1'],['N18'],27,false,null],
   ['X1','El hueco de la suma','algebra',0,20,0,2,'teclado','D1.b',['2.1','5.1'],['S17'],128,false,null],
@@ -9037,7 +9172,7 @@ CB.catalogo.TABLAS = {
   ['V8','Las palabras de los problemas','vocabulario',0,0,0,3,'opciones4','A.3.b',['6.1','1.1'],['P1'],6,false,null],
   /* Medida y tiempo (3.2.0): 3 */
   ['B2','Centímetros y metros','medida',0,900,0,3,'teclado','B1.a',['5.2','2.1'],['N9'],11,false,null],
-  ['B3','¿Con qué se mide?','medida',0,0,0,3,'opciones4','B1.a',['5.2','6.1'],['E1'],4,false,null],
+  ['B3','¿Con qué se mide?','medida',0,0,0,3,'opciones4','B1.a',['5.2','6.1'],['E1'],14,false,null],
   ['H2','En punto y y media','tiempo',0,12,0,3,'opciones4','B1.b',['5.2','6.1'],['H1'],16,false,null],
   /* Datos y azar (3.3.0): 3 */
   ['G2','Leer el gráfico de barras','datos',0,12,0,2,'teclado','E1.a',['1.2','6.1'],['G1'],6986,false,null],
@@ -9101,7 +9236,7 @@ CB.catalogo.TABLAS = {
   ['U3','La serie y su salto','patrones',0,999,0,1,'teclado','D2.a',['3.1','5.1'],['U2'],4560,false,null],
   ['X3','El hueco de multiplicar','algebra',0,100,0,2,'teclado','D2.b',['2.1','3.1'],['X2','M13'],44,false,null],
   ['J3','Recto, agudo u obtuso','geometria',0,180,0,2,'opciones4','C2.a',['5.2','6.1'],['J2'],5,false,null],
-  ['K3','Los ejes de simetría','espacio',0,4,0,3,'teclado','C2.b',['5.2','6.1'],['J2'],2,false,null]
+  ['K3','Los ejes de simetría','espacio',0,4,0,3,'teclado','C2.b',['5.2','6.1'],['J2'],8,false,null]
   ],
 
   /* ——— 4.º de Primaria: 34 niveles. Techos 99.999 / 499.999 / 999.999. ——— */
@@ -9127,7 +9262,7 @@ CB.catalogo.TABLAS = {
   ['F6','La fracción de una cantidad grande','fracciones',0,500,0,2,'teclado','A2.4',['2.1'],['F3'],1070,false,null],
   ['F7','Mayor que un entero','fracciones',0,12,0,2,'opciones4','A2.4',['5.1','6.1'],['F5'],9,false,null],
   ['F8','Sumar con el mismo denominador','fracciones',0,24,0,3,'opciones4','A2.4',['2.1'],['F5'],86,false,null],
-  ['F9','La fracción y el decimal','fracciones',0,10,0,3,'opciones4','A2.5',['5.1'],['C1','F5'],2,false,null,'A2.4'],
+  ['F9','La fracción y el decimal','fracciones',0,10,0,3,'opciones4','A2.5',['5.1'],['C1','F5'],8,false,null,'A2.4'],
   ['C1','Las décimas','decimales',0,10,0,2,'teclado','A2.5',['6.1','6.2'],['E11'],62,false,null],
   ['C2','Las centésimas','decimales',0,10,0,2,'teclado','A2.5',['6.1','6.2'],['C1'],693,false,null],
   ['C3','Sumar decimales','decimales',0,20,0,3,'teclado','A2.5',['2.1'],['C2'],2024,false,null],
@@ -9152,7 +9287,7 @@ CB.catalogo.TABLAS = {
   /* Álgebra y espacio (3.4.0): 4 */
   ['U4','El robot de la cuadrícula','patrones',0,10,0,1,'teclado','D2.c',['1.1','2.1'],['U3','K2'],154,false,null],
   ['X4','El hueco con dos operaciones','algebra',0,180,0,2,'teclado','D2.b',['2.1','6.2'],['X3'],2441,false,null],
-  ['J4','Las figuras por sus lados','geometria',0,8,0,2,'opciones4','C2.a',['5.2','6.1'],['J3'],3,false,null],
+  ['J4','Las figuras por sus lados','geometria',0,8,0,2,'opciones4','C2.a',['5.2','6.1'],['J3'],7,false,null],
   ['K4','La casilla (columna, fila)','espacio',0,12,0,3,'opciones4','C2.b',['1.2','5.2'],['K2'],7000,false,null]
   ],
 
@@ -9171,7 +9306,7 @@ CB.catalogo.TABLAS = {
   ['D14','Números grandes entre una cifra','division',0,99999,0,2,'teclado','A3.4',['2.1'],['D8'],6462,false,null],
   ['D15','Cocientes con ceros','division',0,99999,0,3,'teclado','A3.4',['2.1','6.2'],['D12'],623,false,null],
   ['F10','Simplificar fracciones','fracciones',0,25,0,1,'opciones4','A3.5',['3.1'],['F5'],19,false,null],
-  ['F11','El denominador común','fracciones',0,40,0,2,'teclado','A3.5',['2.1','5.1'],['F10'],5,false,null],
+  ['F11','El denominador común','fracciones',0,40,0,2,'teclado','A3.5',['2.1','5.1'],['F10'],16,false,null],
   ['F12','Sumar y restar: mismo denominador','fracciones',0,24,0,1,'opciones4','A3.5',['2.1'],['F8'],203,false,null],
   ['F13','La fracción de una cantidad (5.º)','fracciones',0,999,0,2,'teclado','A3.5',['2.1'],['F6'],2009,false,null],
   ['F14','El número mixto','fracciones',0,25,0,3,'teclado','A3.5',['6.1','6.2'],['F12'],21,false,null],
@@ -9200,7 +9335,7 @@ CB.catalogo.TABLAS = {
   /* Álgebra y espacio (3.4.0): 4 */
   ['U5','La serie de multiplicar','patrones',0,999,0,1,'teclado','D3.b',['3.1','5.1'],['U3','M13'],42,false,null],
   ['X5','La incógnita x','algebra',0,900,0,2,'teclado','D3.a',['2.1','6.2'],['X4'],4201,false,null],
-  ['J5','Caras, aristas y vértices','geometria',0,12,0,2,'teclado','C3.a',['5.2','6.1'],['J4'],6,false,null],
+  ['J5','Caras, aristas y vértices','geometria',0,12,0,2,'teclado','C3.a',['5.2','6.1'],['J4'],18,false,null],
   ['K5','El punto del plano','espacio',0,5,0,3,'opciones4','C3.b',['1.2','5.2'],['K4'],6709,false,null]
   ],
 
@@ -12168,6 +12303,101 @@ CB.modos.normalizar = function (id) {
   return CB.modos.TABLA[id] ? id : CB.modos.POR_DEFECTO;
 };
 
+/* 2C-vistos.js — CB.vistos: memoria de ítems servidos ENTRE partidas (3.10.0) */
+
+var CB = CB || {};
+CB.vistos = CB.vistos || {};
+
+/* Por qué existe. Dentro de una partida nunca se repite un ítem (servidosSet),
+   pero esa lista moría con la partida: la siguiente expedición podía volver a
+   preguntar 3 + 4 aunque el niño lo hubiera contestado ayer. En las vetas de
+   banco corto —la tabla del 2 tiene once preguntas, «Sumar decenas enteras»
+   diez— la repetición era cuestión de dos partidas, y con la semilla antigua
+   (fecha + n.º de partidas) bastaba con salir a medias y volver a entrar.
+
+   Qué hace. Guarda en perfil.items, por veta, las claves de los últimos
+   ítems servidos (el más reciente al final). Al servir, se le piden al
+   generador hasta INTENTOS ítems y se acepta el primero que no esté ni en la
+   sesión ni en esa memoria; si todos están, se sirve el que se vio hace MÁS
+   tiempo. Nunca se bloquea, y en una sesión sigue sin repetirse nada.
+
+   Qué no hace. No enumera el banco —un generador no se puede listar—, así
+   que es muestreo con rechazo, no una bolsa barajada. Con un banco de N ítems
+   y ventana ≥ N el niño recorre los N antes de repetir uno, porque «el más
+   antiguo» es por construcción el que lleva más ítems sin salir; con un banco
+   mayor que la ventana, simplemente no vuelve nada de lo último. Los
+   generadores siguen siendo puros: el rng lo pone quien llama y aquí solo se
+   decide con cuál de los ítems generados se queda. */
+
+CB.vistos.VENTANA = 40;    // ítems recordados por veta
+CB.vistos.INTENTOS = 40;   // ítems que se le piden al generador antes de conformarse
+
+/* La clave de un ítem es su expr —lo que ya lo identifica dentro de la
+   sesión— resumida en base 36 para que perfil.items pese poco. */
+CB.vistos.clave = function (item) {
+  return CB.util.hash32(item && item.expr != null ? String(item.expr) : '').toString(36);
+};
+
+/* La lista de una veta, reparada si lo guardado no tiene la forma esperada.
+   perfil.items existe desde el esquema 1 y nadie lo escribía: se estrena aquí. */
+CB.vistos.lista = function (perfil, nivelId) {
+  if (!perfil) return [];
+  if (!perfil.items || typeof perfil.items !== 'object' || Array.isArray(perfil.items)) {
+    perfil.items = {};
+  }
+  let l = perfil.items[nivelId];
+  if (!Array.isArray(l)) l = perfil.items[nivelId] = [];
+  return l;
+};
+
+CB.vistos.anotar = function (perfil, nivelId, clave) {
+  if (!perfil || !nivelId || !clave) return;
+  const l = CB.vistos.lista(perfil, nivelId);
+  const i = l.indexOf(clave);
+  if (i !== -1) l.splice(i, 1);
+  l.push(clave);
+  while (l.length > CB.vistos.VENTANA) l.shift();
+};
+
+/* Posición en la memoria de la veta: 0 = el más antiguo; -1 = no está. */
+CB.vistos.posicion = function (perfil, nivelId, clave) {
+  return CB.vistos.lista(perfil, nivelId).indexOf(clave);
+};
+
+/* Elige el ítem. `generar(k)` devuelve el ítem del intento k (1..INTENTOS) o
+   null; `enSesion(item)` dice si ya se sirvió en esta partida. Devuelve
+   { item, clave, intento, repetido } o null si no hay ningún ítem servible
+   —todo lo que sale ya se sirvió en la sesión—, y entonces quien llama salta
+   ese hueco del guion, como siempre. */
+CB.vistos.elegir = function (perfil, nivelId, generar, enSesion) {
+  let k, item, clave, pos, mejor = null, mejorPos = Infinity;
+  for (k = 1; k <= CB.vistos.INTENTOS; k++) {
+    item = generar(k);
+    if (!item) continue;
+    if (enSesion && enSesion(item)) continue;
+    clave = CB.vistos.clave(item);
+    pos = CB.vistos.posicion(perfil, nivelId, clave);
+    if (pos === -1) return { item: item, clave: clave, intento: k, repetido: false };
+    if (pos < mejorPos) {
+      mejorPos = pos;
+      mejor = { item: item, clave: clave, intento: k, repetido: true };
+    }
+  }
+  return mejor;
+};
+
+/* Poda: la ventana de cada veta, y fuera lo que no sea una lista de claves.
+   La llama CB.almacen.podar con su mismo factor (0,5 en la poda agresiva). */
+CB.vistos.podar = function (perfil, factor) {
+  if (!perfil || !perfil.items || typeof perfil.items !== 'object') return;
+  const tope = Math.max(1, Math.floor(CB.vistos.VENTANA * (factor || 1)));
+  Object.keys(perfil.items).forEach(function (k) {
+    const l = perfil.items[k];
+    if (!Array.isArray(l)) { delete perfil.items[k]; return; }
+    if (l.length > tope) perfil.items[k] = l.slice(-tope);
+  });
+};
+
 /* 30-ui.js — Pintado. Toca el DOM (serie 30-, fuera de la regla de frontera) */
 
 var CB = CB || {};
@@ -14701,8 +14931,12 @@ CB.partida.iniciar = function (opciones) {
 
   const modo = opciones.modo || 'expedicion';
   const mundo = CB.catalogo.getMundo(opciones.mundoId || 'M1') || CB.MUNDOS[0];
-  const semilla = CB.util.hash32(perfil.id + CB.util.hoyISO() +
-                               (perfil.historial ? perfil.historial.length : 0));
+  /* Semilla nueva en cada partida (3.10.0). Salía de hash32(perfil + fecha +
+     n.º de partidas), y dos arranques el mismo día con la misma cuenta —salir
+     a medias y volver a entrar— repetían guion y preguntas. Reanudar una
+     expedición guardada pasa la suya (semillaPartida) y reproduce sus ítems. */
+  const semilla = (opciones.semilla != null) ? (opciones.semilla >>> 0)
+                                             : CB.util.semillaAleatoria();
   const rng = CB.util.mulberry32(semilla);
 
   CB.partida.pararCronometro();
@@ -14831,25 +15065,37 @@ CB.partida.servirItem = function () {
   const estadoNivel = perfil.niveles[nivelId] ||
     (perfil.niveles[nivelId] = { n: 0, aciertos: 0, caja: 1, D: 2, ultimoISO: null, enPausa: false });
 
-  /* Generación con reintentos: nunca se repite el mismo ítem en la sesión */
-  let item = null, k = 0;
-  while (k < 12) {
-    k++;
+  /* Generación con reintentos. En la sesión nunca se repite un ítem
+     (servidosSet); entre sesiones decide CB.vistos, que recuerda por veta los
+     últimos servidos y prefiere lo que el niño no ha visto o lo que vio hace
+     más tiempo. El rng de cada intento sigue saliendo de la semilla de la
+     partida: misma semilla y mismo perfil, misma pregunta.
+
+     Las bolsas de los problemas (nombres, objetos, género) se consumen al
+     generar, así que cada intento trabaja sobre una COPIA y solo se queda la
+     del ítem elegido: cuarenta candidatos descartados no vacían la bolsa. */
+  const bolsasPorIntento = {};
+  const eleccion = CB.vistos.elegir(perfil, nivelId, function (k) {
     const rngItem = CB.util.mulberry32(e.semilla + e.indice * 7919 + k * 104729);
-    item = nivel.generar(rngItem, estadoNivel.D || 2, {
+    const bolsas = JSON.parse(JSON.stringify(perfil.bolsasProblemas ||
+                                             CB.gen.problemas.nuevoEstadoBolsas()));
+    bolsasPorIntento[k] = bolsas;
+    return nivel.generar(rngItem, estadoNivel.D || 2, {
       ajustes: perfil.ajustes,
       techo: CB.partida.techoDe(perfil),
-      bolsas: perfil.bolsasProblemas,
+      bolsas: bolsas,
       datoSobrante: nivel.datoSobrante &&
                     (perfil.trimestreDeducido === 3) &&
                     (perfil.historial && perfil.historial.length > 0)
     });
-    if (!item) break;
-    const idItem = nivelId + '#' + item.expr;
-    if (!e.servidosSet[idItem]) { e.servidosSet[idItem] = true; break; }
-    item = null;
-  }
-  if (!item) { e.indice++; CB.partida.servirItem(); return; }
+  }, function (candidato) {
+    return !!e.servidosSet[nivelId + '#' + candidato.expr];
+  });
+  if (!eleccion) { e.indice++; CB.partida.servirItem(); return; }
+  const item = eleccion.item;
+  perfil.bolsasProblemas = bolsasPorIntento[eleccion.intento];
+  e.servidosSet[nivelId + '#' + item.expr] = true;
+  CB.vistos.anotar(perfil, nivelId, eleccion.clave);
 
   item.itemId = nivelId + '#' + item.expr + '@' + e.semilla + '.' + e.indice;
   item.repaso = !!reinsertado;
@@ -15736,7 +15982,11 @@ CB.partida.descartarGuardada = function (perfil) {
 CB.partida.reanudarGuardada = function (perfil) {
   const p = perfil.partidaEnCurso;
   if (!p) return null;
-  const e = CB.partida.iniciar({ mundoId: p.mundo, modo: p.modo });
+  /* Con su semilla: sin ella, iniciar() estrenaría una y los ítems que
+     quedaban por servir no serían los de la expedición que se guardó. (El
+     que estaba en pantalla al guardar ya consta en itemsServidos y se
+     regenera con otros números: eso fue siempre así.) */
+  const e = CB.partida.iniciar({ mundoId: p.mundo, modo: p.modo, semilla: p.semillaPartida });
   if (!e) return null;
   e.guion = p.guion.slice();
   e.indice = p.indice;
@@ -17076,7 +17326,10 @@ CB.jefes.iniciar = function (mundoId) {
     mundo: mundo, jefe: mundo.jefe, def: def,
     bloques: CB.jefes.BLOQUES, turno: 0, sinFallos: true,
     respondido: false,
-    rng: CB.util.mulberry32(CB.util.hash32(perfil.id + mundoId + CB.util.hoyISO()))
+    /* Semilla nueva en cada combate (3.10.0): con perfil + mundo + fecha, un
+       reto perdido y repetido el mismo día traía las mismas cuentas, y el
+       niño podía ganarlo de memoria en vez de con la destreza. */
+    rng: CB.util.mulberry32(CB.util.semillaAleatoria())
   };
   const n = document.getElementById('jefe-nombre');
   if (n) n.textContent = mundo.jefe;

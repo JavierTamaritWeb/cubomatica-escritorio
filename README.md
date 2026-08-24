@@ -3,12 +3,12 @@
   <h1>Cubomática</h1>
   <p><b>El juego de matemáticas de Educación Primaria,<br>como aplicación de escritorio para macOS.</b></p>
   <p>
-    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.10.1-2B7BB9" alt="Versión 4.10.1"></a>
+    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.11.0-2B7BB9" alt="Versión 4.11.0"></a>
     <a href=".python-version"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
     <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
     <a href="#requisitos"><img src="https://img.shields.io/badge/plataforma-macOS%2011%2B-555555?logo=apple" alt="macOS 11 o superior"></a>
-    <a href="#tests"><img src="https://img.shields.io/badge/tests-81%20passing-2EA043" alt="81 tests"></a>
+    <a href="#tests"><img src="https://img.shields.io/badge/tests-88%20passing-2EA043" alt="88 tests"></a>
   </p>
   <br>
   <img src="docs/partida.png" width="840" alt="Una partida de Cubomática: el bloque acertado hundido y en verde, los demás apagados a piedra, y el mensaje junto a las opciones">
@@ -118,6 +118,7 @@ uv run cubomatica
 | Construir la app | `./build-mac.sh` |
 | Regenerar el icono | `./make-icon.sh` |
 | Dejar `index.html` legible | `python3 herramientas/formatear-html.py src/cubomatica/web/index.html` |
+| Medir el banco de preguntas y la repetición | `node herramientas/medir-banco.js` (o `node herramientas/medir-banco.js S3 M4`) |
 | Añadir una librería | `uv add <librería>` |
 | Añadir una de desarrollo | `uv add --dev <librería>` |
 | Ver las instaladas | `uv pip list` |
@@ -128,7 +129,7 @@ uv run cubomatica
 ## Tests
 
 ```bash
-uv run pytest                                              # los 81
+uv run pytest                                              # los 88
 uv run pytest --cov=cubomatica --cov-report=term-missing   # con cobertura
 ```
 
@@ -168,6 +169,10 @@ revierte, rompe la app **en silencio**.
 | El paquete declara el español | Que macOS pinte «Save file» y «Cancel» en un juego en español |
 | La franja de la partida dice el curso | Jugar sin saber de qué curso es la veta que se está cavando |
 | No hay dos elementos con el mismo `id` | Un botón mudo y otro con dos manejadores, sin un solo error en consola |
+| La semilla de cada partida es nueva y reanudar conserva la suya | Que salir y volver a entrar el mismo día repita las mismas preguntas |
+| El juego recuerda por veta los últimos ítems servidos | Que la tabla del 2 pregunte 2 × 3 tres partidas seguidas |
+| El banco de enunciados tiene 80 nombres y 120 objetos, y todos pasan el validador | Que un enunciado nuevo se salte la lista blanca o el ancho de línea |
+| La tabla del 2 sale entera antes de repetir una pregunta | Que la memoria de ítems deje de recorrer el banco |
 
 ---
 
@@ -407,8 +412,8 @@ Los métodos que empiezan por `_` no se exponen —ahí viaja la ventana, que no
 
 | | |
 |---|---|
-| **Versión de la app** | **4.10.1**, declarada en `pyproject.toml` y `Cubomatica.spec` |
-| **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.9.1) |
+| **Versión de la app** | **4.11.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
+| **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.10.0) |
 | **Identificador** | `es.javiertamarit.cubomatica` |
 
 Son dos números distintos a propósito: esta app empaqueta el juego, pero el juego se versiona en
