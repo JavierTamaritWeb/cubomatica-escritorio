@@ -897,3 +897,74 @@ console.log(JSON.stringify({ total, rechazados, objetos: Object.keys(vistos).len
         assert datos["total"] > 1000
         assert datos["rechazados"] == 0
         assert datos["objetos"] == datos["deLaTabla"] == 120
+
+
+class TestPistas:
+    """Cada veta tiene su pista de método (3.11.0).
+
+    Hasta 3.10.x el botón de pista enseñaba una de las dos frases de la
+    DESTREZA: para el mínimo común múltiplo decía «Fíjate bien en cuántas
+    cifras tiene el número», y seis destrezas ni eso («Léelo otra vez con
+    calma»). `pistas.js` lleva una pista por VETA que cuenta el método con los
+    números de la pregunta y sin dar la respuesta; `CB.reparacion.pista` la
+    rellena y es lo que enseñan el botón y Rocarr al primer fallo.
+    """
+
+    @pytest.fixture
+    def js(self, web_dir):
+        return (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+
+    def test_el_boton_y_el_primer_fallo_usan_la_pista_de_la_veta(self, js):
+        assert "/* pistas.js" in js and "CB.datos.PISTAS_VETA = {" in js
+        boton = TestBancoDePreguntas._cuerpo(js, "CB.partida.accionPista")
+        assert "CB.reparacion.pista(e.itemActual)" in boton
+        assert "Léelo otra vez con calma" not in boton
+        fallo = js[js.index("Escalón 1: pista de Rocarr"):]
+        fallo = fallo[:fallo.index("CB.ui.mensaje(")]
+        assert "CB.reparacion.pista(item)" in fallo
+
+    def test_el_mcm_y_el_mcd_explican_el_metodo(self, js):
+        tabla = js[js.index("CB.datos.PISTAS_VETA = {"):]
+        tabla = tabla[:tabla.index("\n};")]
+        assert "tablas de multiplicar de los dos números" in tabla   # N42
+        assert "dividen a los dos sin dejar resto" in tabla           # N43
+        assert "iénsalo" not in tabla and "con calma" not in tabla
+
+    def test_todas_las_vetas_tienen_pista_y_ninguna_da_la_respuesta(self, tmp_path):
+        """Cada veta, con 200 semillas y los tres escalones: la pista existe,
+        todos los huecos se rellenan y ningún hueco se rellena con la
+        respuesta (un número que ya está en el enunciado no cuenta)."""
+        datos = TestBancoDePreguntas._node(tmp_path, TestBancoDePreguntas.CARGADOR + """
+const ids = CB.catalogo._ids || Object.keys(CB.catalogo._porId);
+const sinPista = [], huecos = [], chivatas = [];
+ids.forEach((id) => {
+  const n = CB.catalogo.get(id), plantilla = CB.datos.PISTAS_VETA[id];
+  if (!plantilla) { sinPista.push(id); return; }
+  for (let k = 0; k < 200; k++) {
+    const it = n.generar(CB.util.mulberry32(k * 7919 + 5), 1 + (k % 3),
+                         { techo: 999, ajustes: {}, bolsas: CB.gen.problemas.nuevoEstadoBolsas() });
+    if (!it) continue;
+    const p = CB.reparacion.pistaDeVeta(it);
+    if (p === null) { huecos.push(id); break; }
+    if (typeof it.respuesta !== 'number') continue;
+    const r = String(it.respuesta).replace('.', ',').replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
+    const re = new RegExp('(^|[^0-9,])' + r + '(?![0-9,])');
+    const enunciado = it.frases ? it.frases.join(' ') : String(it.consigna || '');
+    if (re.test(p) && !re.test(plantilla) && !re.test(enunciado)) { chivatas.push(id); break; }
+  }
+});
+console.log(JSON.stringify({ vetas: ids.length, sinPista, huecos, chivatas }));
+""")
+        assert datos["vetas"] == 308
+        assert datos["sinPista"] == []
+        assert datos["huecos"] == []
+        assert datos["chivatas"] == []
+
+    def test_ninguna_destreza_se_queda_sin_pista_de_animo(self, tmp_path):
+        datos = TestBancoDePreguntas._node(tmp_path, TestBancoDePreguntas.CARGADOR + """
+const ids = CB.catalogo._ids || Object.keys(CB.catalogo._porId);
+const sin = {};
+ids.forEach((id) => { const d = CB.catalogo.get(id).destreza; if (!CB.datos.MENSAJES.PISTAS[d]) sin[d] = 1; });
+console.log(JSON.stringify(Object.keys(sin)));
+""")
+        assert datos == []

@@ -8,9 +8,9 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.11.0**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.12.0**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
-apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.10.0); it tracks the
+apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.11.0); it tracks the
 game's content, moves on its own schedule, and nothing on the Python side reads it.
 
 The Python here is deliberately thin (two short modules); nearly everything else is the game bundle.
@@ -49,7 +49,7 @@ is not an item and is ignored; in a normal block it is a space you will see. Tha
 `.contenido--doble .contenido__paneles` carries `line-height: 0` with the panels restoring it: the
 panels are `inline-block`, so the newline between them would otherwise add a blank line.
 
-`cubomatica.js` is a concatenation of 57 modules whose boundary comments (`/* 00-nucleo.js`,
+`cubomatica.js` is a concatenation of 58 modules whose boundary comments (`/* 00-nucleo.js`,
 `/* 07-musica.js` …) survive in the bundle — see the next section for the map. The CSS is BEM in
 Spanish, and the game's accessibility rules are legal requirements rather than preferences: root
 classes `letra-grande`, `alto-contraste` and `sin-movimiento` must keep working, and anything that
@@ -152,7 +152,7 @@ request. With no profile selected the panel says so and offers only «Salir».
 
 ## Orienting inside the bundle
 
-`cubomatica.js` is 18k lines but navigable: the 57 concatenated modules each keep their header
+`cubomatica.js` is 18k lines but navigable: the 58 concatenated modules each keep their header
 comment, so this prints the table of contents with line numbers:
 
 ```bash
@@ -204,7 +204,22 @@ pass `CB.gen.problemas.validar` — the node test checks all 120 do), plus the c
 B3, F9, F11, K3, J5, J4 and A1. Most short banks are bounded by the maths or by what the UI can
 draw (the table of 2 has eleven questions; `FIGURAS_PLANAS` lists the four figures
 `CB.ui.figuraPlana` knows how to paint) and stay as they are; the catalogue's `cardinalidad`
-column is a declaration, and the tool measures the real number. There is one global `CB`, no bundler, and one
+column is a declaration, and the tool measures the real number.
+
+**Every level has its own hint, and the hint is the method, never the answer** (3.11.0,
+`pistas.js` → `CB.datos.PISTAS_VETA`, 308 entries). Until then the hint button showed one of two
+sentences per *destreza* — «Fíjate bien en cuántas cifras tiene el número» for the least common
+multiple — and six destrezas fell through to «Léelo otra vez con calma». A hint is one or two
+imperative sentences in the order the method is done, with the child's numbers where the first
+step is concrete: placeholders `{a} {b} {c}` (operandos), `{ua} {ub}` (units digit), `{da} {db}`
+(whole tens: 70 → 7, 100 → 10) and `{n1} {n2}` (a problem's `datos`). `CB.reparacion.pistaDeVeta`
+fills them and returns `null` if any datum is missing, and `CB.reparacion.pista` falls back to the
+destreza sentence — never show a half-filled key. The button (`CB.partida.accionPista`) and the
+first-failure message both go through `pista`; a known-error hint from `CB.ERRORES` still wins on
+failure. `TestPistas` generates every level 200 times and fails if a level has no hint, a
+placeholder is left unfilled, or a placeholder resolves to the answer (a number already in the
+question does not count: «4 − 2» may mention the 2). Keep new levels in the table; the test will
+tell you if you forget. There is one global `CB`, no bundler, and one
 `DOMContentLoaded` that calls `CB.arranque()`.
 
 Three pieces of wiring explain most behaviour:
@@ -271,7 +286,7 @@ global `.05em` is tuned for lower case and reads tight in caps. Keep both if you
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (88 tests, fast)
+uv run pytest                        # full suite (92 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg

@@ -9,6 +9,38 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.12.0] — 2026-08-24
+
+Las pistas cuentan el método. Juego 3.11.0.
+
+### Cambiado
+
+- **Una pista por veta, y la pista es el método.** Hasta ahora el botón de
+  pista enseñaba una de las dos frases de la *destreza*: para el mínimo común
+  múltiplo decía «Fíjate bien en cuántas cifras tiene el número», y seis
+  destrezas (datos, azar, patrones, álgebra, geometría, espacio) caían en
+  «Léelo otra vez con calma». `pistas.js` lleva 308 pistas, una por veta, que
+  dicen qué mirar, por dónde empezar y qué hacer después —«Busca en las tablas
+  de multiplicar de los dos números y mira cuál es el primer número que se
+  repite en las dos»; «Busca los números que dividen a los dos sin dejar
+  resto y quédate con el más grande»— y usan los números de la pregunta
+  cuando el primer paso es concreto: «Suma las unidades: 6 + 7. Como pasa de
+  9, escribe solo la unidad y lleva una decena más a las 2 que tenías».
+  Nunca la respuesta.
+- El botón de pista y lo que dice Rocarr al primer fallo (cuando el valor
+  escrito no delata un error conocido) pasan por `CB.reparacion.pista`, que
+  rellena los huecos desde el ítem y, si a alguno le falta el dato, cae a la
+  pista de la destreza antes que enseñar una llave a medias.
+
+### Añadido
+
+- Pistas de destreza para las seis que no tenían, para los mensajes de ánimo.
+- `TestPistas`: cuatro tests. El principal genera cada veta 200 veces en los
+  tres escalones y falla si una veta no tiene pista, si queda un hueco sin
+  rellenar o si un hueco se rellena con la respuesta. Total, 92.
+
+---
+
 ## [4.11.0] — 2026-08-24
 
 El juego deja de repetir preguntas por costumbre, y el banco de enunciados se

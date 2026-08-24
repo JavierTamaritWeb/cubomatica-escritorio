@@ -675,6 +675,33 @@ CB.datos.MENSAJES.PROCEDIMIENTOS = {
 
 /* Pistas de procedimiento para el fallo (13 slugs × 2) */
 CB.datos.MENSAJES.PISTAS = {
+  /* Las seis destrezas de 3.2.0-3.4.0 no tenían pista y caían en «Léelo otra
+     vez con calma». Desde 3.11.0 la pista del botón sale de PISTAS_VETA (una
+     por veta); estas dos frases sirven al {pista} de los mensajes de ánimo. */
+  datos: [
+    'Busca en el gráfico la barra que te nombran y lee su número en la escala.',
+    'Apunta los números de las barras antes de operar con ellos.'
+  ],
+  azar: [
+    'Mira qué hay en la bolsa: solo puede salir lo que está dentro.',
+    'Cuanto más hay de un color, más fácil es que salga.'
+  ],
+  patrones: [
+    'Descubre el salto restando dos números seguidos.',
+    'Aplica ese mismo salto al último número de la serie.'
+  ],
+  algebra: [
+    'El hueco es lo que falta para que los dos lados valgan lo mismo.',
+    'Calcula primero el lado que ya está completo.'
+  ],
+  geometria: [
+    'Cuenta los lados o las esquinas con el dedo, sin saltarte ninguno.',
+    'Compara el ángulo con la esquina de un cuadrado.'
+  ],
+  espacio: [
+    'Primero la columna, de izquierda a derecha; luego la fila, desde abajo.',
+    'Cuenta las casillas una a una hasta llegar a la que te dicen.'
+  ],
   numeracion: [
     'Fíjate bien en cuántas cifras tiene el número.',
     'Cuenta otra vez, despacio.'
@@ -983,6 +1010,351 @@ CB.datos.MENSAJES.NEGRA_REGISTRO = [
   'wow', 'cool', 'top', 'super', 'campeoncito', 'mi nino', 'cielo', 'carino',
   'chaval', 'sos ', 'tenes ', 'podes ', 'ahorita', 'platicar'
 ];
+
+/* pistas.js — Una pista de método por veta (3.11.0) */
+
+var CB = CB || {};
+CB.datos = CB.datos || {};
+
+/* Hasta 3.10.x la pista del botón era una de las dos frases de la DESTREZA
+   («Fíjate bien en cuántas cifras tiene el número» para el mínimo común
+   múltiplo), y seis destrezas ni eso: «Léelo otra vez con calma». Aquí hay
+   una por VETA, y cada una cuenta el método —qué mirar, por dónde empezar,
+   qué hacer después— con los números de la pregunta cuando ayudan, y sin
+   decir nunca la respuesta.
+
+   Los huecos se rellenan desde el ítem (CB.reparacion.pistaDeVeta): {a} {b}
+   {c} son los operandos, {ua} {ub} sus unidades, {da} {db} sus decenas
+   completas (el 70 tiene 7; el 100, 10), y {n1} {n2} los datos de un
+   problema. Si a un ítem le falta el dato de un hueco, se cae a la pista de
+   la destreza: nunca se enseña una llave sin rellenar.
+
+   Reglas de redacción: una o dos frases; verbos en imperativo; el método en
+   el orden en que se hace; con los números del niño cuando el primer paso
+   es concreto («suma las unidades: 5 + 6»), y nunca el resultado, ni
+   siquiera «sale 11». Un test genera cada veta con doscientas semillas y
+   comprueba que ningún hueco se rellena con la respuesta. */
+CB.datos.PISTAS_VETA = {
+  /* ——— 1.º ——— */
+  N17: 'Toca cada bloque con el dedo y di un número por cada uno: uno, dos, tres… El último número que digas es cuántos hay.',
+  N18: 'Di el número en voz alta y piensa qué cifras lo forman: «doce» es una decena y dos unidades, y se escribe 12.',
+  N19: 'Cuenta desde el 1: el número que dices antes es el más pequeño. La boca del signo se abre siempre hacia el número grande.',
+  N20: 'Escucha la palabra por partes: primero dice las decenas (veinte, treinta…) y después las unidades. Escribe una cifra por cada parte.',
+  N21: 'Lee bien si va de mayor a menor o de menor a mayor. Empieza por el número de la punta y salta siempre lo mismo hasta colocar todos.',
+  N22: 'Cuenta en voz alta hasta ese número. El anterior es el que dices justo antes; el posterior, el que dices justo después.',
+  S17: 'Guarda el número grande en la cabeza y cuenta hacia delante con los dedos tantos como diga el pequeño.',
+  S18: 'Empieza en el número mayor y cuenta hacia delante los que añade el otro. Si te ayuda, usa los dedos.',
+  S19: 'Piensa en decenas: {a} son {da} decenas y {b} son {db} decenas. Junta las decenas y pon el cero del final.',
+  S20: 'Suma primero las unidades ({ua} + {ub}) y después las decenas. Cada columna por separado, sin mezclarlas.',
+  S21: 'Completa primero hasta 10: quita del segundo número lo que le falta al {a} para llegar a 10, y suma después lo que sobre.',
+  R15: 'Empieza en el {a} y cuenta hacia atrás {b} pasos con los dedos. Donde te pares, ahí está.',
+  R16: 'Cuenta hacia atrás desde el {a}, o piensa cuánto hay que subir desde el {b} para llegar al {a}: es lo mismo.',
+  R17: 'Piensa en decenas: {a} son {da} decenas y {b} son {db} decenas. Quita las decenas y pon el cero del final.',
+  R18: 'Resta primero las unidades ({ua} − {ub}) y después las decenas. Cada columna por separado.',
+  P21: 'Lee qué tenía al principio y qué le llega después. Si le llega algo, al final tiene MÁS: junta las dos cantidades.',
+  P22: 'Lee qué tenía al principio y qué se le va. Si se le va algo, al final tiene MENOS: quita esa cantidad de la que tenía.',
+  P23: 'Hay dos montones y te preguntan por los dos juntos. «En total» quiere decir juntar: suma un montón con el otro.',
+  P24: 'Conoces el total y una de las partes. Para saber la otra parte, quita del total la parte que ya conoces.',
+  E9:  'No cuentes cuántas monedas hay: cuenta lo que vale cada una. Empieza por las de 2 sumando de dos en dos, y luego las de 1.',
+  E10: 'Empieza por la moneda o el billete más grande que no se pase, y completa lo que falte con piezas pequeñas. Ve sumando en voz alta.',
+  B1:  'Cada bloque es un centímetro. Cuenta los bloques de la barra uno a uno: tantos bloques, tantos centímetros.',
+  H1:  'La aguja corta señala la hora. Mira a qué número apunta la corta; la larga en el 12 dice «en punto».',
+  G1:  'Busca la barra con el nombre que te preguntan y sube por ella contando los bloques, o mira en qué número acaba.',
+  A1:  'Seguro es lo que sale siempre porque no hay otra cosa; imposible es lo que no está en la bolsa. Mira qué colores hay y cuál falta.',
+  U1:  'Mira cuánto cambia de un número al siguiente. Ese mismo salto se lo das al último número.',
+  X1:  'Empieza en el número que ya está sumando y cuenta hacia delante hasta llegar al resultado. Los pasos que des son el número del hueco.',
+  J1:  'Cuenta los lados y mira si son todos iguales. Con tres lados solo hay una figura; con cuatro, fíjate en si las esquinas son rectas y si los lados miden lo mismo.',
+  K1:  'Empieza por la vagoneta de la izquierda del todo y ve contando: primera, segunda, tercera… hasta llegar a la de la estrella.',
+
+  /* ——— 2.º ——— */
+  N1:  'Cuenta de uno en uno tocando cada bloque y, si son muchos, agrúpalos de cinco en cinco o de diez en diez para no perderte.',
+  N2:  'La palabra dice primero las decenas (veinte, treinta…) y después las unidades. Escribe la cifra de las decenas y luego la de las unidades.',
+  N3:  'En un número de dos cifras, la de la izquierda cuenta las decenas (grupos de diez) y la de la derecha, las unidades sueltas.',
+  N4:  'Compara primero las decenas: gana el que tiene más. Si tienen las mismas, mira las unidades. La boca del signo se abre hacia el grande.',
+  N5:  'Mira el salto que pide (de 2 en 2 o de 10 en 10) y en qué dirección va. Coloca el de la punta y ve saltando siempre lo mismo.',
+  N6:  'Mira solo la última cifra. Los pares se pueden repartir entre dos sin que sobre nada: terminan en 0, 2, 4, 6 u 8.',
+  N7:  'Primero mira cuántas cifras tiene cada número: los de menos cifras son más pequeños. Entre los que tienen las mismas, compara la primera cifra.',
+  N8:  'Si empieza por «ciento», escribe un 1 y luego las dos cifras de las decenas y las unidades. Si alguna falta, pon un 0 en su sitio.',
+  N9:  'De derecha a izquierda: unidades, decenas, centenas. Señala la cifra del lugar que te piden y no cuentes las demás.',
+  N10: 'Compara de izquierda a derecha: primero las centenas, luego las decenas y por último las unidades. En cuanto una cifra es mayor, ese número gana.',
+  N11: 'Mira el salto y la dirección. De 5 en 5 las terminaciones alternan 5 y 0; de 100 en 100 solo cambia la primera cifra.',
+  N12: 'Cada sumando te da una cifra: el de las centenas, el de las decenas y el de las unidades. Escríbelas juntas en ese orden; si falta alguno, va un 0.',
+  N13: 'Busca las dos decenas entre las que está el número, la de abajo y la de arriba, y mira a cuál está más cerca. Si termina en 5, sube a la de arriba.',
+  N14: 'Cuenta las vagonetas desde la primera de la izquierda: primera, segunda, tercera… La marcada ocupa el lugar en el que te pares.',
+  N15: 'La palabra va por trozos: las centenas (doscientos, trescientos…), las decenas y las unidades. Escribe una cifra por trozo y un 0 donde no haya trozo.',
+  N16: 'Compara de izquierda a derecha: centenas, decenas y unidades. Para aproximar, mira a qué centena o decena está más cerca.',
+  S1:  'Guarda en la cabeza el número más grande y cuenta hacia delante con los dedos los que añade el otro.',
+  S2:  'El {a} tiene una decena y unas unidades. Deja la decena quieta y suma solo las unidades con el {b}.',
+  S3:  'El doble es sumar el número consigo mismo: {a} + {a}. Piensa en dos manos con los mismos dedos y cuéntalos todos.',
+  S4:  'Sumar 10 es añadir una decena: las unidades no cambian y la cifra de las decenas sube uno.',
+  S5:  'Suma solo las unidades: {ua} + {ub}. Las decenas del {a} se quedan como están.',
+  S6:  'Coloca unidades con unidades y decenas con decenas. Suma primero {ua} + {ub}, y después las decenas {da} + {db}.',
+  S7:  'Suma las unidades: {ua} + {ub}. Como pasa de 9, escribe solo la unidad y lleva una decena más a las {da} que tenías.',
+  S8:  'Empieza por las unidades: {ua} + {ub}. Si pasan de 9, escribe la unidad y guarda 1 para sumarlo con las decenas {da} + {db}.',
+  S9:  'Empieza por las unidades y, si pasan de 9, lleva 1 a las decenas. Si las decenas también pasan de 9, el 1 que sobra se escribe delante: es la centena.',
+  S10: 'Suma primero dos números que te resulten fáciles (los que hacen 10, o los dos más pequeños) y añade el tercero al resultado.',
+  S11: 'Coloca el número corto debajo, alineado a la derecha: unidades bajo unidades. Suma columna a columna; la centena se queda sola.',
+  S12: 'Alinea a la derecha y suma por columnas desde las unidades. Cuando una columna pase de 9, escribe la unidad y lleva 1 a la siguiente.',
+  S13: 'Cuenta en decenas: {a} son {da} decenas y {b} son {db} decenas. Suma las decenas y añade el cero del final.',
+  S14: 'Suma por columnas de derecha a izquierda: unidades, decenas y centenas. Ninguna pasa de 9, así que no hay nada que llevar.',
+  S15: 'De derecha a izquierda, columna a columna. En la que pase de 9, escribe la unidad y lleva 1 a la columna siguiente.',
+  S16: 'Junta primero los dos sumandos más cómodos (por ejemplo, los que terminan en 0) y suma el tercero al resultado.',
+  R1:  'Empieza en el {a} y cuenta hacia atrás {b} pasos. También puedes pensar cuánto hay del {b} al {a}.',
+  R2:  'La decena del {a} no se toca: quita el {b} solo a las unidades.',
+  R3:  'Restar 10 es quitar una decena: las unidades no cambian y la cifra de las decenas baja uno.',
+  R4:  'Quita las unidades: {ua} − {ub}. Las decenas del {a} se quedan igual.',
+  R5:  'Coloca el {b} debajo del {a}, unidades con unidades. Resta las unidades ({ua} − {ub}) y luego las decenas ({da} − {db}).',
+  R6:  'Cuenta hacia delante desde el {b} hasta llegar al {a}. Los pasos que das son lo que falta.',
+  R7:  'Las unidades del {a} son pocas para quitar {b}. Pide una decena prestada: ahora tienes 1{ua} unidades, y a las decenas les queda una menos.',
+  R8:  'Empieza por las unidades: si {ua} no llega para quitar {ub}, pide una decena prestada (1{ua}) y recuerda que las decenas del {a} bajan una.',
+  R9:  'Piensa en decenas: {a} son {da} decenas y {b} son {db} decenas. Resta las decenas y pon el cero del final.',
+  R10: 'Coloca el número corto debajo, alineado a la derecha. Resta columna a columna desde las unidades; la centena baja sola.',
+  R11: 'De derecha a izquierda. Si en una columna el de arriba es menor, pide 1 a la columna de la izquierda: esa suma 10 y la otra baja 1.',
+  R12: 'Resta por columnas de derecha a izquierda: unidades, decenas y centenas. Arriba siempre hay bastante, así que no hay que pedir prestado.',
+  R13: 'Columna a columna desde la derecha. Donde el de arriba sea menor, pide una decena a la columna de al lado y no olvides restarla allí.',
+  R14: 'Habrá que pedir prestado dos veces. Cada vez que pides a la izquierda, esa columna baja 1 antes de restar: apúntalo para no olvidarlo.',
+  M1:  '«{a} veces {b}» es sumar {b} tantas veces como diga el {a}: {b} + {b} + … Cuenta las veces y suma.',
+  M2:  'Cuenta los bloques de una fila y suma esa cantidad tantas veces como filas haya. O cuenta todos de uno en uno para comprobar.',
+  M3:  'Mira el dibujo: {a} filas de {b} bloques. Multiplicar es sumar {b} un total de {a} veces.',
+  M4:  'La tabla del 2 son los dobles: {b} × 2 es {b} + {b}. Si no lo recuerdas, cuenta de dos en dos {b} veces.',
+  M5:  'Multiplicar por 10 es contar de diez en diez: tantas decenas como diga el otro número. Se escribe ese número con un 0 detrás.',
+  M6:  'Cuenta de cinco en cinco con los dedos de una mano, {b} veces. Los resultados de la tabla del 5 acaban siempre en 5 o en 0.',
+  M7:  'Mira por cuál multiplicas: por 2 es el doble, por 5 cuenta de cinco en cinco, por 10 añade un cero. Elige el camino y cuenta.',
+  M8:  'El doble es sumar el número consigo mismo. La mitad es repartirlo en dos partes iguales: busca qué número sumado dos veces lo da.',
+  M9:  'Si no recuerdas la fila, cuenta de tres en tres {b} veces, o suma un 3 más al resultado anterior de la tabla.',
+  M10: 'Cuatro veces un número es el doble del doble: dobla el {b} y vuelve a doblar el resultado.',
+  P1:  'Lee qué tenía al principio y qué le llega después. Si le llega algo, al final tiene MÁS: junta las dos cantidades.',
+  P2:  'Lee qué tenía al principio y qué se le va. Si se le va algo, al final tiene MENOS: quita esa cantidad de la que tenía.',
+  P3:  'Hay dos montones y te preguntan por los dos juntos. «En total» quiere decir juntar: suma un montón con el otro.',
+  P4:  'Conoces el total y una de las partes. Para saber la otra parte, quita del total la parte que ya conoces.',
+  P5:  '«¿Cuántos más?» pregunta por la diferencia. Pon las dos cantidades una junto a otra y mira cuánto le sobra a la grande sobre la pequeña.',
+  P6:  '«¿Cuántos menos?» también es la diferencia entre los dos: cuánto le falta al pequeño para llegar al grande.',
+  P7:  'Sabes cuánto tenía antes y cuánto tiene ahora. Lo que ha ganado es lo que hay entre las dos cantidades: del antes al ahora.',
+  P8:  'Tenía más antes que ahora. Lo que ha perdido es lo que hay de la cantidad de ahora a la de antes.',
+  P9:  '«Tiene {n2} más» quiere decir que el segundo tiene la cantidad del primero y {n2} encima: añade.',
+  P10: '«Tiene {n2} menos» quiere decir que al segundo le faltan {n2} respecto al primero: quita.',
+  P11: 'Para saber cuánto le falta al que tiene menos, mira la diferencia entre los dos: cuánto hay que subir desde el pequeño hasta el grande.',
+  P12: 'Le sobra lo que tiene por encima del otro: la diferencia entre la cantidad grande y la pequeña.',
+  P13: 'Ahora tiene más porque le llegó algo. Para volver al principio, deshaz el cambio: quita al «ahora» lo que le llegó.',
+  P14: 'Ahora tiene menos porque se le fue algo. Para volver al principio, deshaz el cambio: añade al «ahora» lo que se le fue.',
+  P15: 'Ojo: quien tiene {n2} más es el PRIMERO. El otro tiene menos: quita {n2} a la cantidad del primero.',
+  P16: 'Ojo: quien tiene {n2} menos es el PRIMERO. El otro tiene más: añade {n2} a la cantidad del primero.',
+  P17: 'A quien le faltan {n2} para igualar tiene MENOS que el otro. Quita {n2} a la cantidad que ya conoces.',
+  P18: 'A quien le sobran {n2} para igualar tiene MÁS. El otro tiene {n2} menos: quítalos a la cantidad conocida.',
+  P19: 'Al primero le faltan {n2} para igualar al otro: el otro tiene MÁS. Añade {n2} a la cantidad del primero.',
+  P20: 'Al primero le sobran {n2} para igualar al otro: el otro tiene MENOS. Quita {n2} a la cantidad del primero.',
+  E1:  'Lee el número que lleva cada pieza. Las monedas son redondas y los billetes, de papel: busca la que diga justo lo que te piden.',
+  E2:  'Cuenta lo que vale cada moneda, no cuántas hay. Empieza por las de 2 sumando de dos en dos y luego añade las de 1.',
+  E3:  'Suma el número escrito en cada billete. Empieza por el más grande y ve añadiendo los demás de uno en uno.',
+  E4:  'Ve sumando el billete pequeño una y otra vez hasta llegar a la cantidad grande, y cuenta cuántas veces lo has sumado.',
+  E5:  'Empieza por la pieza más grande que no se pase de lo que hay que pagar y completa el resto con piezas más pequeñas, sumando en voz alta.',
+  E6:  'Lo que te devuelven es la diferencia entre lo que pagas y lo que cuesta: quita el precio al dinero que entregas.',
+  E7:  'Dos precios y te piden el total: júntalos. Suma primero las unidades y luego las decenas, como en cualquier suma.',
+  E8:  'Lee los números de las monedas pequeñas: dicen céntimos. Cien céntimos hacen un euro. Busca la que marque justo lo que piden.',
+  V1:  'Piensa qué papel tiene eso en una suma: uno de los números que se juntan, el resultado, o la acción de juntar. Elige la palabra que lo nombra.',
+  V2:  'En una resta hay un número al que se le quita, otro que se quita y lo que queda. Mira qué papel describe la frase y elige su nombre.',
+  V3:  'Piensa en grupos: una cosa sola, un grupo de diez, un grupo de cien. La frase dice de qué tamaño es el grupo o qué signo lo escribe.',
+  V4:  'Compara primero las decenas; si son iguales, las unidades. Mayor, menor o igual: la boca del signo se abre hacia el grande.',
+  V5:  'Coloca las vagonetas empezando por la que va primera y sigue en orden: primera, segunda, tercera… hasta la última.',
+  V6:  'Piensa en cómo se paga: con qué piezas, qué vale más y qué te devuelven. La frase describe una de esas cosas: elige su nombre.',
+  V7:  'Piensa si la frase habla de repetir una cantidad, de tener dos veces lo mismo o de repartir en dos partes iguales.',
+  V8:  'Cada palabra avisa de una acción: juntar, quitar, comparar o repartir. Lee la frase y piensa qué acción está describiendo.',
+  B2:  'Un metro son 100 centímetros. De centímetros a metros, quita dos ceros; de metros a centímetros, añádelos.',
+  B3:  'Piensa qué es lo que se mide: si es cuánto pesa, cuánto ocupa un líquido, cuánto mide de largo o cuánto dura.',
+  H2:  'La aguja larga en el 12 dice «en punto»; en el 6, «y media». La corta dice la hora: si está entre dos números, la hora es el más pequeño.',
+  G2:  'Busca la barra con el nombre que te preguntan y sigue su altura hasta la escala de la izquierda para leer el número.',
+  G3:  'Compara las alturas de las barras sin leer los números: la más alta es de lo que hay más, y la más baja, de lo que hay menos.',
+  A2:  'Puede salir cualquier color que esté en la bolsa. Es seguro solo si no hay otro color, e imposible si ese color no está.',
+  U2:  'Resta dos números seguidos para saber cuánto baja cada vez. Al último número le quitas ese mismo salto.',
+  X2:  'El hueco es lo que se quita. Piensa cuánto hay que bajar desde el primer número para llegar al resultado: esa distancia es el hueco.',
+  J2:  'Recorre el borde de la figura con el dedo contando cada línea recta: son los lados. Las esquinas donde se juntan dos lados son los vértices.',
+  K2:  'Primero cuenta las columnas de izquierda a derecha hasta la que te dicen; después sube contando filas desde abajo. Donde se cruzan está la letra.',
+
+  /* ——— 3.º ——— */
+  N23: 'Mira la cifra de las decenas: si es 5 o más, sube a la centena siguiente; si es menor que 5, te quedas en la centena de abajo.',
+  N24: 'La palabra dice primero los millares («dos mil») y luego el resto como un número de tres cifras. Escribe un 0 en cada lugar que la palabra no nombre.',
+  N25: 'De derecha a izquierda: unidades, decenas, centenas, millares. Localiza el lugar que te piden y lee solo esa cifra.',
+  N26: 'Si tienen distinto número de cifras, gana el más largo. Si no, compara de izquierda a derecha y decide en la primera cifra que sea distinta.',
+  N27: 'Mira la cifra de las centenas: con 5 o más sube al millar siguiente; con menos de 5 te quedas en el millar de abajo.',
+  N28: 'Escribe primero lo que va delante de «mil» y después el resto con tres cifras exactas, poniendo ceros donde la palabra no diga nada.',
+  N29: 'Cuenta las cifras de cada número: menos cifras, más pequeño. Con las mismas cifras, compara de izquierda a derecha.',
+  S22: 'Columna a columna desde las unidades. Cada vez que una pase de 9, escribe la unidad y lleva 1: te pasará dos veces, no te olvides de la segunda.',
+  S23: 'Alinea bien las cuatro columnas y suma desde la derecha. Las llevadas viajan siempre a la columna de la izquierda.',
+  S24: 'Piensa en centenas: quita los dos ceros a cada número, suma lo que queda y vuelve a poner los dos ceros.',
+  R19: 'Desde las unidades. Cuando el de arriba sea menor, pide 1 a la izquierda y réstalo allí antes de seguir. Pasará dos veces.',
+  R20: 'Alinea a la derecha y resta columna a columna. Cada vez que pidas prestado, baja 1 la columna de la izquierda antes de restarla.',
+  R21: 'Quita los dos ceros a cada número, resta lo que queda y devuelve los dos ceros al resultado.',
+  M11: 'El 6 es el doble del 3: multiplica {b} por 3 y dobla el resultado. O cuenta de seis en seis {b} veces.',
+  M12: 'Apóyate en una fila que sí sepas y ajusta: {a} × 5 es la mitad de {a} × 10, y desde ahí suma {a} una vez por cada paso.',
+  M13: 'Elige la tabla que mejor sepas de las dos: {a} × {b} es lo mismo que {b} × {a}. Si dudas, cuenta de {a} en {a} {b} veces.',
+  M14: 'Multiplica primero las unidades del {a} por {b}, luego las decenas por {b}. Escribe cada resultado en su columna.',
+  M15: 'De derecha a izquierda. Multiplica cada cifra por {b}; si el resultado pasa de 9, escribe la unidad y suma lo que llevas al siguiente producto.',
+  M16: 'Multiplicar por 10 añade un cero al final; por 100, dos ceros. El número no cambia, solo se hace más largo.',
+  D1:  'Reparte de uno en uno entre los {b} hasta acabar los {a}, y cuenta cuántos le han tocado a uno. O busca qué número por {b} da {a}.',
+  D2:  'Dividir es la tabla al revés: busca qué número multiplicado por {b} da {a}. Entre 2 es la mitad; entre 10, quita un cero.',
+  D3:  'Recorre la tabla del {b}: busca en qué fila aparece el {a}. El número que multiplica al {b} en esa fila es el cociente.',
+  D4:  'Busca el mayor múltiplo de {b} que no se pase de {a}. Lo que le falta a ese múltiplo para llegar a {a} es lo que sobra.',
+  D5:  'Empieza por la decena del {a}: repártela entre {b} y baja lo que sobre junto a las unidades. Vuelve a repartir.',
+  D6:  'Dividendo = divisor × cociente + resto. Multiplica el divisor por el cociente y súmale el resto.',
+  F1:  'Cuenta en cuántas partes iguales está partida la figura: ese número va abajo. Arriba va cuántas partes están pintadas.',
+  F2:  'Abajo, todas las partes; arriba, las pintadas. Cuenta primero el total de partes y luego solo las de color.',
+  F3:  'La fracción 1/{b} de un número es repartirlo en {b} partes iguales y quedarte con una: divide {a} entre {b}.',
+  F4:  'Si el número de arriba es el mismo, cuantas más partes hay abajo, más pequeña es cada parte: gana la del denominador menor.',
+  P25: 'Para saber cuánto le falta al que tiene menos, mira la diferencia entre los dos: cuánto hay que subir desde el pequeño hasta el grande.',
+  P26: 'Ahora tiene más porque le llegó algo. Para volver al principio, deshaz el cambio: quita al «ahora» lo que le llegó.',
+  P27: 'Ahora tiene menos porque se le fue algo. Para volver al principio, deshaz el cambio: añade al «ahora» lo que se le fue.',
+  P28: 'Ojo: quien tiene {n2} más es el PRIMERO. El otro tiene menos: quita {n2} a la cantidad del primero.',
+  P29: 'Ojo: quien tiene {n2} menos es el PRIMERO. El otro tiene más: añade {n2} a la cantidad del primero.',
+  E11: 'Un euro son 100 céntimos. Ve sumando la moneda una y otra vez hasta llegar a 100 y cuenta cuántas has sumado.',
+  E12: 'Es una suma de tres cifras: coloca los precios uno debajo de otro, alineados a la derecha, y suma columna a columna llevando lo que pase de 9.',
+  B4:  'Un metro son 100 centímetros. De centímetros a metros, quita dos ceros; de metros a centímetros, añádelos.',
+  B5:  'Un kilo son 1 000 gramos. De gramos a kilos, quita tres ceros; de kilos a gramos, añádelos.',
+  B6:  'El borde entero es la suma de los cuatro lados. Un rectángulo tiene dos lados de largo y dos de alto: suma los cuatro.',
+  H3:  'La aguja larga en el 3 marca «y cuarto»; en el 9, «menos cuarto» de la hora SIGUIENTE. Mira primero la larga y luego hacia dónde va la corta.',
+  G4:  'Lee la altura de cada una de las dos barras que te nombran y suma los dos números.',
+  G5:  'Lee las dos barras que te nombran y resta la pequeña a la grande: esa diferencia es «cuántos más».',
+  A3:  'Es más probable el color del que hay más bolas: compara las cantidades y elige la mayor.',
+  U3:  'Resta dos números seguidos para descubrir el salto. Añade ese salto al último número.',
+  X3:  'Recorre la tabla del número que ya está multiplicando hasta encontrar el resultado. La fila en la que lo encuentres es el hueco.',
+  J3:  'Compara con la esquina de un cuadrado: si es justo esa esquina, es recto; más cerrado, agudo; más abierto, obtuso; una línea recta, llano.',
+  K3:  'Un eje de simetría dobla la figura en dos mitades iguales. Prueba a doblarla por el medio, por las diagonales y de esquina a esquina, y cuenta las que funcionen.',
+
+  /* ——— 4.º ——— */
+  N30: 'Escribe por bloques: primero lo que va delante de «mil», y luego el resto con tres cifras exactas, con ceros donde la palabra no diga nada.',
+  N31: 'Escribe por bloques: primero lo que va delante de «mil», y luego el resto con tres cifras exactas, con ceros donde la palabra no diga nada.',
+  N32: 'Mira la cifra de los millares: con 5 o más, sube a la decena de millar siguiente; con menos, quédate en la de abajo.',
+  N33: 'Cada sumando ocupa un lugar. Escríbelos de mayor a menor y rellena con 0 los lugares que no aparezcan.',
+  S25: 'Alinea a la derecha y suma columna a columna desde las unidades, llevando 1 cada vez que una columna pase de 9.',
+  S26: 'Redondea cada número al millar o a la centena más cercana y suma los redondeados: eso es la estimación.',
+  R22: 'Alinea a la derecha y resta columna a columna. Cuando pidas prestado, baja 1 la columna de la izquierda antes de restarla.',
+  R23: 'Redondea cada número al millar más cercano y resta los redondeados.',
+  M17: 'Multiplica el {a} por las unidades del {b}; luego por las decenas del {b}, empezando esa fila un lugar a la izquierda; y suma las dos filas.',
+  M18: 'Quita el cero al {b}, multiplica {a} por lo que queda y vuelve a poner el cero al final.',
+  M19: 'Dobla (o triplica) cifra a cifra desde la derecha, llevando lo que pase de 9 a la cifra siguiente.',
+  M20: 'Multiplicar por 1 000 es añadir tres ceros al final del número.',
+  D7:  'Empieza por la centena: reparte entre {b}, baja la cifra siguiente junto a lo que sobre y repite hasta la última cifra.',
+  D8:  'Divide cifra a cifra desde la izquierda. Lo que sobra al final, más pequeño que {b}, es el resto.',
+  D9:  'Dividir entre 10 quita un cero; entre 100, dos; entre 1 000, tres. Cuenta los ceros del divisor.',
+  D10: 'Prueba con la tabla del {b}: busca qué número multiplicado por {b} da {a}, o se queda lo más cerca sin pasarse.',
+  D11: 'La mitad es dividir entre 2; el tercio, entre 3; el cuarto, entre 4. Divide cifra a cifra desde la izquierda.',
+  F5:  'Dos fracciones valen lo mismo si multiplicas arriba y abajo por el mismo número. Mira cuál se obtiene así.',
+  F6:  'Divide el número entre el de abajo y multiplica el resultado por el de arriba.',
+  F7:  'Una fracción es mayor que un entero cuando el número de arriba es mayor que el de abajo: hay más partes de las que tiene un entero.',
+  F8:  'Con el mismo número abajo, solo se suman los de arriba. El de abajo no cambia.',
+  F9:  'Lee el decimal por su nombre: las décimas van sobre 10 y las centésimas sobre 100. Escríbelo así y luego simplifica.',
+  C1:  'La coma separa las unidades de las décimas: a la izquierda las unidades, a la derecha las décimas.',
+  C2:  'Después de la coma van dos cifras: décimas y centésimas. Si las centésimas son menos de 10, va un 0 delante.',
+  C3:  'Coloca coma debajo de coma y suma como siempre. La coma del resultado cae justo debajo de las otras.',
+  C4:  'Coma debajo de coma; si un número no tiene decimales, ponle «,0». Resta como siempre y baja la coma.',
+  C5:  'Escribe los dos precios con dos decimales (1,5 es 1,50), coma debajo de coma, y suma.',
+  P30: 'A quien le faltan {n2} para igualar tiene MENOS que el otro. Quita {n2} a la cantidad que ya conoces.',
+  P31: 'A quien le sobran {n2} para igualar tiene MÁS. El otro tiene {n2} menos: quítalos a la cantidad conocida.',
+  P32: 'Conoces el total y una de las partes. Para saber la otra parte, quita del total la parte que ya conoces.',
+  P33: 'Ahora tiene más porque le llegó algo. Para volver al principio, deshaz el cambio: quita al «ahora» lo que le llegó.',
+  P34: 'Ojo: quien tiene {n2} más es el PRIMERO. El otro tiene menos: quita {n2} a la cantidad del primero.',
+  E13: 'Cuenta hacia delante desde el precio hasta lo que pagas: primero hasta el euro siguiente y luego de euro en euro.',
+  E14: 'Suma primero las dos compras y después quita ese total a lo que tenías.',
+  B7:  'Un kilómetro son 1 000 metros. De metros a kilómetros, quita tres ceros; de kilómetros a metros, añádelos.',
+  B8:  'Un litro son 1 000 mililitros. De mililitros a litros, quita tres ceros; de litros a mililitros, añádelos.',
+  B9:  'Perímetro es la suma de todos los lados. Si son iguales, multiplica lo que mide uno por cuántos lados tiene la figura.',
+  H4:  'La aguja corta dice la hora. Para los minutos, cuenta de cinco en cinco desde el 12 hasta donde apunta la larga.',
+  G6:  'Cada bloque vale más de uno: cuenta los bloques de la barra y multiplica por lo que vale cada uno.',
+  G7:  'Lee el número de cada barra y suma los cuatro. Apúntalos para no saltarte ninguna.',
+  A4:  'Es menos probable el color del que hay menos bolas: compara las cantidades y elige la menor.',
+  U4:  'Avanzar es sumar y retroceder es restar. Empieza en la casilla de salida y haz los movimientos en orden, uno detrás de otro.',
+  X4:  'Calcula primero el lado que no tiene hueco. Después piensa qué número falta para que el otro lado dé lo mismo.',
+  J4:  'El nombre viene del número de lados: tri- es tres, cuadri- cuatro, penta- cinco, hexa- seis, hepta- siete, octo- ocho, deca- diez.',
+  K4:  'El primer número es la columna: cuenta de izquierda a derecha. El segundo es la fila: cuenta desde abajo. Donde se cruzan está la letra.',
+
+  /* ——— 5.º ——— */
+  N34: 'Escribe los millones, luego los miles con tres cifras y luego las unidades con otras tres, rellenando con ceros.',
+  N35: 'Nombra los lugares de derecha a izquierda: unidades, decenas, centenas, millares… Cuando llegues al que te piden, lee esa cifra.',
+  N36: 'Un múltiplo de un número está en su tabla de multiplicar. Comprueba si cada opción se puede dividir entre ese número sin resto.',
+  N37: 'Un divisor divide al número sin dejar resto. Prueba a dividir el número entre cada opción y quédate con la que salga exacta.',
+  N38: 'Entre 2 si acaba en cifra par; entre 5 si acaba en 0 o 5; entre 10 si acaba en 0; entre 3 si la suma de sus cifras está en la tabla del 3.',
+  N39: 'Localiza el lugar al que redondeas y mira la cifra que está justo a su derecha: con 5 o más sube, con menos se queda.',
+  M21: 'Quita los ceros, multiplica los dos números que quedan y devuelve todos los ceros que quitaste.',
+  M22: 'Primero lo que va entre paréntesis; después las multiplicaciones y divisiones; y por último las sumas y restas.',
+  D12: 'Toma las primeras cifras del dividendo hasta que quepa el {b}, estima cuántas veces cabe, multiplica, resta y baja la siguiente cifra.',
+  D13: 'Divide paso a paso. Si al final sobra 0, es exacta; si sobra algo menor que {b}, ese es el resto.',
+  D14: 'Divide cifra a cifra desde la izquierda: reparte, baja la siguiente cifra junto al resto y repite.',
+  D15: 'Si al bajar una cifra no llega para repartir entre {b}, escribe un 0 en el cociente y baja la cifra siguiente.',
+  F10: 'Busca un número que divida al de arriba y al de abajo a la vez, y divide los dos entre él. Repite hasta que no haya ninguno.',
+  F11: 'Busca el mínimo común múltiplo de los dos números de abajo: recorre sus tablas de multiplicar y mira el primer número que aparece en las dos.',
+  F12: 'Con el mismo número abajo, se suman o restan solo los de arriba; el de abajo se copia.',
+  F13: 'Divide la cantidad entre el número de abajo y multiplica el resultado por el de arriba.',
+  F14: 'Saca los enteros: cuántas veces cabe el de abajo en el de arriba. Lo que sobra son las partes que quedan.',
+  F15: 'Divide el número de arriba entre el de abajo, añadiendo ceros con coma hasta que la división acabe.',
+  C6:  'Compara primero la parte entera. Si es igual, compara las décimas, luego las centésimas. 2,8 es lo mismo que 2,80.',
+  C7:  'Coma debajo de coma; iguala los decimales con ceros; opera como con enteros y baja la coma.',
+  C8:  'Multiplica sin la coma y, al acabar, cuenta cuántos decimales tenía el número: pon la coma dejando esos mismos decimales.',
+  C9:  'Dividir entre 10 mueve la coma un lugar a la izquierda; entre 100, dos. Multiplicar la mueve a la derecha.',
+  C10: 'Divide como si no hubiera coma y, al bajar la primera cifra decimal, pon la coma en el cociente.',
+  C11: 'Mira la primera cifra después de la coma: con 5 o más sube la unidad; con menos, se queda.',
+  P35: 'Al primero le faltan {n2} para igualar al otro: el otro tiene MÁS. Añade {n2} a la cantidad del primero.',
+  P36: 'Al primero le sobran {n2} para igualar al otro: el otro tiene MENOS. Quita {n2} a la cantidad del primero.',
+  P37: 'Ahora tiene menos porque se le fue algo. Para volver al principio, deshaz el cambio: añade al «ahora» lo que se le fue.',
+  P38: 'Ojo: quien tiene {n2} menos es el PRIMERO. El otro tiene más: añade {n2} a la cantidad del primero.',
+  P39: 'Hay dos montones y te preguntan por los dos juntos. «En total» quiere decir juntar: suma un montón con el otro.',
+  B10: 'Cada salto de unidad es multiplicar o dividir por 10. Cuenta los saltos y mueve la coma tantos lugares: a la derecha si la unidad nueva es más pequeña.',
+  B11: 'Cuenta cuántos cuadrados caben en una fila y cuántas filas hay: multiplica {a} por {b}.',
+  B12: 'Un kilo son 1 000 gramos y un litro, 1 000 mililitros: multiplica por 1 000, es decir, mueve la coma tres lugares a la derecha.',
+  H5:  'Cada hora son 60 minutos. Multiplica las horas por 60 y suma los minutos sueltos.',
+  G8:  'Ordena los datos y cuenta cuántas veces sale cada uno. El que más veces se repite es la moda.',
+  G9:  'Suma todos los datos y divide el total entre cuántos datos hay.',
+  G10: 'Busca el dato más grande y el más pequeño y réstalos.',
+  A5:  'Arriba, cuántas bolas son del color que quieres; abajo, cuántas bolas hay en total.',
+  U5:  'Divide un número entre el anterior para saber por cuánto multiplica cada vez. Multiplica el último por ese mismo número.',
+  X5:  'Deja la x sola: lo que la acompaña pasa al otro lado con la operación contraria (lo que suma, resta; lo que resta, suma).',
+  J5:  'Las caras son las superficies planas, las aristas los bordes donde se juntan dos caras, y los vértices las puntas. Cuéntalas por pisos: arriba, abajo y en medio.',
+  K5:  'Primero la columna (de izquierda a derecha) y luego la fila (de abajo hacia arriba). Cuenta hasta las dos y mira qué letra está en el cruce.',
+
+  /* ——— 6.º ——— */
+  N40: 'Un número elevado a 2 se multiplica por sí mismo; elevado a 3, se multiplica por sí mismo tres veces. No es multiplicar por el exponente.',
+  N41: 'Busca en las tablas un número que multiplicado por sí mismo dé ese resultado. Prueba con los pequeños: 1 × 1, 2 × 2, 3 × 3…',
+  N42: 'Busca en las tablas de multiplicar de los dos números y mira cuál es el primer número que se repite en las dos.',
+  N43: 'Busca los números que dividen a los dos sin dejar resto y quédate con el más grande.',
+  N44: 'El exponente dice cuántos ceros lleva el número detrás del 1.',
+  Z1:  'Baja desde la temperatura de salida contando grados: al pasar el cero, sigues contando pero con signo menos.',
+  Z2:  'Bajar es restar plantas. Si pasas la planta 0, sigues bajando a los sótanos: −1, −2, −3…',
+  Z3:  'En la recta, cuanto más a la izquierda, más pequeño. Un negativo es menor que cero y, entre negativos, es menor el que tiene el número más grande.',
+  Z4:  'Dibuja la recta: a la izquierda del 0 van −1, −2, −3… El anterior está un paso a la izquierda; el posterior, un paso a la derecha.',
+  C12: 'Coma debajo de coma, iguala decimales con ceros, opera como con enteros y baja la coma al resultado.',
+  C13: 'Dividir entre 0,5 es preguntar cuántas mitades caben: el doble. Entre 0,25, cuántos cuartos: el cuádruple.',
+  C14: 'El tanto por ciento es «sobre 100»: escríbelo como fracción sobre 100 y luego como decimal, moviendo la coma dos lugares.',
+  C15: 'Escribe todos los precios con dos decimales, coma debajo de coma, y suma en columna.',
+  F16: 'Busca un denominador común (el mínimo común múltiplo de los de abajo), convierte las dos fracciones y suma los de arriba.',
+  F17: 'Busca un denominador común (el mínimo común múltiplo de los de abajo), convierte las dos fracciones y resta los de arriba.',
+  F18: 'Multiplica el entero por el número de arriba y divide el resultado entre el de abajo.',
+  F19: 'Fracción de fracción se multiplica: arriba por arriba y abajo por abajo. «La mitad de» es multiplicar por 1/2.',
+  F20: 'Pásalas al mismo denominador, o compara cada una con 1/2 y con el entero. Con el mismo de abajo gana la de arriba mayor.',
+  T1:  'El 10 % es la décima parte: divide entre 10. El 50 % es la mitad, y el 25 % la mitad de la mitad.',
+  T2:  'El 10 % es la décima parte: divide entre 10. El 50 % es la mitad, y el 25 % la mitad de la mitad.',
+  T3:  'Calcula primero el descuento (el 10 % es dividir entre 10) y réstalo al precio.',
+  T4:  'Calcula primero cuánto sube (el 10 % es dividir entre 10) y súmalo al precio de antes.',
+  T5:  'Averigua primero cuánto cuesta uno solo (divide el precio entre la cantidad) y multiplica por los que te piden.',
+  T6:  'Calcula el 1 % dividiendo entre 100 y multiplícalo por el tanto por ciento que te piden.',
+  D16: 'Estima con las decenas: tapa las unidades de los dos números y mira cuántas veces cabe. Multiplica, resta y baja la siguiente cifra.',
+  D17: 'Redondea el dividendo a un número que esté en la tabla del divisor (o a centenas o millares cómodos) y divide de cabeza.',
+  P40: 'Al primero le faltan {n2} para igualar al otro: el otro tiene MÁS. Añade {n2} a la cantidad del primero.',
+  P41: 'Al primero le sobran {n2} para igualar al otro: el otro tiene MENOS. Quita {n2} a la cantidad del primero.',
+  P42: 'Ojo: quien tiene {n2} más es el PRIMERO. El otro tiene menos: quita {n2} a la cantidad del primero.',
+  P43: 'Ahora tiene más porque le llegó algo. Para volver al principio, deshaz el cambio: quita al «ahora» lo que le llegó.',
+  P44: 'Conoces el total y una de las partes. Para saber la otra parte, quita del total la parte que ya conoces.',
+  B13: 'Cuadrado: lado por lado. Triángulo: base por altura, y el resultado dividido entre 2.',
+  B14: 'Cuenta los ceros del cambio (1 000 son tres) y mueve la coma esos lugares: a la izquierda si pasas a una unidad más grande, a la derecha si pasas a una más pequeña.',
+  B15: 'Rodear es el perímetro: suma los cuatro lados. Un rectángulo tiene dos largos y dos anchos.',
+  H6:  'Un minuto son 60 segundos. Multiplica los minutos por 60.',
+  G11: 'Lee el valor de cada barra, súmalos todos y divide entre cuántas barras hay.',
+  G12: 'Media: suma todo y divide entre cuántos datos hay. Moda: el que más se repite. Rango: el mayor menos el menor. Lee cuál te piden.',
+  A6:  'Cuenta cuántos resultados cumplen lo que te piden (favorables) y cuántos hay en total (posibles). La fracción es favorables sobre posibles.',
+  A7:  'Si el azar reparte por igual entre los resultados posibles, divide el número de tiradas entre cuántos resultados hay.',
+  U6:  'Desde el primer número das un salto por cada lugar que avanzas: para el lugar N son N − 1 saltos. Multiplica el salto por eso y súmalo al primero.',
+  X6:  'Deja la x sola: lo que la multiplica pasa dividiendo; lo que la divide pasa multiplicando; lo que suma pasa restando.',
+  J6:  'Los tres ángulos suman 180. Suma los dos que conoces y quita ese total a 180.',
+  J7:  'La vuelta entera son 360. Media vuelta es la mitad, un cuarto es la mitad de la mitad, y tres cuartos son tres de esos cuartos.',
+  K6:  'Moverse hacia arriba suma a la fila (el segundo número); hacia abajo, resta. A la derecha suma a la columna; a la izquierda, resta.'
+};
 
 /* motes.js — Lista CERRADA de 120 motes y las 16 paletas de avatar */
 
@@ -1613,7 +1985,7 @@ CB.bus = new CB.util.EventoSimple();
 
 /* CB.LEGAL */
 /* Versión */
-CB.VERSION = '3.10.0';
+CB.VERSION = '3.11.0';
 
 CB.LEGAL = {
   /* El texto completo viaja en web/LICENCIA.txt. Aquí va solo la línea que
@@ -11658,6 +12030,42 @@ CB.reparacion.pistaGenerica = function (destreza) {
   return pistas ? pistas[0] : 'Vuelve a mirarlo con calma.';
 };
 
+/* Pista de la VETA (pistas.js): el método de esa pregunta, con sus números
+   en los huecos {a} {b} {c} {ua} {ub} {da} {db} {n1} {n2}. Devuelve null si
+   la veta no tiene pista o si a un hueco le falta el dato: antes que una
+   llave a medio rellenar, la pista de la destreza. */
+CB.reparacion.pistaDeVeta = function (item) {
+  const tabla = CB.datos.PISTAS_VETA;
+  const plantilla = item && item.nivelId && tabla ? tabla[item.nivelId] : null;
+  if (!plantilla) return null;
+  const ops = Array.isArray(item.operandos) ? item.operandos
+            : (Array.isArray(item.datos) ? item.datos : []);
+  const a = ops[0], b = ops[1];
+  const entero = function (n) { return typeof n === 'number' && isFinite(n) && n === Math.round(n); };
+  const valores = {
+    a: a, b: b, c: ops[2], n1: a, n2: b,
+    ua: entero(a) ? Math.abs(a) % 10 : null,
+    ub: entero(b) ? Math.abs(b) % 10 : null,
+    da: entero(a) ? Math.floor(Math.abs(a) / 10) : null,
+    db: entero(b) ? Math.floor(Math.abs(b) / 10) : null
+  };
+  let falta = false;
+  const texto = plantilla.replace(/\{(ua|ub|da|db|n1|n2|a|b|c)\}/g, function (hueco, clave) {
+    const v = valores[clave];
+    if (v == null || typeof v !== 'number' || !isFinite(v)) { falta = true; return hueco; }
+    return String(v).replace('.', ',');
+  });
+  return falta ? null : texto;
+};
+
+/* LA pista de un ítem: la de su veta, y si no, la de su destreza. Es lo que
+   enseña el botón de pista y lo que dice Rocarr al primer fallo cuando el
+   valor escrito no delata ningún error conocido. */
+CB.reparacion.pista = function (item) {
+  return CB.reparacion.pistaDeVeta(item) ||
+         CB.reparacion.pistaGenerica(item ? item.destreza : null);
+};
+
 /* Pista específica del error que explica el valor dado, o null si el valor
    no coincide con ningún error conocido. Cuando varios errores producen el
    mismo valor se toma el primero, igual que hace la tarjeta. */
@@ -15542,7 +15950,7 @@ CB.partida.trasFallo = function (item, nivel, extra) {
        unidades pasas de diez» en vez de la genérica de la destreza. Las 48
        pistas de CB.ERRORES estaban escritas y no se enseñaban en ninguna parte. */
     const pista = CB.reparacion.pistaDe(item, Number(item.valorDado)) ||
-                  CB.reparacion.pistaGenerica(item.destreza);
+                  CB.reparacion.pista(item);
     /* La regla es que la luz se apaga SOLO al fallar el segundo intento (docs/decisiones.md, Documento 5), y esa regla hay que contarla en el momento en que importa, no dejarla escrita en un documento que el niño no lee. */
     CB.ui.mensaje('Esta no suma gemas. Te queda otro intento. ' + pista, 'animo');
     CB.ui.festejo.mostrar('animo');
@@ -16324,9 +16732,9 @@ CB.partida.accionPista = function () {
   const e = CB.partida.estado;
   if (!e || !e.itemActual) return;
   e.usoPistaItem = true;
-  const pistas = CB.datos.MENSAJES.PISTAS[e.itemActual.destreza];
-  /* La pista está SIEMPRE disponible y NO cuesta ninguna luz (§3.2). */
-  CB.ui.mensaje(pistas ? pistas[1] : 'Léelo otra vez con calma.', 'animo');
+  /* La pista está SIEMPRE disponible y NO cuesta ninguna luz (§3.2). Desde
+     3.11.0 es la de la VETA: el método con los números de la pregunta. */
+  CB.ui.mensaje(CB.reparacion.pista(e.itemActual), 'animo');
   CB.ui.personaje('rocarr', 'pista');
   CB.audio.sfx('rocarr');
 };
