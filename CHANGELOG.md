@@ -9,6 +9,94 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.5.0] — 2026-08-24
+
+Una auditoría a fondo de todo el proyecto: el shell de Python, el empaquetado,
+los documentos y —sobre todo— el bundle del juego, con los 308 niveles
+fuzzeados (unos 277 000 ítems generados) y una comparación mecánica de los
+gemelos `.min` con sus copias legibles. La base salió muy sana: ni un
+`Math.random` en los generadores, ni fugas de temporizadores, ni claves de
+`localStorage` fuera de `CB.almacen`, gemelos sin derivas. Lo que sí había son
+los veintidós errores de abajo, y están todos corregidos.
+
+### Corregido
+
+**Lo que un niño veía:**
+
+- **La tarjeta de reparación de dinero pintaba los billetes como monedas y sin
+  fotografía.** Construía las piezas a mano, sin el `data-valor` con el que el
+  CSS carga la imagen, y con la clase de moneda aunque llegara un billete de
+  50 €. Ahora usa `CB.ui.pieza`, el mismo ayudante que el resto del juego.
+- **Los Créditos decían «Cero ficheros de imagen»** con doce webp de monedas y
+  billetes en el bundle. Ahora dicen la verdad.
+- En pantallas de menos de 480 px de ancho, la barra de avance enseñaba **a la
+  vez** los bloquecitos y el contador de texto que debía sustituirlos: un
+  `display` suelto y una caja sin condición anulaban el modo compacto.
+
+**Accesibilidad:**
+
+- Con **«Alto contraste»**, los tres resaltes dorados (la línea activa del
+  enunciado, la columna CDU activa y la cara de ánimo elegida) quedaban en
+  blanco sobre oro claro: 1,9:1, ilegible justo en el modo que promete lo
+  contrario. Llevan ahora color explícito.
+- El **«+N por rapidez»** flotaba en oro oscuro sobre el cielo (menos de 2:1 de
+  contraste; sobre el césped, casi invisible). Va ahora en placa oscura.
+- Los **cromos bloqueados** del álbum estaban a 3,4:1. Ahora en negro.
+- **«Letra grande» no escalaba seis textos** que iban en píxeles fijos: los
+  rótulos Pista, Pausa y Sonido, el nombre de la veta, los cromos, el
+  distintivo de ampliación y la marca del glosario. Todos atados ahora a
+  `--tam-texto-min`, conservando su tamaño de siempre.
+- El botón de sonido decía **«Sonido» en pantalla y «Silenciar» al lector de
+  pantalla**. Ahora dicen lo mismo.
+
+**Reglas que no hacían lo que decían:**
+
+- La adaptación del visor de respuesta a ventanas bajas estaba escrita *antes*
+  del bloque base y, a igual especificidad, nunca ganaba la cascada. Movida
+  detrás, con `min()` para seguir respetando «Letra grande».
+- El aviso **«Gira el dispositivo»** saltaba también en apaisado —pidiendo
+  girar un aparato ya girado— y tapaba la adaptación apaisada de la rejilla de
+  respuestas, que no llegaba a verse nunca. Ahora solo sale en vertical.
+- El par `image-rendering` estaba en orden inverso y el pixelado no ganaba.
+- `.cinta--posa` no existe en ningún sitio del juego: regla borrada.
+
+**Dentro del código:**
+
+- Cada pulsación de **«Restaurar copia»** dejaba un `<input>` oculto más, con
+  su oyente vivo, dentro del panel. Era la única fuga de oyentes del bundle.
+- El tiempo agotado protegía `itemActual` en una línea y lo usaba sin guarda
+  nueve líneas después.
+- Un mensaje de diagnóstico decía «13 slugs» habiendo 26; ahora se calcula.
+- Una llamada pasaba un argumento a una función sin parámetros.
+
+**Proyecto y textos:**
+
+- El `.spec` y el pie del README decían «© 2026 Javier Tamarit» donde el resto
+  del proyecto dice **JavierTamaritWeb**.
+- `audio/CREDITOS.txt` —que viaja dentro del `.app`— remitía a `docs/musica.md`
+  y a `js/07-musica.js`, dos rutas que no existen para quien recibe la
+  aplicación. Ahora remite al id de Pixabay de su propia tabla y al módulo real.
+- Cuatro palabras sin tilde en `EMPAQUETAR-MAC.md`, y tres comentarios del CSS
+  que describían valores ya retirados.
+
+### Notas técnicas
+
+Ninguna corrección cambia el tamaño ni el aspecto de nada en el modo normal:
+los textos atados a `--tam-texto-min` conservan sus píxeles de siempre
+(20 px × 0,6 = los mismos 12 px) y solo crecen cuando el ajuste lo pide. Cada
+cambio de CSS y de JS está aplicado a mano dos veces, en el `.min` que corre y
+en el gemelo legible, y la sincronía se comprobó mecánicamente: selectores
+normalizados en el CSS, literales de cadena en el JS.
+
+Quedan a la vista, sin tocar a propósito: el formato `'signo'` y su
+`selectorSigno` son código inalcanzable (~30 líneas que ningún generador
+produce); `CB.pantallas.ir` no corta la locución al cambiar de pantalla (se
+acota sola y cortarla podría segar avisos legítimos); y el HTML dice «para 2.º
+de Primaria» mientras la Ayuda habla de varios cursos, que es una decisión de
+contenido, no de código.
+
+---
+
 ## [4.4.0] — 2026-08-24
 
 ### Añadido
@@ -224,6 +312,7 @@ ningún puerto en el equipo.
 - **Se perdía el progreso al cerrar.** `private_mode=False` es lo único que hace
   persistir `localStorage`, donde el juego guarda perfiles y avance.
 
+[4.5.0]: #450--2026-08-24
 [4.4.0]: #440--2026-08-24
 [4.3.0]: #430--2026-08-24
 [4.2.0]: #420--2026-08-24

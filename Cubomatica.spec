@@ -13,7 +13,7 @@ from pathlib import Path
 
 APP_NAME = "Cubomatica"
 BUNDLE_ID = "es.javiertamarit.cubomatica"
-VERSION = "4.4.0"
+VERSION = "4.5.0"
 
 ROOT = Path(SPECPATH)
 WEB_DIR = ROOT / "src" / "cubomatica" / "web"
@@ -105,6 +105,6 @@ app = BUNDLE(
         "NSRequiresAquaSystemAppearance": False,  # respeta modo oscuro
         "LSMinimumSystemVersion": "11.0",
         "LSApplicationCategoryType": "public.app-category.education",
-        "NSHumanReadableCopyright": "© 2026 Javier Tamarit",
+        "NSHumanReadableCopyright": "© 2026 JavierTamaritWeb",
     },
 )

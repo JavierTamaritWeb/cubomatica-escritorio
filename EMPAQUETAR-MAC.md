@@ -39,10 +39,10 @@ Sin él, macOS mata la app al abrirla.
 
 ## Icono
 
-**Ya esta hecho.** El icono vive en `assets/icon.icns` y el `.spec` lo detecta solo.
+**Ya está hecho.** El icono vive en `assets/icon.icns` y el `.spec` lo detecta solo.
 
-El dibujo es el cubo de tres caras (amarillo, verde y azul sobre fondo marron),
-el **mismo** que el `<link rel="icon">` de `web/index.html`. La fuente esta en
+El dibujo es el cubo de tres caras (amarillo, verde y azul sobre fondo marrón),
+el **mismo** que el `<link rel="icon">` de `web/index.html`. La fuente está en
 `assets/icon.svg`.
 
 ### Regenerarlo
@@ -55,7 +55,7 @@ Si cambias `assets/icon.svg`, vuelve a construir el `.icns` con:
 ```
 
 Necesita ImageMagick (`brew install imagemagick`). El script rasteriza el SVG
-y genera los 10 tamanos que pide macOS (de 16 a 1024 px).
+y genera los 10 tamaños que pide macOS (de 16 a 1024 px).
 
 ### Si partes de un PNG en vez de un SVG
 

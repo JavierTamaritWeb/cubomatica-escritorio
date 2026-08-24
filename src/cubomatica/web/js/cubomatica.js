@@ -10599,7 +10599,8 @@ CB.adaptativo.actualizar = function (destreza, acierto, beta, perfil) {
   /* Mientras tanto, la destreza de verdad no se actualizaba nunca y su competencia estimada se quedaba clavada. */
   if (CB.adaptativo.SLUGS.indexOf(destreza) === -1) {
     throw new Error('CB.adaptativo.actualizar: destreza desconocida «' + destreza +
-                    '». Se espera uno de los 13 slugs, no el objeto de destreza.');
+                    '». Se espera uno de los ' + CB.adaptativo.SLUGS.length +
+                    ' slugs, no el objeto de destreza.');
   }
 
   let d = perfil.destrezas[destreza];
@@ -11999,7 +12000,6 @@ CB.ui.pintarVeta = function (nivel, mundo) {
 };
 
 /* UNA PIEZA DE DINERO */
-/* UNA PIEZA DE DINERO */
 CB.ui.pieza = function (etiqueta, v) {
   const esCent = CB.gen.dinero.esCentimo(v);
   const el = CB.ui.crear(etiqueta,
@@ -12842,8 +12842,11 @@ CB.ui.dibujoReparacion = function (tarjeta) {
     });
 
   } else if (tarjeta.dibujo === 'monedas') {
+    /* Con CB.ui.pieza, como el resto del juego: pone data-valor (sin él el
+       CSS no carga la fotografía) y distingue billete de moneda — por aquí
+       pasan los dos, porque «Contar con billetes» también repara aquí. */
     (d.piezas || []).forEach(function (v) {
-      caja.appendChild(CB.ui.crear('span', 'pieza pieza--moneda', v + ' €'));
+      caja.appendChild(CB.ui.pieza('span', v));
     });
 
   } else if (tarjeta.dibujo === 'tabla100') {
@@ -13151,7 +13154,7 @@ CB.ui.reloj.parar = function () {
     r.caja.hidden = true;
     r.caja.classList.remove('reloj--prisa');
   }
-  CB.ui.reloj.ocultarCartel(true);
+  CB.ui.reloj.ocultarCartel();
 };
 
 CB.ui.reloj.paso = function () {
@@ -14669,8 +14672,12 @@ CB.partida.tiempoAgotado = function () {
   /* A los 3 tiempos agotados seguidos, r.cambiaModo pone la partida en Fácil, y ese modo apaga el cronómetro del todo: a partir de ahí no puede volver a agotarse el tiempo, así que timeoutsPartida se queda clavado en 3 y nunca llega a… */
   if (r.finAmable) { CB.partida.finalizar('pausa'); return; }
 
+  /* La misma guarda que arriba: si no hubiera ítem servido, mejor un mensaje
+     sin destreza que un TypeError dentro del temporizador. */
   CB.ui.mensaje(CB.mensajes.animo({
-    perfil: CB.perfil, destreza: e.itemActual.destreza, rng: e.rng
+    perfil: CB.perfil,
+    destreza: e.itemActual ? e.itemActual.destreza : null,
+    rng: e.rng
   }), 'animo');
   CB.ui.festejo.mostrar('animo');
   setTimeout(function () {
@@ -16456,10 +16463,18 @@ CB.adulto.restaurar = function (cont) {
     CB.a11y.anunciar(t);
   }
 
+  /* La llamada anterior pudo dejar su input oculto en cont: se retira, para
+     no acumular un nodo y un oyente por cada pulsación de «Restaurar». */
+  if (cont) {
+    const previo = cont.querySelector('input[data-restaurar]');
+    if (previo) previo.remove();
+  }
+
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json,application/json';
   input.style.display = 'none';
+  input.setAttribute('data-restaurar', '');
 
   input.addEventListener('change', function () {
     const f = input.files && input.files[0];

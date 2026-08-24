@@ -21,8 +21,9 @@ porque a los autores les corresponde el crédito aunque la licencia no lo exija.
 Los ficheros son los originales, bit a bit: no se han recortado, recodificado
 ni normalizado. Lo único que se ha cambiado es el nombre, para que el nombre
 del fichero no arrastre las palabras clave comerciales con las que se subieron
-a Pixabay. La equivalencia con el nombre original está en docs/musica.md.
+a Pixabay. Para localizar cada original basta el id de Pixabay de la tabla.
 
 La diferencia de volumen entre pistas (hay 8 dB entre la más fuerte y la más
 floja) se corrige en el reproductor, con una ganancia por pista declarada en
-js/07-musica.js. Por eso no hizo falta tocar los ficheros.
+la tabla del módulo 07-musica, dentro de js/cubomatica.js. Por eso no hizo
+falta tocar los ficheros.

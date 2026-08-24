@@ -282,8 +282,8 @@
 *, *::before, *::after {
   box-sizing: border-box;
   border-radius: 0;
-  image-rendering: pixelated;
   image-rendering: crisp-edges;
+  image-rendering: pixelated;
 }
 
 html, body {
@@ -397,7 +397,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: safe center; /* centrar y desbordar a la vez esconde lo de arriba */
   gap: var(--e3);
   flex: 1 1 auto;
   text-align: center;
@@ -442,7 +442,10 @@ button:disabled {
   font-family: var(--fuente-pixel);
 }
 
-@media (max-width: 299px), (max-height: 419px) {
+/* Solo en vertical: en apaisado y bajo (un móvil ya girado) el aviso pedía
+   girar un aparato que YA estaba girado, y tapaba la adaptación apaisada
+   de .rejilla-respuestas, que quedaba sin efecto. */
+@media (max-width: 299px), (orientation: portrait) and (max-height: 419px) {
   .aviso-gira {
     display: flex;
   }
@@ -571,7 +574,10 @@ button:disabled {
   height: var(--lado-icono);
   padding: 0 var(--e2);
   font-family: var(--fuente-lectura);
-  font-size: 12px;
+
+  /* Eran 12px fijos, que «Letra grande» no podía agrandar. Atados al token
+     miden lo mismo (20px * .6 = 12px) y escalan con la preferencia. */
+  font-size: calc(var(--tam-texto-min) * 0.6);
   line-height: 1;
 }
 
@@ -581,7 +587,7 @@ button:disabled {
 }
 
 .btn-bloque--rotulado .btn-bloque__rotulo {
-  font-size: 12px;
+  font-size: calc(var(--tam-texto-min) * 0.6);
   line-height: 1;
   white-space: nowrap;
 }
@@ -782,10 +788,6 @@ button:disabled {
   content: "◆ ";
 }
 
-.cinta.cinta--posa::before {
-  content: "■ ";
-}
-
 .cinta--prisa {
   color: var(--deco-oro-cla);
 }
@@ -859,12 +861,17 @@ button:disabled {
     opacity: 0.35;
   }
 }
+/* Flota sobre el cielo, sin fondo propio: oro oscuro sobre celeste (o sobre
+   el césped) no llegaba ni a 2:1 de contraste. La placa oscura es la misma
+   que usa el resto de texto suelto del juego. */
 .hilera-bono {
   display: flex;
   align-items: center;
   gap: var(--e1);
   font-family: var(--fuente-pixel);
-  color: var(--deco-oro-osc);
+  background: var(--bg-texto-oscuro);
+  color: var(--deco-oro-cla);
+  padding: var(--e1) var(--e2);
 }
 
 .rejilla-respuestas {
@@ -938,12 +945,6 @@ button:disabled {
   color: var(--btn-texto-desactivado);
 }
 
-@media (max-height: 780px) {
-  .respuesta__visor {
-    min-height: 60px;
-    font-size: 36px;
-  }
-}
 @media (max-height: 660px) and (min-width: 480px) {
   .teclado-bloques {
     grid-template-columns: repeat(6, var(--lado-respuesta));
@@ -961,6 +962,16 @@ button:disabled {
   color: var(--texto-principal);
   box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--btn-borde-sombra), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--blanco);
   padding: 0 var(--e3);
+}
+
+/* Después del bloque base, no antes: a igual especificidad gana el último,
+   así que esta adaptación a ventanas bajas no se aplicaba nunca. El min()
+   deja mandar al token cuando es más pequeño que el tope. */
+@media (max-height: 780px) {
+  .respuesta__visor {
+    min-height: 60px;
+    font-size: min(var(--tam-numero-opcion), 36px);
+  }
 }
 
 .respuesta__visor:empty::before {
@@ -986,8 +997,11 @@ button:disabled {
   line-height: var(--interlineado);
 }
 
+/* Color explícito: en alto contraste el texto hereda blanco, y blanco sobre
+   el oro claro del resalte no llega a 2:1. Negro va bien en los dos modos. */
 .enunciado__linea--activa {
   background: var(--deco-oro-cla);
+  color: var(--negro);
 }
 
 .enunciado--operacion {
@@ -1231,12 +1245,12 @@ button:disabled {
   background: var(--bg-texto-panel);
   box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--blanco), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--btn-borde-sombra), var(--e1) var(--e1) 0 0 rgba(0, 0, 0, 0.4);
   text-align: center;
-  font-size: 16px;
+  font-size: calc(var(--tam-texto-min) * 0.8); /* 16px, y escala con «Letra grande» */
 }
 
 .cromo--bloqueado {
   background: var(--deco-piedra);
-  color: var(--deco-carbon);
+  color: var(--negro); /* el carbón sobre la piedra se quedaba en 3,4:1 */
 }
 
 .rejilla-cromos {
@@ -1257,7 +1271,7 @@ button:disabled {
   padding: var(--e1);
   background: var(--bg-veta-nuevo);
   color: var(--texto-principal);
-  font-size: 15px;
+  font-size: calc(var(--tam-texto-min) * 0.75); /* 15px, y escala con «Letra grande» */
   text-align: center;
   box-shadow: inset 4px 4px 0 0 var(--deco-piedra-cla), inset -4px -4px 0 0 var(--deco-piedra-osc);
 }
@@ -1660,7 +1674,7 @@ button:disabled {
 .distintivo {
   display: inline-block;
   font-family: var(--fuente-pixel);
-  font-size: 14px;
+  font-size: calc(var(--tam-texto-min) * 0.7); /* 14px, y escala con «Letra grande» */
   background: var(--bg-texto-aviso);
   color: var(--texto-aviso);
   padding: var(--e1) var(--e2);
@@ -1747,6 +1761,7 @@ button:disabled {
 
 .columna-cdu[data-activa=si] {
   background: var(--deco-oro-cla);
+  color: var(--negro); /* en alto contraste heredaría blanco sobre oro claro */
 }
 
 .manojo-decena {
@@ -1839,6 +1854,7 @@ button:disabled {
 
 .animo__cara[aria-pressed=true] {
   background: var(--deco-oro-cla);
+  color: var(--negro); /* en alto contraste heredaría blanco sobre oro claro */
 }
 
 .lista-glosario {
@@ -1864,7 +1880,7 @@ button:disabled {
 
 .termino-glosario__marca {
   font-family: var(--fuente-pixel);
-  font-size: 13px;
+  font-size: calc(var(--tam-texto-min) * 0.65); /* 13px, y escala con «Letra grande» */
   background: var(--bg-texto-aviso);
   color: var(--texto-aviso);
   padding: 2px var(--e1);
@@ -1987,7 +2003,6 @@ button:disabled {
 .galeria-avance__bloque {
   width: 10px;
   height: 10px;
-  display: block;
   background: var(--deco-piedra);
   box-shadow: inset 2px 2px 0 0 var(--deco-piedra-cla), inset -2px -2px 0 0 var(--deco-piedra-osc);
 }
@@ -3039,8 +3054,8 @@ button:disabled {
    Tenía cuatro indicadores y ninguna palabra: tres cuadrados azules,
    veinte cuadraditos grises, un número suelto y otro cuadrado azul. Había
    que adivinarlos. Ahora cada uno lleva su rótulo debajo, que es el patrón
-   que la barra de herramientas de abajo (Pista, Pausa, Sonido) ya usaba;
-   el mismo tamaño de 12px, para que sean la misma cosa y no dos. */
+   que la barra de herramientas de abajo (Pista, Pausa, Sonido) ya usaba,
+   para que sean la misma cosa y no dos. */
 .indicador {
   display: flex;
   flex-direction: column;
@@ -3060,7 +3075,7 @@ button:disabled {
   /* En mayúsculas por decisión del autor. Van con algo de espaciado porque
      las versalitas pierden la forma de la palabra y separarlas un poco
      devuelve algo de lo que se llevan; el espaciado general del juego
-     (.05em, pensado para minúsculas) aquí se queda corto. */
+     (0 desde que la letra es OpenDyslexic) aquí se queda corto. */
   text-transform: uppercase;
   letter-spacing: 0.06em;
   word-spacing: normal;
@@ -3080,19 +3095,20 @@ button:disabled {
 /* Los bloques medían 10px sobre fondo casi negro: se leían como una
    textura, no como una cuenta. El ancho da para diez por fila, así que
    veinte bloques siguen ocupando dos filas y la barra no crece. */
-.galeria-avance {
-  width: 200px;
-  max-height: 35px;
-}
-
 .galeria-avance__bloque {
   width: 16px;
   height: 16px;
 }
 
+/* Solo cuando se ven los bloques: por debajo de 480px la galería enseña el
+   contador de texto y conserva su caja pequeña. Sin la condición, la caja
+   grande (y un display suelto en el bloque) anulaban ese camino compacto y
+   se veían el contador y los bloques a la vez. */
 @media (min-width: 480px) {
   .galeria-avance {
     gap: 3px;
+    width: 200px;
+    max-height: 35px;
   }
 }
 
@@ -3122,9 +3138,9 @@ button:disabled {
    no hace falta nombrarlo.
 
    Con el mismo espaciado de letra extra que los rótulos de la barra de estado:
-   el .05em general está pensado para minúsculas y en versalitas se ve
-   apretado. A los números y a los emojis no les afecta ninguna de las dos
-   cosas. */
+   el espaciado general (0 desde que la letra es OpenDyslexic) está pensado
+   para minúsculas y en versalitas se ve apretado. A los números y a los
+   emojis no les afecta ninguna de las dos cosas. */
 .btn-bloque,
 .btn-adulto {
   text-transform: uppercase;
