@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <meta name="color-scheme" content="light">
     <meta name="theme-color" content="#2B2118">
-    <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='8' fill='%232B2118'/%3E%3Cpath d='M12 20 32 9l20 11-20 11z' fill='%23F2C94C'/%3E%3Cpath d='m12 20 20 11v24L12 44z' fill='%235AA02C'/%3E%3Cpath d='M52 20 32 31v24l20-11z' fill='%233C8DBC'/%3E%3C/svg%3E">
     <meta name="description" content="Cubomática: juego de matemáticas para 2.º de Primaria. Sumas, restas, tablas y problemas.">
     <title>Cubomática — las Matemáticas son muy divertidas</title>
-    <link rel="stylesheet" href="css/cubomatica.min.css">
+    <link rel="stylesheet" href="css/cubomatica.css">
   </head>
   <body>
     <div id="aviso-gira" class="aviso-gira">
@@ -23,14 +22,15 @@
       <div class="nube" aria-hidden="true" style="top:26%"></div>
       <div class="nube" aria-hidden="true" style="top:6%"></div>
       <div class="portada__llave">
-        <button class="btn-bloque btn-bloque--icono" data-ir="p-adulto" aria-label="Panel de personas adultas">🔑</button>
+        <button class="btn-bloque btn-bloque--icono" data-ir="p-adulto" aria-label="Panel de personas adultas"><span class="icono-px" data-icono="llave" aria-hidden="true"></span></button>
       </div>
       <div class="pila-centro portada__pila">
         <h1 class="portada__titulo">CUBOMÁTICA</h1>
         <p class="portada__lema">«las Matemáticas son muy divertidas»</p>
+        <button id="btn-seguir" class="btn-bloque btn-bloque--primario btn-bloque--grande" hidden></button>
         <button id="btn-jugar" class="btn-bloque btn-bloque--primario btn-bloque--grande">JUGAR</button>
         <p id="portada-pista" class="texto texto--menor portada__pista"></p>
-        <button id="btn-tranquila" class="btn-bloque btn-bloque--medio">CANTERA TRANQUILA</button>
+        <button id="btn-tranquila" class="btn-bloque btn-bloque--medio btn-bloque--con-nota"><span>CANTERA TRANQUILA</span><span class="btn-bloque__nota">Sin reloj y sin vidas</span></button>
         <div class="fila fila--centro">
           <button class="btn-bloque" data-ir="p-perfiles">¿Quién juega?</button>
           <button class="btn-bloque" data-ir="p-ajustes">Ajustes</button>
@@ -38,14 +38,19 @@
           <button class="btn-bloque" data-ir="p-creditos">Créditos</button>
         </div>
       </div>
-      <div class="suelo-hierba" aria-hidden="true"></div>
+      <div class="suelo-biomas" aria-hidden="true">
+        <i data-bioma="pradera"></i>
+        <i data-bioma="bosque"></i>
+        <i data-bioma="rio"></i>
+        <i data-bioma="mina"></i>
+      </div>
     </section>
     <section id="p-perfiles" class="pantalla pantalla--scroll" hidden>
       <div class="contenido">
         <h1>¿Quién juega?</h1>
         <div id="lista-perfiles" class="lista-perfiles"></div>
         <button id="btn-nuevo-perfil" class="btn-bloque btn-bloque--primario btn-bloque--medio">Nuevo minero</button>
-        <button class="btn-bloque" data-salir>◀ Salir</button>
+        <button class="btn-bloque" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
       </div>
     </section>
     <section id="p-calibracion" class="pantalla pantalla--juego" hidden>
@@ -57,9 +62,9 @@
         <div class="cielo cielo--0" aria-hidden="true"></div>
         <div class="zona-juego__alta">
           <div id="cal-enunciado" class="panel-bloque enunciado"></div>
-          <div id="cal-mensaje" class="mensaje-resultado" hidden></div>
+          <div id="cal-mensaje" class="mensaje-resultado"></div>
           <div class="escena-criaturas">
-            <div class="criatura criatura--flota" data-quien="cubi" aria-hidden="true">🧍</div>
+            <div class="criatura criatura--flota" data-quien="cubi" aria-hidden="true"></div>
           </div>
         </div>
         <div class="zona-juego__baja">
@@ -68,8 +73,8 @@
       </div>
       <div class="barra-herramientas">
         <div class="barra-herramientas__grupo">
-          <button class="btn-bloque btn-bloque--rotulado" data-accion="sonido" aria-label="Sonido" aria-pressed="false"><span class="btn-bloque__ico" aria-hidden="true">🔈</span><span class="btn-bloque__rotulo">Sonido</span></button>
-          <button class="btn-bloque" data-salir>◀ Salir</button>
+          <button class="btn-bloque btn-bloque--rotulado" data-accion="sonido" aria-label="Sonido" aria-pressed="false"><span class="btn-bloque__ico icono-px" data-icono="altavoz" aria-hidden="true"></span><span class="btn-bloque__rotulo">Sonido</span></button>
+          <button class="btn-bloque" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
         </div>
       </div>
     </section>
@@ -77,17 +82,17 @@
       <div class="contenido">
         <h1>La Cantera</h1>
         <p id="mapa-saludo" class="texto texto--menor"></p>
-        <div class="fila fila--centro">
-          <button id="btn-modo" class="btn-bloque"></button>
-        </div>
+        <div id="selector-modo" class="fila fila--centro"></div>
         <div id="rejilla-mundos" class="rejilla-mundos"></div>
         <div class="fila fila--centro">
-          <button class="btn-bloque" data-ir="p-cantera">Mis vetas</button>
-          <button class="btn-bloque" data-ir="p-casa">Mi álbum</button>
-          <button class="btn-bloque" data-ir="p-glosario">Diccionario</button>
-          <button class="btn-bloque" data-ir="p-ayuda">Ayuda</button>
+          <button class="btn-bloque btn-bloque--rotulado btn-bloque--rotulado-grande" data-ir="p-cantera"><span class="btn-bloque__ico icono-px" data-icono="pico" aria-hidden="true"></span><span class="btn-bloque__rotulo">Mis vetas</span></button>
+          <button class="btn-bloque btn-bloque--rotulado btn-bloque--rotulado-grande" data-ir="p-casa"><span class="btn-bloque__ico icono-px" data-icono="cromo" aria-hidden="true"></span><span class="btn-bloque__rotulo">Mi álbum</span></button>
+          <button class="btn-bloque btn-bloque--rotulado btn-bloque--rotulado-grande" data-ir="p-glosario"><span class="btn-bloque__ico icono-px" data-icono="libro" aria-hidden="true"></span><span class="btn-bloque__rotulo">Diccionario</span></button>
         </div>
-        <button class="btn-bloque" data-salir>◀ Salir</button>
+        <div class="fila fila--centro">
+          <button class="btn-bloque btn-bloque--secundario" data-ir="p-ayuda">Ayuda</button>
+          <button class="btn-bloque btn-bloque--secundario" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
+        </div>
       </div>
     </section>
     <section id="p-cantera" class="pantalla pantalla--scroll" hidden>
@@ -97,7 +102,7 @@
         <div id="rejilla-vetas" class="rejilla-vetas"></div>
         <button id="btn-toda-cantera" class="btn-bloque">Ver toda la cantera</button>
         <div id="leyenda-vetas" class="texto texto--menor"></div>
-        <button class="btn-bloque" data-salir>◀ Salir</button>
+        <button class="btn-bloque" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
       </div>
     </section>
     <section id="p-partida" class="pantalla pantalla--juego" hidden>
@@ -138,16 +143,15 @@
         <div class="cielo cielo--0" aria-hidden="true"></div>
         <div class="zona-juego__alta">
           <div id="item-enunciado" class="panel-bloque"></div>
-          <div id="item-mensaje" class="mensaje-resultado" hidden></div>
           <div class="escena-criaturas">
-            <div id="cri-cubi" class="criatura" data-quien="cubi" aria-hidden="true">🧍</div>
-            <div id="cri-rocarr" class="criatura" data-quien="rocarr" aria-hidden="true" hidden>🪨</div>
-            <div id="cri-gluglu" class="criatura" data-quien="gluglu" aria-hidden="true" hidden>💧</div>
-            <div id="cri-chispa" class="criatura" data-quien="chispa" aria-hidden="true" hidden>✨</div>
+            <div id="cri-cubi" class="criatura" data-quien="cubi" aria-hidden="true"></div>
+            <div id="cri-rocarr" class="criatura" data-quien="rocarr" aria-hidden="true" hidden></div>
+            <div id="cri-gluglu" class="criatura" data-quien="gluglu" aria-hidden="true" hidden></div>
+            <div id="cri-chispa" class="criatura" data-quien="chispa" aria-hidden="true" hidden></div>
           </div>
         </div>
         <div class="zona-juego__baja">
-          <div id="item-bono" class="hilera-bono" hidden></div>
+          <div id="item-mensaje" class="mensaje-resultado"></div>
           <div id="item-respuesta"></div>
         </div>
         <div id="cinta" class="cinta" aria-hidden="true" hidden>
@@ -157,12 +161,12 @@
       </div>
       <div class="barra-herramientas">
         <div class="barra-herramientas__grupo">
-          <button class="btn-bloque btn-bloque--rotulado" data-accion="pista" aria-label="Pista"><span class="btn-bloque__ico" aria-hidden="true">💡</span><span class="btn-bloque__rotulo">Pista</span></button>
-          <button class="btn-bloque" data-accion="salir-partida">◀ Salir</button>
+          <button class="btn-bloque btn-bloque--rotulado" data-accion="pista" aria-label="Pista"><span class="btn-bloque__ico icono-px" data-icono="pista" aria-hidden="true"></span><span class="btn-bloque__rotulo">Pista</span></button>
+          <button class="btn-bloque" data-accion="salir-partida"><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
         </div>
         <div class="barra-herramientas__grupo">
-          <button class="btn-bloque btn-bloque--rotulado" data-accion="pausa" aria-label="Pausa"><span class="btn-bloque__ico" aria-hidden="true">⏸</span><span class="btn-bloque__rotulo">Pausa</span></button>
-          <button class="btn-bloque btn-bloque--rotulado" data-accion="sonido" aria-label="Sonido" aria-pressed="false"><span class="btn-bloque__ico" aria-hidden="true">🔈</span><span class="btn-bloque__rotulo">Sonido</span></button>
+          <button class="btn-bloque btn-bloque--rotulado" data-accion="pausa" aria-label="Pausa"><span class="btn-bloque__ico icono-px" data-icono="pausa" aria-hidden="true"></span><span class="btn-bloque__rotulo">Pausa</span></button>
+          <button class="btn-bloque btn-bloque--rotulado" data-accion="sonido" aria-label="Sonido" aria-pressed="false"><span class="btn-bloque__ico icono-px" data-icono="altavoz" aria-hidden="true"></span><span class="btn-bloque__rotulo">Sonido</span></button>
         </div>
       </div>
     </section>
@@ -170,7 +174,7 @@
       <div class="contenido">
         <h1>Vamos a verlo</h1>
         <div class="escena-criaturas">
-          <div class="criatura criatura--asiente" data-quien="rocarr" aria-hidden="true">🪨</div>
+          <div class="criatura criatura--asiente" data-quien="rocarr" aria-hidden="true"></div>
         </div>
         <div id="rep-lienzo" class="lienzo-explicador panel-bloque"></div>
         <div id="rep-pasos" class="reparacion__pasos"></div>
@@ -189,7 +193,7 @@
       <div class="contenido">
         <h1 id="jefe-nombre">Jefe</h1>
         <div class="escena-criaturas">
-          <div id="jefe-criatura" class="criatura criatura--flota" aria-hidden="true">🌳</div>
+          <div id="jefe-criatura" class="criatura criatura--flota" aria-hidden="true"></div>
         </div>
         <div id="jefe-armadura" class="jefe__armadura" role="img" aria-label="Bloques del jefe"></div>
         <div id="jefe-enunciado" class="panel-bloque enunciado"></div>
@@ -197,8 +201,8 @@
         <p id="jefe-aviso" class="texto texto--menor">Aquí no se apagan luces. Aquí solo se cavan bloques.</p>
         <div class="barra-herramientas">
           <div class="barra-herramientas__grupo">
-            <button class="btn-bloque btn-bloque--rotulado" data-accion="sonido" aria-label="Sonido" aria-pressed="false"><span class="btn-bloque__ico" aria-hidden="true">🔈</span><span class="btn-bloque__rotulo">Sonido</span></button>
-            <button class="btn-bloque" data-salir>◀ Salir</button>
+            <button class="btn-bloque btn-bloque--rotulado" data-accion="sonido" aria-label="Sonido" aria-pressed="false"><span class="btn-bloque__ico icono-px" data-icono="altavoz" aria-hidden="true"></span><span class="btn-bloque__rotulo">Sonido</span></button>
+            <button class="btn-bloque" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
           </div>
         </div>
         <div class="cinta" aria-hidden="true" hidden>
@@ -228,9 +232,9 @@
         <div id="fin-animo" class="panel-bloque" hidden>
           <h2 id="fin-animo-titulo">¿Cómo te has sentido hoy?</h2>
           <div class="animo" role="group" aria-labelledby="fin-animo-titulo">
-            <button class="animo__cara" data-animo="2" aria-label="Contento" aria-pressed="false">☺</button>
-            <button class="animo__cara" data-animo="1" aria-label="Normal" aria-pressed="false">·</button>
-            <button class="animo__cara" data-animo="0" aria-label="Me ha costado" aria-pressed="false">☹</button>
+            <button class="animo__cara" data-animo="2" aria-label="Contento" aria-pressed="false"><span class="icono-px" data-icono="caraContenta" aria-hidden="true"></span></button>
+            <button class="animo__cara" data-animo="1" aria-label="Normal" aria-pressed="false"><span class="icono-px" data-icono="caraNormal" aria-hidden="true"></span></button>
+            <button class="animo__cara" data-animo="0" aria-label="Me ha costado" aria-pressed="false"><span class="icono-px" data-icono="caraTriste" aria-hidden="true"></span></button>
           </div>
           <p class="texto texto--menor">Esto lo guarda el juego para elegir tus retos de mañana. Nadie te pone nota.</p>
         </div>
@@ -249,7 +253,7 @@
         <h2>Vitrina de premios</h2>
         <p id="vitrina-resumen" class="texto texto--menor"></p>
         <div id="vitrina-premios" class="rejilla-cromos"></div>
-        <button class="btn-bloque" data-salir>◀ Salir</button>
+        <button class="btn-bloque" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
       </div>
     </section>
     <section id="p-glosario" class="pantalla pantalla--scroll" hidden>
@@ -257,27 +261,19 @@
         <h1>Diccionario de Bloques</h1>
         <p id="glosario-resumen" class="texto texto--menor"></p>
         <div id="lista-glosario" class="lista-glosario"></div>
-        <button class="btn-bloque" data-salir>◀ Salir</button>
+        <button class="btn-bloque" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
       </div>
     </section>
     <section id="p-ajustes" class="pantalla pantalla--scroll" hidden>
       <div class="contenido">
         <h1 id="ajustes-titulo">Ajustes</h1>
         <div id="lista-ajustes" class="lista-ajustes"></div>
-        <button class="btn-bloque" data-salir>◀ Salir</button>
+        <button class="btn-bloque" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
       </div>
     </section>
     <section id="p-adulto" class="pantalla pantalla--scroll pantalla--documento" hidden>
       <div class="contenido">
-        <div id="adulto-puerta" class="adulto__puerta">
-          <h1>Personas adultas</h1>
-          <p id="adulto-pregunta"></p>
-          <input id="adulto-respuesta" class="adulto__campo" type="text" autocomplete="off" aria-label="Respuesta de la puerta parental" aria-describedby="adulto-pregunta" aria-errormessage="adulto-error" aria-invalid="false">
-          <button id="adulto-entrar" class="btn-adulto">Entrar</button>
-          <p id="adulto-error" class="texto texto--menor" role="alert" hidden>No es correcto. Prueba otra vez.</p>
-          <button class="btn-bloque" data-salir>◀ Salir</button>
-        </div>
-        <div id="adulto-contenido" hidden></div>
+        <div id="adulto-contenido"></div>
       </div>
     </section>
     <section id="p-informe" class="pantalla pantalla--scroll imprimible pantalla--documento" hidden>
@@ -287,7 +283,7 @@
       </div>
       <div class="fila fila--centro no-imprimir">
         <button id="btn-imprimir" class="btn-adulto">Imprimir</button>
-        <button class="btn-bloque" data-salir>◀ Salir</button>
+        <button class="btn-bloque" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
       </div>
     </section>
     <section id="p-creditos" class="pantalla pantalla--scroll" hidden>
@@ -304,7 +300,7 @@
           <div class="panel-bloque" id="creditos-legal"></div>
           <div class="panel-bloque" id="creditos-curriculo"></div>
         </div>
-        <button class="btn-bloque" data-salir>◀ Salir</button>
+        <button class="btn-bloque" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
       </div>
     </section>
     <section id="p-ayuda" class="pantalla pantalla--scroll" hidden>
@@ -323,7 +319,7 @@
               <li>Toca el botón JUGAR.</li>
               <li>Sale una pregunta.</li>
               <li>Escribe el número con las teclas.</li>
-              <li>¿Te has colado al escribir? Toca ⌫ y borra.</li>
+              <li>¿Te has colado al escribir? Toca la tecla de borrar <span class="icono-px" data-icono="borrar" aria-hidden="true"></span> y vuelve a escribirlo.</li>
               <li>Cuando lo tengas, toca OK.</li>
             </ul>
             <p class="texto texto--lectura">A veces no hay teclas. Entonces tocas la respuesta buena entre varias.</p>
@@ -434,10 +430,9 @@
           <div class="panel-bloque">
             <h2>La llave de la portada</h2>
             <p class="texto texto--lectura">La llave de arriba es para las personas mayores. Ahí tu familia o tu profe pueden ver cómo vas.</p>
-            <p class="texto texto--lectura">Para entrar hay que resolver una cuenta de mayores, así que no es tu puerta.</p>
           </div>
         </div>
-        <button class="btn-bloque" data-salir>◀ Salir</button>
+        <button class="btn-bloque" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
       </div>
     </section>
     <section id="p-error" class="pantalla pantalla--error" hidden>
@@ -448,6 +443,6 @@
         <p id="error-detalle" class="texto texto--menor"></p>
       </div>
     </section>
-    <script src="js/cubomatica.min.js"></script>
+    <script src="js/cubomatica.js"></script>
   </body>
 </html>

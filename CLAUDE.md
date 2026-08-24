@@ -8,9 +8,9 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.2.0**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.7.0**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
-apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.4.7); it tracks the
+apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.6.0); it tracks the
 game's content, moves on its own schedule, and nothing on the Python side reads it.
 
 The Python here is deliberately thin (two short modules); nearly everything else is the game bundle.
@@ -29,20 +29,15 @@ not a default to weigh against convenience.
 output from a gulp/SCSS pipeline that lives over there. That history explains the shape of the files
 but no longer says where to edit them. **Here, `src/cubomatica/web/` is the source.**
 
-Three traps come with that, and each will waste an afternoon:
+**`index.html` loads `css/cubomatica.css` and `js/cubomatica.js` directly — the legible files are
+the ones that run.** Until 4.5.0 it loaded `.min` twins that had to be kept in step by hand, with no
+minifier in the repository; under `file://` minification saves nothing perceptible, so the twins
+were deleted in 4.6.0 and `tests/test_web.py::TestArchivosExisten::test_no_hay_gemelos_minificados`
+fails if any `*.min.*` reappears under `web/`. Do not reintroduce them: one file, edited in place.
 
-1. `index.html` loads **only** `css/cubomatica.min.css` and `js/cubomatica.min.js`. Editing
-   `cubomatica.css` or `cubomatica.js` changes nothing at runtime.
-2. …but the non-minified twins still ship, and they are what anyone reads to understand the code.
-   **A change goes in both files**, hand-applied: the `.min` one is what runs, the plain one is what
-   keeps it legible. Leaving them out of step is how the next reader gets misled.
-3. There is no minifier, gulpfile or `package.json` in this repository, so nothing here can
-   regenerate a `.min` file from its twin. Minified CSS is one line: use a targeted replacement, not
-   a rewrite.
-
-`index.html` is the exception: it has no twin, because it is the file the app loads. It was
-minified — one 21 KB line — and is now kept formatted, by `herramientas/formatear-html.py`.
-`tests/test_web.py::TestHtmlLegible` fails if it goes back to one line.
+`index.html` was itself minified — one 21 KB line — and is now kept formatted by
+`herramientas/formatear-html.py`. `tests/test_web.py::TestHtmlLegible` fails if it goes back to one
+line.
 
 **Reformatting HTML is not cosmetic: whitespace renders.** A newline plus indentation between two
 inline-level elements is a real space, and where there was none it opens a gap that was not there.
@@ -79,8 +74,32 @@ every right without excepting OpenDyslexic (CC BY 3.0) and the Pixabay music wou
 rights over someone else's work. `TestLicencia` guards that carve-out, the on-screen copyright
 (`CB.LEGAL.COPYRIGHT`, painted at the head of the Créditos «Aviso legal» panel) and the two files.
 
-There is no `sw.js`, which is why the game's service-worker registration silently no-ops —
-harmless, since a service worker cannot run under `file://` anyway.
+There is no service worker, no `manifest.webmanifest` and no offline module any more: `45-offline.js`
+required `location.protocol !== 'file:'`, so under this shell it could never run, and it was removed
+in 4.6.0 together with its «Sin conexión» section in the parent panel. The app is offline by
+construction — it never touches the network.
+
+**Icons are sprites, never emojis.** `03-sprites.js` rasterises every pixel map once at boot
+(`CB.sprites.publicar()`, 1 px per cell) and publishes it as a custom property `--sprite-<id>`
+on `:root` (plus `--sprite-<id>-silueta` for the eleven creatures), exactly as `02-texturas.js`
+publishes `--tex-*`. The DOM consumes them through `<span class="icono-px" data-icono="…">`
+(`CB.ui.icono`, or `{ icono: '…' }` in `CB.ui.boton`) and `.criatura[data-quien=…]`; the CSS
+scales the box with `--px-icono` / `--px-criatura` and the global `image-rendering: pixelated`
+keeps it crisp at integer multiples. `TestIconografia` fails if an emoji comes back into
+`index.html`. New icons are 8×8 maps in `CB.sprites.MAPAS`; creatures stay 7×7 (ranacubo is 8
+wide, hence `--celdas`).
+
+Three more things from the 3.6.0 UX pass that are easy to undo by accident: the answer block the
+child touched gets `data-elegida` in `CB.componentes.pedirConfirmacion` (the funnel of all seven
+formats) and the container gets `data-resultado` from `CB.partida.marcarResultado`, and the CSS
+sinks and colours it from those two attributes; the clock is parked between questions with
+`.reloj--parado` (`visibility: hidden`) rather than `hidden`, so the HUD never reflows; and
+`CB.pantallas.caer` gives the incoming screen its 150 ms «block drop» — entrance only, because
+`[hidden]` is `display: none`. Any new animation goes in **both** `sin-movimiento` lists.
+
+There is no parental gate either. The key on the title screen opens the parent panel directly: the
+old gate (type the n-th word of a sentence shown on screen) was removed in 4.6.0 at the owner's
+request. With no profile selected the panel says so and offers only «Salir».
 
 ## Orienting inside the bundle
 
@@ -101,7 +120,7 @@ The numbering encodes strict layering, and the layers are enforced rather than a
 | `17-`/`18-` | level catalogue and misconception-keyed distractors |
 | `20-`–`2B-` | game-rule models: scoring, anti-guessing, lives, adaptive Elo, memory/forgetting, prerequisite DAG |
 | `30-`–`32-` | the only modules allowed to touch the DOM |
-| `40-`–`45-` | features: parent panel, bosses, skill map, album, offline |
+| `40-`–`44-` | features: game loop, parent panel, bosses, skill map, album |
 | `99-` | boot |
 
 Generators are pure by contract — no DOM, and no `Math.random`: the RNG is always injected, so a
@@ -167,7 +186,7 @@ global `.05em` is tuned for lower case and reads tight in caps. Keep both if you
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (54 tests, fast)
+uv run pytest                        # full suite (52 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg
@@ -241,8 +260,13 @@ game's own router. Every action must dispatch its JS on a separate thread — `e
 the UI thread, so calling it from a menu action freezes the app permanently.
 
 `api.py` exposes a `js_api` bridge (public methods reach JS as `window.pywebview.api.*`, underscore
-methods stay private). The game does not currently call it; it exists for future needs such as
-printing or exporting progress. `tests/test_api.py` locks the public/private contract.
+methods stay private). The class is **empty on purpose**: the game does not call it, and the
+template's example methods were removed in 4.6.0. It exists for future needs such as printing or
+exporting progress; `tests/test_api.py` fails if a public method appears without that being
+deliberate, and checks that any that does takes only JSON-serialisable parameters.
+
+`.github/workflows/ci.yml` runs lint, tests, the HTML format check and a `node --check` of the
+bundle on every push and PR, then builds the `.app` on `macos-latest` and uploads it as an artifact.
 
 ## Packaging
 

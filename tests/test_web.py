@@ -22,9 +22,8 @@ class TestArchivosExisten:
         "ruta",
         [
             "index.html",
-            "manifest.webmanifest",
-            "css/cubomatica.min.css",
-            "js/cubomatica.min.js",
+            "css/cubomatica.css",
+            "js/cubomatica.js",
         ],
     )
     def test_archivo_existe(self, web_dir, ruta):
@@ -38,6 +37,24 @@ class TestArchivosExisten:
 
     def test_hay_audio(self, web_dir):
         assert list((web_dir / "audio").glob("*.mp3")), "No hay ficheros de audio"
+
+    def test_no_hay_gemelos_minificados(self, web_dir):
+        """
+        Hasta 4.5.0 index.html cargaba cubomatica.min.css y cubomatica.min.js,
+        y los ficheros legibles viajaban al lado sin que nada los ejecutara:
+        cada cambio habia que aplicarlo a mano en los dos. Bajo file:// la
+        minificacion no ahorra nada perceptible, asi que se cargan los
+        legibles y los .min desaparecen. Si alguien los vuelve a crear, este
+        test lo dice antes de que nadie edite el fichero equivocado.
+        """
+        minificados = list(web_dir.rglob("*.min.*"))
+        assert not minificados, f"Han vuelto los gemelos minificados: {minificados}"
+
+    def test_index_carga_los_ficheros_legibles(self, web_dir):
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        assert 'href="css/cubomatica.css"' in html
+        assert 'src="js/cubomatica.js"' in html
+        assert ".min." not in html
 
 
 class TestRutasRelativas:
@@ -153,6 +170,44 @@ class TestHtmlLegible:
         assert modulo.huella(modulo.formatear(html)) == modulo.huella(html)
 
 
+class TestIconografia:
+    """Los iconos son sprites de 03-sprites, no emojis.
+
+    Un emoji se pinta con la fuente del sistema, suavizado y con otro estilo,
+    encima de un juego de bloques: es lo que más delata «web» frente a «juego».
+    Desde 3.6.0 cada icono es un sprite publicado como --sprite-<nombre>.
+    """
+
+    EMOJI = re.compile(
+        "[\U0001F300-\U0001FAFF\u2600-\u27BF\u2B00-\u2BFF\u25C0\u23F8\u232B\u263A\u2639]"
+    )
+
+    def test_index_sin_emojis(self, web_dir):
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        hallados = sorted(set(self.EMOJI.findall(html)))
+        assert hallados == [], f"emojis en index.html: {hallados}"
+
+    def test_sprites_publicados(self, web_dir):
+        js = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+        css = (web_dir / "css" / "cubomatica.css").read_text(encoding="utf-8")
+        assert "CB.sprites.publicar = function" in js
+        assert "CB.sprites.publicar();" in js
+        assert "--sprite-llave" in css
+        assert ".icono-px" in css
+
+
+class TestAjustesAccesibilidad:
+    """Alto contraste y animaciones son requisitos, y Ajustes es su sitio."""
+
+    def test_ajustes_del_nino_exponen_contraste_y_movimiento(self, web_dir):
+        js = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+        inicio = js.index("CB.ajustesNino = function")
+        cuerpo = js[inicio : js.index("/* Créditos */", inicio)]
+        assert "altoContraste" in cuerpo
+        assert "reduceMotion" in cuerpo
+        assert "CB.ui.selector(" in cuerpo
+
+
 class TestTipografia:
     """
     El juego se lee con OpenDyslexic y la fuente viaja DENTRO del bundle.
@@ -173,7 +228,7 @@ class TestTipografia:
     ]
 
     def _css(self, web_dir) -> str:
-        return (web_dir / "css" / "cubomatica.min.css").read_text(encoding="utf-8")
+        return (web_dir / "css" / "cubomatica.css").read_text(encoding="utf-8")
 
     @pytest.mark.parametrize("cara", CARAS)
     def test_la_fuente_viaja_en_el_paquete(self, web_dir, cara):
@@ -184,7 +239,9 @@ class TestTipografia:
         assert f"../fonts/{cara}" in self._css(web_dir), f"El CSS no declara {cara}"
 
     def test_es_la_fuente_de_lectura(self, web_dir):
-        assert '--fuente-lectura:"OpenDyslexic"' in self._css(web_dir)
+        # Con espacios y comillas simples o dobles: la hoja es la legible.
+        patron = r"--fuente-lectura:\s*['\"]OpenDyslexic['\"]"
+        assert re.search(patron, self._css(web_dir)), "OpenDyslexic no es la fuente de lectura"
 
     def test_la_ruta_de_la_fuente_es_relativa(self, web_dir):
         # Una ruta absoluta funciona sobre HTTP y bajo file:// no carga nada.
@@ -239,17 +296,9 @@ class TestLicencia:
 
     def test_el_juego_ensena_el_copyright(self, web_dir):
         """En pantalla, no solo en un .txt que nadie abre."""
-        js = (web_dir / "js" / "cubomatica.min.js").read_text(encoding="utf-8")
+        js = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
         assert self.AUTOR in js, "el copyright no aparece en los creditos del juego"
         assert "CB.LEGAL.COPYRIGHT" in js, "el panel de aviso legal no lo pinta"
-
-    def test_los_dos_js_dicen_lo_mismo(self, web_dir):
-        """
-        Aqui no hay minificador: el gemelo se mantiene a mano y es lo unico
-        que alguien lee para entender el codigo.
-        """
-        legible = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
-        assert self.AUTOR in legible and "COPYRIGHT" in legible
 
 
 class TestPantallaCompleta:

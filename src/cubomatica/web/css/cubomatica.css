@@ -218,6 +218,25 @@
     --lado-techo: 64px;
   }
 }
+
+/* Escritorio a dos columnas (la zona de juego se parte a 1200px): la altura
+   ya no manda tanto y los bloques de respuesta pueden crecer. Van después de
+   las reglas por altura, con la misma especificidad, para ganar en cascada. */
+@media (min-width: 1200px) and (min-height: 760px) {
+  :root {
+    --lado-techo: 88px;
+  }
+}
+@media (min-width: 1200px) and (min-height: 860px) {
+  :root {
+    --lado-techo: 104px;
+  }
+}
+@media (min-width: 1200px) and (min-height: 960px) {
+  :root {
+    --lado-techo: 120px;
+  }
+}
 :root.alto-contraste {
   --bg-texto-panel: #000000;
   --bg-texto-crema: #000000;
@@ -472,6 +491,28 @@ button:disabled {
   width: 100%;
 }
 
+/* Marco de piedra texturizada, como la GUI clásica de Minecraft: la textura
+   16×16 ya la genera 02-texturas (--tex-piedra) y hasta ahora solo iba en el
+   suelo. Los biseles de dentro se quedan. Sin canvas, border-image no vale y
+   se ve el color plano del borde. */
+.panel-bloque,
+.cromo,
+.premio,
+.ajuste,
+.portada__titulo {
+  border: 8px solid var(--deco-piedra);
+  border-image: var(--tex-piedra) 4 / 8px round;
+}
+
+:root.alto-contraste .panel-bloque,
+:root.alto-contraste .cromo,
+:root.alto-contraste .premio,
+:root.alto-contraste .ajuste,
+:root.alto-contraste .portada__titulo {
+  border-image: none;
+  border-color: #FFFFFF;
+}
+
 .panel-bloque > :last-child {
   margin-bottom: 0;
 }
@@ -508,17 +549,39 @@ button:disabled {
   transition: transform 90ms steps(2, end), box-shadow 90ms steps(2, end);
   position: relative;
   text-align: center;
+
+  /* Entre un icono pixelado y el texto que le sigue (el nodo de texto es un
+     ítem flex anónimo, así que el gap también lo separa). */
+  gap: var(--e2);
 }
 
 .btn-bloque:hover:not(:disabled) {
   background: var(--btn-fondo-hundido);
 }
 
+/* Hundido: al pulsar, mientras se confirma, y cuando el bloque ES el estado
+   elegido (Sonido en partida, selectores segmentados). Es lo que hace que un
+   bloque «sea» un bloque. */
 .btn-bloque:active:not(:disabled),
-.btn-bloque.btn-bloque--hundido {
+.btn-bloque.btn-bloque--hundido,
+.btn-bloque[aria-pressed=true],
+.btn-bloque[aria-checked=true] {
   transform: translateY(var(--bisel));
   background: var(--btn-fondo-hundido);
   box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--btn-borde-sombra), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--btn-borde-luz);
+}
+
+/* El anillo de foco global sustituye el box-shadow y borraba el bisel: aquí
+   se apilan los dos, relieve y anillo. */
+.btn-bloque:focus-visible {
+  box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--btn-borde-luz), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--btn-borde-sombra), 0 var(--bisel) 0 0 var(--btn-borde-sombra), 0 0 0 var(--e2) var(--foco-borde);
+}
+
+.btn-bloque:focus-visible:active:not(:disabled),
+.btn-bloque.btn-bloque--hundido:focus-visible,
+.btn-bloque[aria-pressed=true]:focus-visible,
+.btn-bloque[aria-checked=true]:focus-visible {
+  box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--btn-borde-sombra), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--btn-borde-luz), 0 0 0 var(--e2) var(--foco-borde);
 }
 
 .btn-bloque:disabled,
@@ -556,11 +619,57 @@ button:disabled {
   padding: 0;
   font-size: 26px;
   font-family: var(--fuente-lectura);
+  --px-icono: 4;
 }
 
 .btn-bloque--ancho {
   width: 100%;
   max-width: 320px;
+}
+
+/* Acciones de segundo orden (Ayuda, Salir en el mapa): más bajas y en arena,
+   para que Mis vetas y el álbum pesen más. */
+.btn-bloque--secundario {
+  min-height: 48px;
+  padding: var(--e1) var(--e3);
+  font-size: calc(var(--tam-texto-min) * 0.8);
+  background: var(--deco-arena);
+}
+
+.btn-bloque--secundario:hover:not(:disabled) {
+  background: var(--deco-arena-osc);
+}
+
+/* Bloque con icono grande y rótulo legible (Mis vetas, Mi álbum, Diccionario). */
+.btn-bloque--rotulado.btn-bloque--rotulado-grande {
+  height: auto;
+  min-height: 96px;
+  min-width: 128px;
+  padding: var(--e2) var(--e3);
+  gap: var(--e1);
+}
+
+.btn-bloque--rotulado-grande .btn-bloque__ico {
+  --px-icono: 5;
+}
+
+.btn-bloque--rotulado-grande .btn-bloque__rotulo {
+  font-size: calc(var(--tam-texto-min) * 0.8);
+}
+
+/* Un bloque con una segunda línea que dice qué hace («Cantera tranquila»:
+   sin reloj y sin vidas). Un niño no sabe qué es «tranquila» hasta leerlo. */
+.btn-bloque--con-nota {
+  flex-direction: column;
+  gap: 2px;
+}
+
+.btn-bloque__nota {
+  font-family: var(--fuente-lectura);
+  font-size: calc(var(--tam-texto-min) * 0.7);
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 1;
 }
 
 .btn-bloque--rotulado {
@@ -584,6 +693,86 @@ button:disabled {
 .btn-bloque--rotulado .btn-bloque__ico {
   font-size: 24px;
   line-height: 1;
+  --px-icono: 3;
+}
+
+/* Iconos pixelados. El sprite lo publica CB.sprites.publicar() como
+   --sprite-<nombre> a 1px por celda; la caja mide celdas × --px-icono y el
+   image-rendering: pixelated global lo escala nítido a múltiplos enteros.
+   Los iconos de interfaz son de 8×8; las criaturas y los iconos del HUD, de 7. */
+.icono-px {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: calc(var(--celdas, 8) * var(--px-icono, 3) * 1px);
+  height: calc(var(--celdas, 8) * var(--px-icono, 3) * 1px);
+  background: transparent center / 100% 100% no-repeat;
+  vertical-align: middle;
+}
+
+.icono-px[data-icono=cubi] { background-image: var(--sprite-cubi); --celdas: 7; }
+.icono-px[data-icono=rocarr] { background-image: var(--sprite-rocarr); --celdas: 7; }
+.icono-px[data-icono=chispa] { background-image: var(--sprite-chispa); --celdas: 7; }
+.icono-px[data-icono=gluglu] { background-image: var(--sprite-gluglu); --celdas: 7; }
+.icono-px[data-icono=brasita] { background-image: var(--sprite-brasita); --celdas: 7; }
+.icono-px[data-icono=cristalina] { background-image: var(--sprite-cristalina); --celdas: 7; }
+.icono-px[data-icono=blopi] { background-image: var(--sprite-blopi); --celdas: 7; }
+.icono-px[data-icono=tronquete] { background-image: var(--sprite-tronquete); --celdas: 7; }
+.icono-px[data-icono=chispita] { background-image: var(--sprite-chispita); --celdas: 7; }
+.icono-px[data-icono=ranacubo] { background-image: var(--sprite-ranacubo); --celdas: 8; }
+.icono-px[data-icono=vagoneto] { background-image: var(--sprite-vagoneto); --celdas: 7; }
+.icono-px[data-icono=luzEncendida] { background-image: var(--sprite-luzEncendida); --celdas: 7; }
+.icono-px[data-icono=luzApagada] { background-image: var(--sprite-luzApagada); --celdas: 7; }
+.icono-px[data-icono=gema] { background-image: var(--sprite-gema); --celdas: 7; }
+.icono-px[data-icono=pista] { background-image: var(--sprite-pista); --celdas: 7; }
+.icono-px[data-icono=altavoz] { background-image: var(--sprite-altavoz); --celdas: 7; }
+.icono-px[data-icono=pausa] { background-image: var(--sprite-pausa); --celdas: 7; }
+.icono-px[data-icono=cubiPica] { background-image: var(--sprite-cubiPica); --celdas: 7; }
+.icono-px[data-icono=cubiPica2] { background-image: var(--sprite-cubiPica2); --celdas: 7; }
+.icono-px[data-icono=cubiRasca] { background-image: var(--sprite-cubiRasca); --celdas: 7; }
+.icono-px[data-icono=rocarrAsiente] { background-image: var(--sprite-rocarrAsiente); --celdas: 7; }
+.icono-px[data-icono=rocarrPista] { background-image: var(--sprite-rocarrPista); --celdas: 7; }
+.icono-px[data-icono=llave] { background-image: var(--sprite-llave); }
+.icono-px[data-icono=candado] { background-image: var(--sprite-candado); }
+.icono-px[data-icono=pico] { background-image: var(--sprite-pico); }
+.icono-px[data-icono=trofeo] { background-image: var(--sprite-trofeo); }
+.icono-px[data-icono=diploma] { background-image: var(--sprite-diploma); }
+.icono-px[data-icono=estrella] { background-image: var(--sprite-estrella); }
+.icono-px[data-icono=flecha] { background-image: var(--sprite-flecha); }
+.icono-px[data-icono=borrar] { background-image: var(--sprite-borrar); }
+.icono-px[data-icono=libro] { background-image: var(--sprite-libro); }
+.icono-px[data-icono=cromo] { background-image: var(--sprite-cromo); }
+.icono-px[data-icono=musgo] { background-image: var(--sprite-musgo); }
+.icono-px[data-icono=altavozMudo] { background-image: var(--sprite-altavozMudo); --celdas: 7; }
+.icono-px[data-icono=caraContenta] { background-image: var(--sprite-caraContenta); }
+.icono-px[data-icono=caraNormal] { background-image: var(--sprite-caraNormal); }
+.icono-px[data-icono=caraTriste] { background-image: var(--sprite-caraTriste); }
+.icono-px[data-icono=bloquePiedra] { background-image: var(--sprite-bloquePiedra); --celdas: 7; }
+.icono-px[data-icono=bloqueTierra] { background-image: var(--sprite-bloqueTierra); --celdas: 7; }
+.icono-px[data-icono=bloqueHierba] { background-image: var(--sprite-bloqueHierba); --celdas: 7; }
+.icono-px[data-icono=bloqueCristal] { background-image: var(--sprite-bloqueCristal); --celdas: 7; }
+.icono-px[data-icono=bloqueMusgo] { background-image: var(--sprite-bloqueMusgo); --celdas: 7; }
+.icono-px[data-icono=avatarBase1] { background-image: var(--sprite-avatarBase1); --celdas: 7; }
+.icono-px[data-icono=avatarBase2] { background-image: var(--sprite-avatarBase2); --celdas: 7; }
+
+.icono-px--silueta[data-icono=cubi] { background-image: var(--sprite-cubi-silueta); }
+.icono-px--silueta[data-icono=rocarr] { background-image: var(--sprite-rocarr-silueta); }
+.icono-px--silueta[data-icono=chispa] { background-image: var(--sprite-chispa-silueta); }
+.icono-px--silueta[data-icono=gluglu] { background-image: var(--sprite-gluglu-silueta); }
+.icono-px--silueta[data-icono=brasita] { background-image: var(--sprite-brasita-silueta); }
+.icono-px--silueta[data-icono=cristalina] { background-image: var(--sprite-cristalina-silueta); }
+.icono-px--silueta[data-icono=blopi] { background-image: var(--sprite-blopi-silueta); }
+.icono-px--silueta[data-icono=tronquete] { background-image: var(--sprite-tronquete-silueta); }
+.icono-px--silueta[data-icono=chispita] { background-image: var(--sprite-chispita-silueta); }
+.icono-px--silueta[data-icono=ranacubo] { background-image: var(--sprite-ranacubo-silueta); }
+.icono-px--silueta[data-icono=vagoneto] { background-image: var(--sprite-vagoneto-silueta); }
+
+/* Los iconos de tinta (flecha, borrar, pausa, altavoz) son del color del texto
+   y con el texto en blanco se invierten; los de color se quedan como están. */
+:root.alto-contraste .icono-px[data-icono=flecha],
+:root.alto-contraste .icono-px[data-icono=borrar],
+:root.alto-contraste .icono-px[data-icono=pausa],
+:root.alto-contraste .icono-px[data-icono=altavoz] {
+  filter: invert(1);
 }
 
 .btn-bloque--rotulado .btn-bloque__rotulo {
@@ -801,7 +990,9 @@ button:disabled {
 }
 
 .insignia {
-  margin-left: var(--e2);
+  position: absolute;
+  left: 0;
+  bottom: 100%;
   font-family: var(--fuente-pixel);
   font-size: var(--tam-texto-min);
   color: var(--deco-oro-cla);
@@ -864,14 +1055,36 @@ button:disabled {
 /* Flota sobre el cielo, sin fondo propio: oro oscuro sobre celeste (o sobre
    el césped) no llegaba ni a 2:1 de contraste. La placa oscura es la misma
    que usa el resto de texto suelto del juego. */
-.hilera-bono {
-  display: flex;
-  align-items: center;
-  gap: var(--e1);
-  font-family: var(--fuente-pixel);
-  background: var(--bg-texto-oscuro);
-  color: var(--deco-oro-cla);
-  padding: var(--e1) var(--e2);
+/* La gema que vuela del bloque tocado al contador del HUD (CB.ui.vueloGema).
+   Mismo rombo de oro que .gemas__icono; --dx/--dy los pone el JS. */
+.gema-vuelo {
+  position: fixed;
+  z-index: 700;
+  width: 24px;
+  height: 24px;
+  background: var(--deco-oro);
+  box-shadow: inset 5px 5px 0 0 var(--deco-oro-cla), inset -5px -5px 0 0 var(--deco-oro-osc);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.gema-vuelo.gema-vuelo--va {
+  animation: gema-vuela 500ms steps(8, end) 1 forwards;
+}
+
+@keyframes gema-vuela {
+  from {
+    transform: translate(0, 0) rotate(45deg);
+  }
+  to {
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(45deg);
+  }
+}
+
+/* Parado entre pregunta y pregunta se apaga sin soltar su hueco: el HUD no se
+   recoloca. Solo arrancar(0) —modo sin reloj— lo esconde del todo. */
+.reloj--parado {
+  visibility: hidden;
 }
 
 .rejilla-respuestas {
@@ -886,6 +1099,33 @@ button:disabled {
   width: var(--lado);
   height: var(--lado);
   font-size: min(var(--tam-numero-opcion), var(--lado) * 0.46);
+}
+
+/* Al corregir, el contenedor lleva data-resultado y el bloque tocado
+   data-elegida (pedirConfirmacion): el elegido se hunde y toma el color del
+   resultado; los demás se apagan a piedra y pierden el marco de foco. */
+[data-resultado] .btn-bloque {
+  background: var(--btn-fondo-desactivado);
+  color: var(--btn-texto-desactivado);
+  transform: translateY(var(--bisel));
+  box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--deco-piedra-osc), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--deco-piedra-cla);
+  outline: none;
+}
+
+[data-resultado=acierto] .btn-bloque[data-elegida] {
+  background: var(--btn-primario);
+  color: var(--btn-primario-texto);
+  box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--btn-primario-hundido), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--deco-hierba-cla);
+}
+
+[data-resultado=fallo] .btn-bloque[data-elegida] {
+  background: var(--mal-fondo);
+  color: var(--mal-texto);
+  box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--deco-piedra-osc), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--blanco);
+}
+
+[data-resultado] .btn-bloque[data-elegida]:focus-visible {
+  outline: var(--bisel) solid var(--foco-oro);
 }
 
 @media (orientation: landscape) and (max-height: 420px) {
@@ -1240,12 +1480,90 @@ button:disabled {
 }
 
 .cromo {
-  width: 128px;
+  width: 160px;
   padding: var(--e2);
   background: var(--bg-texto-panel);
   box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--blanco), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--btn-borde-sombra), var(--e1) var(--e1) 0 0 rgba(0, 0, 0, 0.4);
   text-align: center;
   font-size: calc(var(--tam-texto-min) * 0.8); /* 16px, y escala con «Letra grande» */
+}
+
+.cromo__icono {
+  --px-icono: 8;
+  margin: 0 auto var(--e1);
+  display: block;
+}
+
+/* Vitrina: cada premio con su marco. El diploma es de madera y lleva el
+   curso en grande; el guardián, la criatura; el récord, el trofeo; el logro,
+   la estrella. Lo que falta se ve en silueta, no como un cuadrado gris. */
+.premio {
+  width: 160px;
+  padding: var(--e2);
+  background: var(--bg-texto-panel);
+  color: var(--texto-principal);
+  text-align: center;
+  font-size: calc(var(--tam-texto-min) * 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--e1);
+  align-items: center;
+}
+
+.premio__marco {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e1);
+  min-height: 72px;
+  padding: var(--e1) var(--e2);
+}
+
+.premio__icono {
+  --px-icono: 7;
+}
+
+.premio--diploma .premio__marco {
+  background: var(--bg-texto-crema);
+  border: 6px solid var(--deco-madera);
+  border-image: var(--tex-madera) 4 / 6px round;
+}
+
+.premio__numero {
+  font-family: var(--fuente-pixel);
+  font-size: var(--tam-titulo);
+  line-height: 1;
+}
+
+.premio--guardian .premio__marco {
+  background: var(--deco-cristal-cla);
+}
+
+.premio--record .premio__marco {
+  background: var(--deco-oro-cla);
+}
+
+.premio__nombre {
+  font-family: var(--fuente-pixel);
+}
+
+.premio--pendiente {
+  background: var(--deco-piedra);
+  color: var(--negro);
+}
+
+.premio--pendiente .premio__marco {
+  background: var(--deco-piedra-osc);
+  border-image: none;
+  border-color: var(--deco-piedra-osc);
+}
+
+.premio--pendiente .premio__icono {
+  filter: brightness(0) opacity(0.55);
+}
+
+.premio--pendiente .premio__numero {
+  opacity: 0.55;
 }
 
 .cromo--bloqueado {
@@ -1279,11 +1597,51 @@ button:disabled {
 .veta__icono {
   font-size: 26px;
   line-height: 1;
+  --px-icono: 5;
 }
 
+.veta__estado {
+  font-size: inherit;
+}
+
+/* Frente de mina: la veta cerrada es un bloque de piedra con textura y un
+   candado, sin texto (el nombre sigue en el aria-label). */
 .veta[data-estado=bloqueado] {
-  background: var(--bg-veta-bloqueado);
+  background: var(--bg-veta-bloqueado) var(--tex-piedra);
+  background-size: 32px 32px;
   color: var(--gris-hueso);
+}
+
+.veta[data-estado=bloqueado] .veta__nombre,
+.veta[data-estado=bloqueado] .veta__estado {
+  display: none;
+}
+
+/* El estado en texto solo en la frontera (lo siguiente que se puede cavar) y
+   al pasar o enfocar; el nombre, además, en las superadas. Menos lectura. */
+.veta:not(.veta--frontera):not(:hover):not(:focus-visible) .veta__estado {
+  display: none;
+}
+
+.veta[data-estado=nuevo]:not(.veta--frontera):not(:hover):not(:focus-visible) .veta__nombre,
+.veta[data-estado=aprendiendo]:not(.veta--frontera):not(:hover):not(:focus-visible) .veta__nombre {
+  display: none;
+}
+
+/* Superadas: la gema incrustada en cristal. */
+.veta[data-estado=afianzada] .veta__icono,
+.veta[data-estado=dominada] .veta__icono {
+  --px-icono: 6;
+}
+
+.veta[data-estado=dominada] {
+  background: var(--bg-veta-dominada) var(--tex-cristal);
+  background-size: 32px 32px;
+}
+
+.veta[data-estado=oxidada] {
+  background: var(--bg-veta-oxidada) var(--tex-musgo);
+  background-size: 32px 32px;
 }
 
 .veta[data-estado=nuevo] {
@@ -1317,6 +1675,20 @@ button:disabled {
   justify-content: center;
 }
 
+.leyenda-vetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e3);
+  justify-content: center;
+}
+
+.leyenda-vetas__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--e1);
+  --px-icono: 3;
+}
+
 .criatura {
   width: var(--lado-criatura, 96px);
   height: var(--lado-criatura, 96px);
@@ -1328,8 +1700,88 @@ button:disabled {
   flex: 0 0 auto;
 }
 
-.criatura[data-quien=rocarr] {
-  filter: none;
+/* Con data-quien la criatura es un sprite de 03-sprites (7 celdas, ranacubo 8)
+   a --px-criatura píxeles por celda; a ×12 el minero mide 84px y se le ve
+   trabajar. Sin data-quien (álbum) sigue siendo la caja de siempre. */
+.criatura[data-quien] {
+  --celdas: 7;
+  width: calc(var(--celdas) * var(--px-criatura, 12) * 1px);
+  height: calc(7 * var(--px-criatura, 12) * 1px);
+  font-size: 0;
+  background: transparent center / 100% 100% no-repeat;
+}
+
+.criatura[data-quien=ranacubo] {
+  --celdas: 8;
+}
+
+.criatura[data-quien=cubi] { background-image: var(--sprite-cubi); }
+.criatura[data-quien=rocarr] { background-image: var(--sprite-rocarr); }
+.criatura[data-quien=chispa] { background-image: var(--sprite-chispa); }
+.criatura[data-quien=gluglu] { background-image: var(--sprite-gluglu); }
+.criatura[data-quien=brasita] { background-image: var(--sprite-brasita); }
+.criatura[data-quien=cristalina] { background-image: var(--sprite-cristalina); }
+.criatura[data-quien=blopi] { background-image: var(--sprite-blopi); }
+.criatura[data-quien=tronquete] { background-image: var(--sprite-tronquete); }
+.criatura[data-quien=chispita] { background-image: var(--sprite-chispita); }
+.criatura[data-quien=ranacubo] { background-image: var(--sprite-ranacubo); }
+.criatura[data-quien=vagoneto] { background-image: var(--sprite-vagoneto); }
+
+/* Caída de bloque al cambiar de pantalla (CB.pantallas.caer): la sección
+   nueva cae 16px y asienta en 3 saltos. */
+@keyframes pantalla-cae {
+  from {
+    transform: translateY(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.pantalla.pantalla--cae {
+  animation: pantalla-cae 150ms steps(3, end) 1;
+}
+
+/* Poses: los fotogramas se alternan cambiando el sprite, a saltos. */
+@keyframes cubi-pica {
+  0%, 100% {
+    background-image: var(--sprite-cubiPica);
+  }
+  50% {
+    background-image: var(--sprite-cubiPica2);
+  }
+}
+
+@keyframes cubi-rasca {
+  0%, 100% {
+    background-image: var(--sprite-cubiRasca);
+  }
+  50% {
+    background-image: var(--sprite-cubi);
+  }
+}
+
+@keyframes rocarr-cara {
+  0%, 100% {
+    background-image: var(--sprite-rocarrPista);
+  }
+  50% {
+    background-image: var(--sprite-rocarrAsiente);
+  }
+}
+
+.criatura--pica {
+  animation: cubi-pica 600ms steps(2, end) 2;
+}
+
+.criatura--rasca {
+  animation: cubi-rasca 800ms steps(2, end) 2;
+}
+
+.criatura[data-quien=rocarr].criatura--asiente {
+  animation: asiente 1100ms steps(3, end) 2, rocarr-cara 1100ms steps(2, end) 2;
 }
 
 .escena-criaturas {
@@ -1344,6 +1796,26 @@ button:disabled {
   font-size: var(--tam-texto-min);
   max-width: var(--ancho-lectura);
   min-height: calc(var(--tam-texto-min) * 3 + var(--e3) * 2);
+}
+
+/* Sin mensaje la caja sigue en su sitio, invisible: así las opciones no
+   saltan cuando aparece (ocultarMensaje quita data-tipo, no la caja). */
+.mensaje-resultado:not([data-tipo]) {
+  visibility: hidden;
+}
+
+/* En la partida vive junto a las opciones, donde el niño está mirando, y va
+   en letra de enunciado. La presentación (aviso) se queda en letra normal. */
+.zona-juego__baja .mensaje-resultado {
+  width: 100%;
+  max-width: var(--ancho-panel, 640px);
+  font-family: var(--fuente-lectura);
+  font-size: var(--tam-enunciado);
+  line-height: 1.35;
+}
+
+.zona-juego__baja .mensaje-resultado[data-tipo=aviso] {
+  font-size: var(--tam-texto-min);
 }
 
 .mensaje-resultado[data-tipo=acierto] {
@@ -1402,12 +1874,13 @@ button:disabled {
 }
 
 .enunciado__altavoz {
-  display: block;
+  display: flex;
   margin: var(--e3) auto 0;
   font-size: 20px;
   font-family: var(--fuente-lectura);
   width: auto;
   padding: 0 var(--e3);
+  --px-icono: 3;
 }
 
 .pantalla--portada {
@@ -1451,6 +1924,26 @@ button:disabled {
   box-shadow: inset 0 var(--bisel) 0 0 var(--deco-hierba-cla);
 }
 
+/* El suelo de la portada anticipa los cuatro mundos: hierba, bosque, agua y
+   piedra, de izquierda a derecha. */
+.suelo-biomas {
+  height: 64px;
+  flex: 0 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.suelo-biomas > i {
+  display: block;
+  background-size: 64px 64px;
+  box-shadow: inset 0 var(--bisel) 0 0 rgba(255, 255, 255, 0.35);
+}
+
+.suelo-biomas > i[data-bioma=pradera] { background-color: var(--deco-hierba); background-image: var(--tex-hierba); }
+.suelo-biomas > i[data-bioma=bosque]  { background-color: var(--deco-musgo);  background-image: var(--tex-musgo); }
+.suelo-biomas > i[data-bioma=rio]     { background-color: var(--deco-agua);   background-image: var(--tex-agua); }
+.suelo-biomas > i[data-bioma=mina]    { background-color: var(--deco-piedra); background-image: var(--tex-piedra); }
+
 .portada__llave {
   position: absolute;
   top: var(--e3);
@@ -1491,6 +1984,14 @@ button:disabled {
 .pantalla--juego {
   --lado-criatura: 56px;
   --tam-criatura: 34px;
+  --px-criatura: 8;
+}
+
+@media (min-width: 1200px) and (min-height: 760px) {
+  .pantalla--juego {
+    --px-criatura: 12;
+    --ancho-panel: 720px;
+  }
 }
 
 .rotulo-veta {
@@ -1586,6 +2087,10 @@ button:disabled {
   padding: var(--e3);
   min-height: 0;
   overflow-y: auto;
+
+  /* Chispa gira (criatura--gira) y su caja girada desborda de lado: sin esto
+     salía una barra de scroll horizontal bajo el enunciado en cada racha. */
+  overflow-x: hidden;
   position: relative;
 }
 
@@ -1616,7 +2121,14 @@ button:disabled {
     flex: 1 1 0;
     align-items: flex-start;
     justify-content: safe center;
-    padding: var(--e3) var(--e3) var(--e3) 0;
+
+    /* El suelo (.bioma::after, 56px) se pinta encima del pie de la zona: las
+       dos columnas se centran en el cielo, no en el cielo más la hierba, o
+       el teclado de bloques grandes pisaba la hierba. */
+    padding: var(--e3) var(--e3) calc(56px + var(--e3)) 0;
+  }
+  .zona-juego__alta {
+    padding-bottom: calc(56px + var(--e3));
   }
 }
 .barra-herramientas {
@@ -1665,11 +2177,33 @@ button:disabled {
   background: var(--deco-piedra);
 }
 
-.tarjeta-mundo__cinta {
-  height: 32px;
+/* La textura del bioma es el fondo de toda la tarjeta; el texto va en un
+   cuerpo crema encima. Bloqueada: la textura se apaga. */
+.tarjeta-mundo[data-bioma] {
+  padding: var(--e3);
   background-size: 32px 32px;
-  box-shadow: inset 0 var(--bisel) 0 0 rgba(255, 255, 255, 0.4);
 }
+
+.tarjeta-mundo[data-bioma=pradera] { background-color: var(--deco-hierba); background-image: var(--tex-hierba); }
+.tarjeta-mundo[data-bioma=bosque]  { background-color: var(--deco-musgo);  background-image: var(--tex-musgo); }
+.tarjeta-mundo[data-bioma=rio]     { background-color: var(--deco-agua);   background-image: var(--tex-agua); }
+.tarjeta-mundo[data-bioma=mina]    { background-color: var(--deco-piedra); background-image: var(--tex-piedra); }
+
+.tarjeta-mundo[data-bloqueado=si][data-bioma] {
+  filter: saturate(0.35) brightness(0.8);
+}
+
+.tarjeta-mundo__cuerpo {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--e2);
+  padding: var(--e3);
+  background: var(--bg-texto-panel);
+  color: var(--texto-principal);
+  box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--blanco), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--btn-borde-sombra);
+}
+
 
 .distintivo {
   display: inline-block;
@@ -1699,6 +2233,22 @@ button:disabled {
   gap: var(--e3);
   width: 100%;
   max-width: 560px;
+}
+
+/* La pista del error diagnosticado, encima de los tres pasos: misma caja y
+   mismo bisel que ellos (--deco-piedra, que en alto contraste pasa a blanco),
+   sin número porque no es un paso que tocar. La regla general «p, li» limita
+   el ancho a --ancho-lectura y pone margen: aquí manda la columna. */
+.reparacion__pista {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: var(--e2) var(--e3);
+  background: var(--bg-texto-panel);
+  color: var(--texto-principal);
+  box-shadow: inset var(--bisel) 0 0 0 var(--deco-piedra);
+  font-size: var(--tam-texto-min);
+  text-align: left;
 }
 
 .reparacion__paso {
@@ -1845,6 +2395,7 @@ button:disabled {
   width: 88px;
   height: 88px;
   font-size: 44px;
+  --px-icono: 6;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1908,6 +2459,37 @@ button:disabled {
 
 .ajuste__etiqueta {
   flex: 1 1 auto;
+}
+
+@media (max-width: 767px) {
+  .ajuste {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Selector segmentado (CB.ui.selector): bloques pegados, el elegido hundido
+   por [aria-checked=true]. */
+.selector {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--u);
+}
+
+.selector__opcion {
+  min-width: 72px;
+  min-height: 48px;
+  padding: var(--e1) var(--e2);
+  font-size: calc(var(--tam-texto-min) * 0.8);
+}
+
+.ajustes__muestra {
+  margin: 0;
+  padding: var(--e2) var(--e3);
+  background: var(--bg-texto-panel);
+  color: var(--texto-principal);
+  text-align: center;
 }
 
 .pantalla--error {
@@ -2510,8 +3092,17 @@ button:disabled {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .particula.particula--viva, .criatura--flota, .criatura--saltito, .criatura--asiente, .criatura--gotea, .criatura--gira, .nube, .veta--musgo, .btn-bloque--monta, .btn-bloque--destello, .reloj__arena.reloj__arena--voltea, .reloj__chorro, .reloj--prisa .reloj__arena, .reloj__cifra.reloj__cifra--late, .cinta.cinta--entra, .cinta--prisa.cinta--entra .cinta__texto, .insignia.insignia--brota, .cartel.cartel--brota, .cifra-viva.cifra-viva--sube, .zona-juego.zona-juego--sacude {
+  .particula.particula--viva, .criatura--flota, .criatura--saltito, .criatura--asiente, .criatura--gotea, .criatura--gira, .nube, .veta--musgo, .btn-bloque--monta, .btn-bloque--destello, .reloj__arena.reloj__arena--voltea, .reloj__chorro, .reloj--prisa .reloj__arena, .reloj__cifra.reloj__cifra--late, .cinta.cinta--entra, .cinta--prisa.cinta--entra .cinta__texto, .insignia.insignia--brota, .cartel.cartel--brota, .cifra-viva.cifra-viva--sube, .zona-juego.zona-juego--sacude, .criatura--pica, .criatura--rasca, .criatura[data-quien=rocarr].criatura--asiente, .gema-vuelo.gema-vuelo--va, .pantalla.pantalla--cae {
     animation: none !important;
+  }
+  .criatura--pica {
+    background-image: var(--sprite-cubiPica);
+  }
+  .criatura--rasca {
+    background-image: var(--sprite-cubiRasca);
+  }
+  .criatura[data-quien=rocarr].criatura--asiente {
+    background-image: var(--sprite-rocarrPista);
   }
   .btn-bloque--monta:not(:disabled) {
     opacity: 1;
@@ -2537,8 +3128,20 @@ button:disabled {
     box-shadow: inset 0 0 0 8px var(--deco-oro);
   }
 }
-:root.sin-movimiento .particula.particula--viva, :root.sin-movimiento .criatura--flota, :root.sin-movimiento .criatura--saltito, :root.sin-movimiento .criatura--asiente, :root.sin-movimiento .criatura--gotea, :root.sin-movimiento .criatura--gira, :root.sin-movimiento .nube, :root.sin-movimiento .veta--musgo, :root.sin-movimiento .btn-bloque--monta, :root.sin-movimiento .btn-bloque--destello, :root.sin-movimiento .reloj__arena.reloj__arena--voltea, :root.sin-movimiento .reloj__chorro, :root.sin-movimiento .reloj--prisa .reloj__arena, :root.sin-movimiento .reloj__cifra.reloj__cifra--late, :root.sin-movimiento .cinta.cinta--entra, :root.sin-movimiento .cinta--prisa.cinta--entra .cinta__texto, :root.sin-movimiento .insignia.insignia--brota, :root.sin-movimiento .cartel.cartel--brota, :root.sin-movimiento .cifra-viva.cifra-viva--sube, :root.sin-movimiento .zona-juego.zona-juego--sacude {
+:root.sin-movimiento .particula.particula--viva, :root.sin-movimiento .criatura--flota, :root.sin-movimiento .criatura--saltito, :root.sin-movimiento .criatura--asiente, :root.sin-movimiento .criatura--gotea, :root.sin-movimiento .criatura--gira, :root.sin-movimiento .nube, :root.sin-movimiento .veta--musgo, :root.sin-movimiento .btn-bloque--monta, :root.sin-movimiento .btn-bloque--destello, :root.sin-movimiento .reloj__arena.reloj__arena--voltea, :root.sin-movimiento .reloj__chorro, :root.sin-movimiento .reloj--prisa .reloj__arena, :root.sin-movimiento .reloj__cifra.reloj__cifra--late, :root.sin-movimiento .cinta.cinta--entra, :root.sin-movimiento .cinta--prisa.cinta--entra .cinta__texto, :root.sin-movimiento .insignia.insignia--brota, :root.sin-movimiento .cartel.cartel--brota, :root.sin-movimiento .cifra-viva.cifra-viva--sube, :root.sin-movimiento .zona-juego.zona-juego--sacude, :root.sin-movimiento .criatura--pica, :root.sin-movimiento .criatura--rasca, :root.sin-movimiento .criatura[data-quien=rocarr].criatura--asiente, :root.sin-movimiento .gema-vuelo.gema-vuelo--va, :root.sin-movimiento .pantalla.pantalla--cae {
   animation: none !important;
+}
+
+:root.sin-movimiento .criatura--pica {
+  background-image: var(--sprite-cubiPica);
+}
+
+:root.sin-movimiento .criatura--rasca {
+  background-image: var(--sprite-cubiRasca);
+}
+
+:root.sin-movimiento .criatura[data-quien=rocarr].criatura--asiente {
+  background-image: var(--sprite-rocarrPista);
 }
 
 :root.sin-movimiento .btn-bloque--monta:not(:disabled) {
@@ -2675,25 +3278,6 @@ button:disabled {
   background-image: var(--tex-piedra);
 }
 
-.tarjeta-mundo__cinta[data-bioma=pradera] {
-  background-color: var(--deco-hierba);
-  background-image: var(--tex-hierba);
-}
-
-.tarjeta-mundo__cinta[data-bioma=bosque] {
-  background-color: var(--deco-musgo);
-  background-image: var(--tex-musgo);
-}
-
-.tarjeta-mundo__cinta[data-bioma=rio] {
-  background-color: var(--deco-agua);
-  background-image: var(--tex-agua);
-}
-
-.tarjeta-mundo__cinta[data-bioma=mina] {
-  background-color: var(--deco-piedra);
-  background-image: var(--tex-piedra);
-}
 
 .pantalla--documento {
   background: var(--bg-texto-panel);
@@ -2835,23 +3419,6 @@ button:disabled {
 
 .btn-adulto--peligro {
   background: var(--peligro-suave);
-}
-
-.adulto__puerta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--e3);
-  max-width: 480px;
-}
-
-.adulto__campo {
-  font-size: 20px;
-  padding: var(--e2);
-  background: var(--bg-caja);
-  color: var(--texto-principal);
-  box-shadow: inset 2px 2px 0 0 var(--deco-piedra);
-  min-height: 48px;
-  width: 100%;
 }
 
 .matriz-subtipos {
@@ -3092,6 +3659,10 @@ button:disabled {
   gap: var(--e2);
 }
 
+.gemas__cuenta {
+  position: relative;
+}
+
 /* Los bloques medían 10px sobre fondo casi negro: se leían como una
    textura, no como una cuenta. El ancho da para diez por fila, así que
    veinte bloques siguen ocupando dos filas y la barra no crece. */
@@ -3109,6 +3680,20 @@ button:disabled {
     gap: 3px;
     width: 200px;
     max-height: 35px;
+  }
+}
+
+/* Un niño de siete años cuenta bloques: desde 768px las veinte preguntas van
+   en UNA fila (20 × 12 + 19 × 2 = 278px), no en dos de diez. */
+@media (min-width: 768px) {
+  .galeria-avance {
+    gap: 2px;
+    width: auto;
+    max-height: 22px;
+  }
+  .galeria-avance__bloque {
+    width: 12px;
+    height: 12px;
   }
 }
 

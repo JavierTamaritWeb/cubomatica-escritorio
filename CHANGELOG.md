@@ -9,6 +9,117 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.7.0] — 2026-08-24
+
+La propuesta de UX/UI de `docs/propuesta-ux-ui.md`, implementada entera en el
+juego (versión 3.6.0 del bundle). Nada toca los generadores ni las reglas: es
+capa DOM, CSS e `index.html`.
+
+### Cambiado
+
+- **La respuesta se ve en el bloque que se tocó.** El elegido se hunde y se pone
+  verde (o gris si falla), los demás se apagan a piedra y el foco va con él; el
+  mensaje va grande junto a las opciones, en una caja que reserva su sitio para
+  que nada salte. La gema ganada vuela desde el bloque hasta el contador del
+  HUD y allí brota el «+N» (no hay vuelo con «sin movimiento»). El hueco del
+  reloj se reserva al parar, así «Pregunta 3 de 20» no se mueve; los 20
+  bloques de avance van en una fila; en escritorio los bloques de respuesta
+  crecen (88–120 px por altura) y el enunciado con ellos.
+- **El minero trabaja.** Cubi, Rocarr, Gluglú, Chispa y los jefes son sprites de
+  `03-sprites` a ×8 (×12 en escritorio): Cubi pica el bloque al acertar y se
+  rasca la cabeza al fallar; Rocarr asiente y sonríe al dar la pista.
+- **Ni un emoji.** Llave, pista, pausa, altavoz, flecha, borrar, caras del
+  «¿cómo te has sentido?», cromos y premios son sprites publicados como
+  `--sprite-*`. `TestIconografia` vigila que no vuelvan.
+- **Mis vetas es un frente de mina.** Las cerradas son piedra con candado y sin
+  texto; el nombre solo se ve en la frontera (borde de oro) y al pasar o
+  enfocar; las superadas llevan la gema incrustada; las de musgo, musgo.
+- **Ajustes con selectores segmentados** (el bloque elegido, hundido) en vez de
+  botones que ciclan, con **Alto contraste** y **Animaciones** (Sí / No / Como
+  el aparato) por fin al alcance del niño, y una frase de muestra que crece con
+  «Letra grande» al instante.
+- **Mapa:** la textura del bioma es el fondo de toda la tarjeta; la bloqueada
+  dice «Cava 3 vetas más en la Pradera» con la barra del mundo anterior; el modo
+  es un selector de tres bloques; Mis vetas, Mi álbum y Diccionario son bloques
+  con icono, y Ayuda y Salir van en segundo plano.
+- **Álbum:** el cromo que falta enseña su silueta; la vitrina distingue
+  diplomas (marco de madera y el curso en grande), guardianes (con su nombre y
+  su criatura), récords y logros, y dice cómo se gana cada uno.
+- **Portada:** «Cantera tranquila» dice «Sin reloj y sin vidas»; quien vuelve
+  tiene «Seguir cavando en el Bosque» encima de JUGAR; el suelo anticipa los
+  cuatro biomas.
+- **Transición** de caída de bloque (150 ms, a saltos) al cambiar de pantalla,
+  marcos de piedra texturizada en paneles, tarjetas y ajustes, y `:focus-visible`
+  que conserva el bisel. Los botones con `aria-pressed`/`aria-checked` se ven
+  hundidos.
+
+### Corregido
+
+- La presentación de cada formato decía «Toca el 5» sobre opciones donde no
+  había ningún 5: ahora es una instrucción sobre el ítem real («Toca la
+  respuesta buena»).
+- El reloj analógico tapaba el 12 con la aguja y pegaba las cifras al borde:
+  esfera de 168 px con las cifras en una banda exterior al anillo.
+- La vitrina ocultaba la línea de «cómo se gana» de los premios pendientes, al
+  revés de lo que decía su propio comentario.
+- `CB.partida.hayPartidaGuardada` leía `iniciadaTs`, que nunca se escribía, y la
+  partida guardada no caducaba a las 24 h.
+- Chispa al girar abría una barra de scroll horizontal bajo el enunciado.
+
+## [4.6.0] — 2026-08-24
+
+Cuatro cambios de fondo: dos en el juego (versión 3.5.0 del bundle) y dos en el
+proyecto.
+
+### Corregido
+
+- **La calibración inicial asignaba el nivel al revés.** Las cuatro preguntas
+  fijan el theta de cada destreza, pero la línea que lo hacía comparaba la
+  *posición* de la pregunta con el *número* de aciertos: fallar la primera y
+  acertar la cuarta dejaba alta la destreza fallada y baja la acertada. Ahora se
+  guarda el resultado de cada pregunta y cada destreza sube si acierta las
+  suyas, baja si las falla y se queda en el theta inicial si acierta una y
+  falla otra.
+
+### Añadido
+
+- **Las 48 pistas por error, por fin en pantalla.** Cada código de `CB.ERRORES`
+  llevaba desde siempre una `pista` («Mira si al sumar las unidades pasas de
+  diez») y el explicador que le corresponde (`reparacion`), y el diagnóstico se
+  calculaba… y no se usaba para nada que viera el niño. Ahora, cuando el valor
+  escrito coincide con un error conocido, el primer fallo enseña la pista de
+  *ese* error en vez de la genérica de la destreza, y la tarjeta de reparación
+  usa el explicador del error y pinta la pista encima de los tres pasos (y la
+  lee en voz alta con ellos). Si no hay diagnóstico, todo sigue como antes.
+- **Integración continua.** `.github/workflows/ci.yml` pasa `ruff`, `pytest`,
+  la comprobación de formato de `index.html` y un `node --check` del bundle en
+  cada push y cada pull request, y después construye `Cubomatica.app` en
+  `macos-latest` y lo guarda como artefacto.
+
+### Retirado
+
+- **La puerta parental.** Pedía la n-ésima palabra de una frase que se enseñaba
+  en pantalla: la abría cualquier niño que supiera leer, así que no protegía
+  nada y solo estorbaba. La llave de la portada abre el panel directamente. Sin
+  perfil elegido, el panel lo dice y ofrece solo «Salir». La Ayuda ya no
+  promete «una cuenta de mayores».
+- **Los gemelos minificados.** `index.html` cargaba `cubomatica.min.css` y
+  `cubomatica.min.js`, y los ficheros legibles viajaban al lado sin que nada
+  los ejecutara: cada cambio había que aplicarlo dos veces, a mano, sin
+  minificador. Bajo `file://` la minificación no ahorra nada perceptible, así
+  que ahora se cargan los legibles y los `.min` han desaparecido. Un test
+  avisa si vuelven.
+- **El módulo offline.** `45-offline.js` (service worker, caché de música)
+  exigía `location.protocol !== 'file:'` y registraba un `sw.js` que no
+  existía: dentro de la app no podía correr nunca. Se va con su sección «Sin
+  conexión» del panel del adulto y con `manifest.webmanifest`.
+- **Los ejemplos de plantilla de `api.py`.** `saludar`, `info_sistema` y
+  `elegir_archivo` viajaban dentro del `.app` sin que el juego los llamara. La
+  clase queda vacía a propósito, conectada como `js_api`, y `test_api.py`
+  protege que nada se exponga a JavaScript por accidente.
+
+---
+
 ## [4.5.0] — 2026-08-24
 
 Una auditoría a fondo de todo el proyecto: el shell de Python, el empaquetado,

@@ -1,78 +1,43 @@
 """
-Tests de la logica Python (api.py).
+Tests del puente JavaScript <-> Python (api.py).
 
-Aqui va TODO lo que se pueda probar sin abrir una ventana.
+pywebview expone a JS todos los metodos publicos de la instancia que se pasa
+como js_api. Estos tests protegen ese contrato: nada llega a JS por accidente
+y, cuando se anada un metodo, tendra que ser serializable como JSON.
 """
 
-import pytest
+import inspect
 
 
-class TestSaludar:
-    def test_devuelve_el_nombre(self, api):
-        assert api.saludar("Javi") == "Hola, Javi"
-
-    def test_devuelve_texto(self, api):
-        assert isinstance(api.saludar("X"), str)
-
-    @pytest.mark.parametrize(
-        "entrada,esperado",
-        [
-            ("Ana", "Hola, Ana"),
-            ("", "Hola, "),
-            ("Mamen Ramos", "Hola, Mamen Ramos"),
-            ("José Ñoño", "Hola, José Ñoño"),
-        ],
-    )
-    def test_varios_nombres(self, api, entrada, esperado):
-        assert api.saludar(entrada) == esperado
-
-
-class TestInfoSistema:
-    def test_devuelve_diccionario(self, api):
-        assert isinstance(api.info_sistema(), dict)
-
-    def test_tiene_las_claves_esperadas(self, api):
-        datos = api.info_sistema()
-        assert set(datos) == {"sistema", "version_python", "hora"}
-
-    def test_ningun_valor_vacio(self, api):
-        for clave, valor in api.info_sistema().items():
-            assert valor, f"La clave '{clave}' vino vacia"
-
-    def test_formato_de_hora(self, api):
-        hora = api.info_sistema()["hora"]
-        h, m, s = hora.split(":")
-        assert 0 <= int(h) <= 23
-        assert 0 <= int(m) <= 59
-        assert 0 <= int(s) <= 59
+def _metodos_publicos(api) -> set[str]:
+    return {
+        n
+        for n in dir(api)
+        if not n.startswith("_") and callable(getattr(api, n))
+    }
 
 
 class TestPuenteJavaScript:
-    """
-    pywebview solo expone a JS los metodos publicos.
-    Estos tests protegen ese contrato.
-    """
+    def test_hoy_no_expone_nada(self, api):
+        """
+        El juego no llama al puente. Si esto falla es que alguien ha anadido
+        un metodo publico: bien, pero que sea a proposito, con su test y
+        con quien lo llame desde JS.
+        """
+        assert _metodos_publicos(api) == set()
 
-    def _metodos_publicos(self, api) -> set[str]:
-        return {
-            n
-            for n in dir(api)
-            if not n.startswith("_") and callable(getattr(api, n))
-        }
-
-    def test_metodos_esperados_estan_expuestos(self, api):
-        publicos = self._metodos_publicos(api)
-        assert {"saludar", "info_sistema", "elegir_archivo"} <= publicos
-
-    def test_metodos_privados_no_se_exponen(self, api):
-        assert "_ayuda_interna" not in self._metodos_publicos(api)
+    def test_lo_privado_no_se_expone(self, api):
+        """Un metodo con guion bajo no debe contar como publico."""
+        assert not any(n.startswith("_") for n in _metodos_publicos(api))
 
     def test_todo_lo_publico_es_serializable(self, api):
         """
-        pywebview envia los datos a JS como JSON.
-        Si un metodo devuelve algo raro, el puente falla en silencio.
+        pywebview envia argumentos y retornos como JSON. Un metodo publico
+        cuya firma pida algo que no sea un tipo simple falla en silencio
+        en el puente; se comprueba por las anotaciones.
         """
-        import json
-
-        json.dumps(api.saludar("test"))
-        json.dumps(api.info_sistema())
+        simples = {str, int, float, bool, list, dict, type(None), inspect.Signature.empty}
+        for nombre in _metodos_publicos(api):
+            firma = inspect.signature(getattr(api, nombre))
+            for parametro in firma.parameters.values():
+                assert parametro.annotation in simples, f"{nombre}: {parametro}"

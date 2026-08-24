@@ -1,0 +1,74 @@
+# Integración continua: en cada push y cada pull request se pasan los tests,
+# el linter y la comprobación de formato de index.html; y en macOS, además,
+# se construye Cubomatica.app para que un cambio en el .spec no se descubra
+# el día que toca entregar.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  comprobar:
+    name: Tests, lint y HTML
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          # La versión mínima la fija [tool.uv] required-version en pyproject.toml.
+          version: "latest"
+          enable-cache: true
+
+      - name: Instalar Python fijado en .python-version
+        run: uv python install
+
+      - name: Sincronizar dependencias
+        run: uv sync --all-extras
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Tests
+        run: uv run pytest
+
+      - name: index.html sigue formateado
+        run: python3 herramientas/formatear-html.py --comprobar src/cubomatica/web/index.html
+
+      - name: El bundle JS parsea
+        run: node --check src/cubomatica/web/js/cubomatica.js
+
+  empaquetar:
+    name: Construir Cubomatica.app
+    runs-on: macos-latest
+    needs: comprobar
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          enable-cache: true
+
+      - name: Instalar Python fijado en .python-version
+        run: uv python install
+
+      - name: Construir
+        run: ./build-mac.sh
+
+      - name: La app existe y arranca su binario
+        run: |
+          test -d dist/Cubomatica.app
+          test -x dist/Cubomatica.app/Contents/MacOS/Cubomatica
+          test -f dist/Cubomatica.app/Contents/Resources/cubomatica/web/index.html
+
+      - name: Guardar la app como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: Cubomatica.app
+          path: dist/Cubomatica.app
+          retention-days: 14

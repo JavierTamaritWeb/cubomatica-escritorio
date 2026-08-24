@@ -3,7 +3,7 @@
   <h1>Cubomática</h1>
   <p><b>El juego de matemáticas de Educación Primaria,<br>como aplicación de escritorio para macOS.</b></p>
   <p>
-    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.5.0-2B7BB9" alt="Versión 4.5.0"></a>
+    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.7.0-2B7BB9" alt="Versión 4.7.0"></a>
     <a href=".python-version"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
     <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
@@ -43,14 +43,14 @@ como `Cubomatica.app`. **La apariencia es idéntica a la del navegador.**
 Ya no es una web ni una PWA. Se abre como cualquier aplicación del Mac, funciona sin conexión
 y **no abre ningún puerto** en el equipo.
 
-> [!IMPORTANT]
-> `index.html` carga **solo** `css/cubomatica.min.css` y `js/cubomatica.min.js`. Los gemelos sin
-> minificar viajan igualmente y son los que se leen para entender el código, así que **un cambio
-> va en los dos ficheros**: el `.min` es el que corre, el otro es el que se lee. Aquí no hay
-> minificador que los mantenga a la par.
+> [!NOTE]
+> `index.html` carga directamente `css/cubomatica.css` y `js/cubomatica.js`: **lo que se lee es
+> lo que corre.** Hasta 4.5.0 cargaba unos gemelos `.min` que había que mantener a mano; bajo
+> `file://` la minificación no ahorra nada perceptible, así que se retiraron y un test avisa si
+> vuelven.
 >
-> `index.html` es la excepción: no tiene gemelo, porque es el fichero que se carga. Se mantiene
-> formateado con `herramientas/formatear-html.py`, y un test avisa si vuelve a una sola línea.
+> `index.html` se mantiene formateado con `herramientas/formatear-html.py`, y otro test avisa si
+> vuelve a una sola línea.
 
 ---
 
@@ -178,6 +178,8 @@ cubomatica/
 ├── Cubomatica.spec          # configuración del .app
 ├── build-mac.sh             # construye dist/Cubomatica.app
 ├── make-icon.sh             # regenera assets/icon.icns desde el SVG
+├── .github/workflows/
+│   └── ci.yml               # tests, lint, HTML y build del .app en cada push
 ├── herramientas/
 │   └── formatear-html.py    # deja index.html legible sin cambiar lo que se pinta
 ├── assets/
@@ -188,7 +190,7 @@ cubomatica/
 ├── docs/                    # imágenes de este README
 ├── tests/
 │   ├── conftest.py          # fixtures compartidas
-│   ├── test_api.py          # lógica de Python
+│   ├── test_api.py          # contrato del puente JS ↔ Python
 │   └── test_web.py          # ficheros, rutas, persistencia y versión
 └── src/
     └── cubomatica/
@@ -197,7 +199,7 @@ cubomatica/
         └── web/             # EL JUEGO
             ├── index.html
             ├── LICENCIA.txt # el aviso que viaja dentro del .app
-            ├── css/  js/    # ojo: solo cargan los .min (ver más arriba)
+            ├── css/  js/    # una hoja y un bundle, legibles, sin gemelos .min
             ├── fonts/       # OpenDyslexic + su licencia
             ├── img/
             └── audio/       # música, ~42 MB
@@ -311,24 +313,25 @@ la acción de un menú sin sacarlo a otro hilo **congela la aplicación**.
 
 ## El puente JavaScript ↔ Python
 
-El juego es autocontenido y hoy no lo usa, pero está listo para cuando haga falta disco, red o
-sistema.
+El juego es autocontenido y hoy no lo usa: la clase `Api` de `api.py` está **vacía a propósito**
+(hasta 4.5.0 llevaba tres métodos de ejemplo de la plantilla que viajaban en el `.app` sin que
+nadie los llamara). Sigue conectada como `js_api`, lista para cuando haga falta disco o sistema.
 
-**En Python** (`api.py`), cada método público queda expuesto:
+**En Python** (`api.py`), cada método público que se añada queda expuesto:
 
 ```python
 class Api:
-    def saludar(self, nombre: str) -> str:
-        return f"Hola, {nombre}"
+    def guardar_fichero(self, nombre: str, texto: str) -> bool:
+        ...
 ```
 
 **En JavaScript**, se llama así:
 
 ```javascript
-const texto = await window.pywebview.api.saludar("Javi");
+const ok = await window.pywebview.api.guardar_fichero("copia.json", texto);
 ```
 
-Los métodos que empiezan por `_` no se exponen, y hay un test que lo protege.
+Los métodos que empiezan por `_` no se exponen, y `tests/test_api.py` protege el contrato.
 
 > [!TIP]
 > Espera siempre al evento `pywebviewready` antes de usar la API: `window.pywebview.api` no
@@ -341,7 +344,6 @@ Los métodos que empiezan por `_` no se exponen, y hay un test que lo protege.
 | Limitación | Detalle |
 |---|---|
 | **Imprimir el informe** | WKWebView no implementa `window.print()`, así que el botón «Imprimir» del informe no hace nada dentro de la app. Se podría resolver exponiendo la impresión desde `api.py`. |
-| **Service worker** | El juego lo registra si el navegador lo soporta; bajo `file://` no se activa. Es inofensivo: la app ya funciona sin conexión. |
 
 ---
 
@@ -349,8 +351,8 @@ Los métodos que empiezan por `_` no se exponen, y hay un test que lo protege.
 
 | | |
 |---|---|
-| **Versión de la app** | **4.5.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
-| **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.4.7) |
+| **Versión de la app** | **4.7.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
+| **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.6.0) |
 | **Identificador** | `es.javiertamarit.cubomatica` |
 
 Son dos números distintos a propósito: esta app empaqueta el juego, pero el juego se versiona en

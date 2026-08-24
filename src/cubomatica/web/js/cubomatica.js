@@ -1525,7 +1525,7 @@ CB.bus = new CB.util.EventoSimple();
 
 /* CB.LEGAL */
 /* Versión */
-CB.VERSION = '3.4.7';
+CB.VERSION = '3.6.0';
 
 CB.LEGAL = {
   /* El texto completo viaja en web/LICENCIA.txt. Aquí va solo la línea que
@@ -2333,6 +2333,185 @@ CB.sprites.MAPAS = {
           '.11.11.',
           '.......'],
 
+  /* Poses de trabajo (3.6.0): el minero pica al acertar y se rasca la cabeza
+     al fallar; Rocarr asiente y sonríe al dar la pista. Misma paleta que la
+     criatura base: el CSS alterna los fotogramas con background-image. */
+  cubiPica:  ['..000.2',
+              '.0111.2',
+              '.12221.',
+              '.02223.',
+              '.33333.',
+              '.3.3.3.',
+              '.4...4.'],
+
+  cubiPica2: ['..000..',
+              '.01110.',
+              '.12221.',
+              '.02223.',
+              '.33333.',
+              '.3.3.32',
+              '.4...42'],
+
+  cubiRasca: ['..0003.',
+              '.01113.',
+              '.12221.',
+              '.0222..',
+              '.33333.',
+              '.3.3.3.',
+              '.4...4.'],
+
+  rocarrAsiente: ['.......',
+                  '.11111.',
+                  '1112111',
+                  '1211121',
+                  '1122111',
+                  '.11111.',
+                  '..1.1..'],
+
+  rocarrPista: ['.11111.',
+                '1112111',
+                '1211121',
+                '1111111',
+                '1122221',
+                '.11111.',
+                '..1.1..'],
+
+  /* Iconos de interfaz (3.6.0), 8×8: sustituyen a los emojis, que se pintaban
+     con la fuente del sistema encima de un juego de bloques. */
+  llave: ['........',
+          '.222....',
+          '1...1...',
+          '1...1111',
+          '1...1.11',
+          '.111..1.',
+          '........',
+          '........'],
+
+  candado: ['..1111..',
+            '.1....1.',
+            '.1....1.',
+            '33333333',
+            '32330333',
+            '33330333',
+            '33333333',
+            '.333333.'],
+
+  pico: ['..111111',
+         '.1....11',
+         '1...3..1',
+         '...3....',
+         '..3.....',
+         '.3......',
+         '3.......',
+         '........'],
+
+  trofeo: ['11111111',
+           '.122221.',
+           '.122221.',
+           '..1221..',
+           '...11...',
+           '...11...',
+           '..1111..',
+           '.111111.'],
+
+  diploma: ['11111111',
+            '12222221',
+            '12333321',
+            '12222221',
+            '12333321',
+            '12222221',
+            '11111111',
+            '...44...'],
+
+  estrella: ['...11...',
+             '...11...',
+             '11122111',
+             '.112211.',
+             '..1221..',
+             '.111111.',
+             '.11..11.',
+             '........'],
+
+  flecha: ['......1.',
+           '....111.',
+           '..11111.',
+           '1111111.',
+           '..11111.',
+           '....111.',
+           '......1.',
+           '........'],
+
+  borrar: ['..111111',
+           '.1.....1',
+           '1..1.1.1',
+           '1...1..1',
+           '1..1.1.1',
+           '.1.....1',
+           '..111111',
+           '........'],
+
+  libro: ['.111111.',
+          '.122221.',
+          '.122221.',
+          '.122221.',
+          '.122221.',
+          '.122221.',
+          '.111111.',
+          '.333333.'],
+
+  cromo: ['11111111',
+          '12222221',
+          '12233221',
+          '12333321',
+          '12333321',
+          '12233221',
+          '12222221',
+          '11111111'],
+
+  musgo: ['........',
+          '..1..1..',
+          '.111111.',
+          '11211211',
+          '11111111',
+          '.121121.',
+          '..1111..',
+          '........'],
+
+  altavozMudo: ['...11..',
+                '..111..',
+                '11113.3',
+                '1111.3.',
+                '11113.3',
+                '..111..',
+                '...11..'],
+
+  caraContenta: ['..1111..',
+                 '.111111.',
+                 '11211211',
+                 '11111111',
+                 '12111121',
+                 '11222211',
+                 '.111111.',
+                 '..1111..'],
+
+  caraNormal: ['..1111..',
+               '.111111.',
+               '11211211',
+               '11111111',
+               '11111111',
+               '11222211',
+               '.111111.',
+               '..1111..'],
+
+  caraTriste: ['..1111..',
+               '.111111.',
+               '11211211',
+               '11111111',
+               '11222211',
+               '12111121',
+               '.111111.',
+               '..1111..'],
+
   /* 5 bloques */
   bloquePiedra: ['1111111','1211121','1111111','1121211','1111111','1211121','1111111'],
   bloqueTierra: ['1111111','1121111','1111211','1111111','1211112','1111111','1112111'],
@@ -2382,7 +2561,27 @@ CB.sprites.PALETAS = {
   bloqueCristal:['#7FD4E8','#7FD4E8', '#B0EAF5', '#55AEC4', '#55AEC4'],
   bloqueMusgo: ['#4E7A3A', '#4E7A3A', '#3A5C2A', '#6D9B54', '#6D9B54'],
   avatarBase1: ['#5AA02C', '#F2C99C', '#241C14', '#8B5E3C', '#6B4526'],
-  avatarBase2: ['#3C7BD4', '#F2C99C', '#241C14', '#A0763F', '#7A5628']
+  avatarBase2: ['#3C7BD4', '#F2C99C', '#241C14', '#A0763F', '#7A5628'],
+  cubiPica:    ['#5AA02C', '#F2C99C', '#241C14', '#8B5E3C', '#6B4526'],
+  cubiPica2:   ['#5AA02C', '#F2C99C', '#241C14', '#8B5E3C', '#6B4526'],
+  cubiRasca:   ['#5AA02C', '#F2C99C', '#241C14', '#8B5E3C', '#6B4526'],
+  rocarrAsiente:['#8C8C8C','#8C8C8C', '#241C14', '#6E6E6E', '#6E6E6E'],
+  rocarrPista: ['#8C8C8C', '#8C8C8C', '#241C14', '#6E6E6E', '#6E6E6E'],
+  llave:       ['#241C14', '#E8B923', '#F5D45C', '#B8860B', '#241C14'],
+  candado:     ['#241C14', '#59554F', '#ADADAD', '#8C8C8C', '#6E6E6E'],
+  pico:        ['#241C14', '#ADADAD', '#FFFFFF', '#8B5E3C', '#6B4526'],
+  trofeo:      ['#241C14', '#E8B923', '#F5D45C', '#B8860B', '#241C14'],
+  diploma:     ['#7A5628', '#A0763F', '#FFF6E5', '#D9B98C', '#C0392B'],
+  estrella:    ['#241C14', '#E8B923', '#F5D45C', '#B8860B', '#241C14'],
+  flecha:      ['#241C14', '#241C14', '#241C14', '#241C14', '#241C14'],
+  borrar:      ['#241C14', '#241C14', '#241C14', '#241C14', '#241C14'],
+  libro:       ['#241C14', '#7A5628', '#A0763F', '#6B4526', '#6B4526'],
+  cromo:       ['#241C14', '#7A5628', '#FFF6E5', '#E8B923', '#B8860B'],
+  musgo:       ['#241C14', '#4E7A3A', '#6D9B54', '#3A5C2A', '#3A5C2A'],
+  altavozMudo: ['#241C14', '#241C14', '#FFF6E5', '#C0392B', '#C0392B'],
+  caraContenta:['#241C14', '#F5D45C', '#241C14', '#E8B923', '#B8860B'],
+  caraNormal:  ['#241C14', '#F5D45C', '#241C14', '#E8B923', '#B8860B'],
+  caraTriste:  ['#241C14', '#F5D45C', '#241C14', '#E8B923', '#B8860B']
 };
 
 CB.sprites.IDS = Object.keys(CB.sprites.MAPAS);
@@ -2431,7 +2630,8 @@ CB.sprites.aDataURL = function (mapa, paleta, px) {
 };
 
 /**
- * @param opciones {animado:boolean, px:number, paleta:[...]}
+ * @param opciones {animado:boolean, imagen:boolean, px:number, paleta:[...]}
+ *   imagen: fuerza la ruta canvas aunque el sprite quepa en un box-shadow.
  * @return {tipo:'sombra'|'imagen', valor:string, ancho, alto}
  */
 CB.sprites.desdeMapa = function (nombre, opciones) {
@@ -2449,7 +2649,7 @@ CB.sprites.desdeMapa = function (nombre, opciones) {
   for (y = 0; y < mapa.length; y++) ancho = Math.max(ancho, mapa[y].length);
 
   let res;
-  if (!opciones.animado && n <= CB.sprites.UMBRAL_BOXSHADOW) {
+  if (!opciones.animado && !opciones.imagen && n <= CB.sprites.UMBRAL_BOXSHADOW) {
     res = { tipo: 'sombra', valor: CB.sprites.aBoxShadow(mapa, paleta, px),
             ancho: ancho * px, alto: mapa.length * px, px: px };
   } else {
@@ -2496,10 +2696,31 @@ CB.sprites.aplicar = function (el, nombre, opciones) {
   return s;
 };
 
-CB.sprites.precalentar = function () {
-  let i, n = 0;
+/* Las 11 criaturas, en el orden del álbum. */
+CB.sprites.CRIATURAS = ['cubi', 'rocarr', 'chispa', 'gluglu', 'brasita', 'cristalina',
+                        'blopi', 'tronquete', 'chispita', 'ranacubo', 'vagoneto'];
+CB.sprites.PALETA_SILUETA = ['#241C14', '#241C14', '#241C14', '#241C14', '#241C14'];
+
+/* Publica cada sprite como custom property --sprite-<id> (y --sprite-<id>-silueta
+   para las criaturas) sobre :root, igual que las texturas. Se rasteriza a UN
+   píxel por celda: el CSS lo escala con image-rendering: pixelated y a múltiplos
+   enteros queda nítido, con un solo dataURL por sprite. Sin canvas no se publica
+   nada y el .icono-px queda vacío; en WKWebView canvas siempre existe. */
+CB.sprites.publicar = function () {
+  const raiz = document.documentElement;
+  let i, s, n = 0;
   for (i = 0; i < CB.sprites.IDS.length; i++) {
-    if (CB.sprites.desdeMapa(CB.sprites.IDS[i], { px: 8 })) n++;
+    s = CB.sprites.desdeMapa(CB.sprites.IDS[i], { px: 1, imagen: true });
+    if (!s || s.tipo !== 'imagen') continue;
+    raiz.style.setProperty('--sprite-' + CB.sprites.IDS[i], 'url(' + s.valor + ')');
+    n++;
+  }
+  for (i = 0; i < CB.sprites.CRIATURAS.length; i++) {
+    s = CB.sprites.desdeMapa(CB.sprites.CRIATURAS[i],
+      { px: 1, imagen: true, paletaId: 'silueta', paleta: CB.sprites.PALETA_SILUETA });
+    if (!s || s.tipo !== 'imagen') continue;
+    raiz.style.setProperty('--sprite-' + CB.sprites.CRIATURAS[i] + '-silueta',
+      'url(' + s.valor + ')');
   }
   return n;
 };
@@ -9308,7 +9529,7 @@ CB.catalogo.candidatos = function (slug, banda, perfil) {
 
 /* Los 4 mundos (§5.2). Tabla CERRADA */
 CB.MUNDOS = [
-  { id: 'M1', nombre: 'La Pradera de los Números', bioma: 'pradera', jefe: 'Tronquete',
+  { id: 'M1', nombre: 'La Pradera de los Números', corto: 'la Pradera', bioma: 'pradera', jefe: 'Tronquete',
     jefeIcono: '🌳',
     niveles: ['N1','N2','N3','N4','N5','N6','N7','N8',
               'S1','S2','S3','S4','S5','S6','S7',
@@ -9323,7 +9544,7 @@ CB.MUNDOS = [
               'G1','G2','G3','A1','A2',
               'U1','U2','X1','X2','K1'] },
 
-  { id: 'M2', nombre: 'El Bosque de las Llevadas', bioma: 'bosque', jefe: 'Ranacubo',
+  { id: 'M2', nombre: 'El Bosque de las Llevadas', corto: 'el Bosque', bioma: 'bosque', jefe: 'Ranacubo',
     jefeIcono: '🐸',
     niveles: ['N9','N10','N11','N12','N13',
               'S8','S9','S10','S11','S12','S13',
@@ -9339,7 +9560,7 @@ CB.MUNDOS = [
               'G4','G5','G7',
               'X3','X4','J1','J2','K2'] },
 
-  { id: 'M3', nombre: 'El Río de los Problemas', bioma: 'rio', jefe: 'Cristalina',
+  { id: 'M3', nombre: 'El Río de los Problemas', corto: 'el Río', bioma: 'rio', jefe: 'Cristalina',
     jefeIcono: '💠',
     niveles: ['N14','S14','R11','R12',
               'P9','P10','P11','P12','P13','P14','P15','P16',
@@ -9353,7 +9574,7 @@ CB.MUNDOS = [
               'A3','A4','A5','A6','A7',
               'U3','U4','J3','J4','K3','K4'] },
 
-  { id: 'M4', nombre: 'La Mina de las Veces', bioma: 'mina', jefe: 'Brasita',
+  { id: 'M4', nombre: 'La Mina de las Veces', corto: 'la Mina', bioma: 'mina', jefe: 'Brasita',
     jefeIcono: '🔥', distintivo: 'INICIACIÓN',
     niveles: ['N15','N16','S15','S16','R13','R14',
               'P17','P18','P19','P20','E7','E8',
@@ -9425,14 +9646,18 @@ CB.catalogo.variedadSuficiente = function (nivelId, unicos, tiradas) {
   return unicos >= 0.75 * esperados;
 };
 
+/* Fracción de las vetas nucleares del mundo anterior que abre el siguiente
+   (y que hace aparecer el reto del jefe). Un solo número, leído en tres sitios. */
+CB.catalogo.UMBRAL_MUNDO = 0.6;
+
 CB.catalogo.mundoDesbloqueado = function (mundoId, perfil) {
   let i, idx = -1;
   for (i = 0; i < CB.MUNDOS.length; i++) if (CB.MUNDOS[i].id === mundoId) idx = i;
   if (idx <= 0) return true;                       // M1 abierto desde el minuto 1
-  return CB.catalogo.progresoMundo(CB.MUNDOS[idx - 1].id, perfil).fraccion >= 0.6;
+  return CB.catalogo.progresoMundo(CB.MUNDOS[idx - 1].id, perfil).fraccion >= CB.catalogo.UMBRAL_MUNDO;
 };
 
-/* 18-distractores.js — Los 24 códigos de error, los distractores y el */
+/* 18-distractores.js — Los 48 códigos de error, los distractores y el */
 
 var CB = CB || {};
 
@@ -11247,7 +11472,15 @@ CB.reparacion.tabla100 = function (item) {
  *          codigoError, notaAdulto}
  */
 CB.reparacion.tarjeta = function (item, hipotesis) {
-  const nombre = CB.reparacion.explicadorDe(item.destreza);
+  const cod = (hipotesis && hipotesis.length) ? hipotesis[0] : null;
+  const err = (cod && CB.ERRORES[cod]) ? CB.ERRORES[cod] : null;
+
+  /* Cada código de error declara qué explicador le va (reparacion: 'columnasCDU'…).
+     Si hay diagnóstico se usa ese; si no, el genérico de la destreza. */
+  let nombre = CB.reparacion.explicadorDe(item.destreza);
+  if (err && err.reparacion && typeof CB.reparacion[err.reparacion] === 'function') {
+    nombre = err.reparacion;
+  }
   const base = CB.reparacion[nombre](item);
 
   /* Suelo temporal adicional: 4 s como mínimo, y 900 ms por palabra. Un niño de
@@ -11259,7 +11492,6 @@ CB.reparacion.tarjeta = function (item, hipotesis) {
   const suelo = Math.max(CB.reparacion.SUELO_MS_MIN,
                        palabras * CB.reparacion.MS_POR_PALABRA);
 
-  const cod = (hipotesis && hipotesis.length) ? hipotesis[0] : null;
   const rec = (cod && CB.datos.RECOMENDACIONES[cod]) ? CB.datos.RECOMENDACIONES[cod] : null;
 
   return {
@@ -11271,8 +11503,30 @@ CB.reparacion.tarjeta = function (item, hipotesis) {
     sueloMs: suelo,
     salvavidasMs: CB.reparacion.salvavidasDe(suelo),
     codigoError: cod,
+    /* La pista del error, para pintarla encima de los tres pasos. */
+    pista: (err && err.pista) ? err.pista : null,
     notaAdulto: rec ? rec.frase : null
   };
+};
+
+/* Pista genérica de la destreza: la primera de CB.datos.MENSAJES.PISTAS. */
+CB.reparacion.pistaGenerica = function (destreza) {
+  const pistas = CB.datos.MENSAJES.PISTAS[destreza];
+  return pistas ? pistas[0] : 'Vuelve a mirarlo con calma.';
+};
+
+/* Pista específica del error que explica el valor dado, o null si el valor
+   no coincide con ningún error conocido. Cuando varios errores producen el
+   mismo valor se toma el primero, igual que hace la tarjeta. */
+CB.reparacion.pistaDe = function (item, valorDado) {
+  if (!CB.diagnosticar) return null;
+  const diag = CB.diagnosticar(item, valorDado);
+  let i, err;
+  for (i = 0; i < diag.hipotesis.length; i++) {
+    err = CB.ERRORES[diag.hipotesis[i]];
+    if (err && err.pista) return err.pista;
+  }
+  return null;
 };
 
 /* La puerta de interacción */
@@ -11928,13 +12182,68 @@ CB.ui.vaciar = function (el) {
   while (el.firstChild) el.removeChild(el.firstChild);
 };
 
+/* Un icono pixelado: el CSS pone el sprite por data-icono (--sprite-<nombre>). */
+CB.ui.icono = function (nombre, clase) {
+  const s = CB.ui.crear('span', 'icono-px' + (clase ? ' ' + clase : ''));
+  s.setAttribute('data-icono', nombre);
+  s.setAttribute('aria-hidden', 'true');
+  return s;
+};
+
+/* Cambia el rótulo de un botón sin perder su icono (textContent lo borraría). */
+CB.ui.rotular = function (boton, texto, icono) {
+  CB.ui.vaciar(boton);
+  if (icono) boton.appendChild(CB.ui.icono(icono));
+  boton.appendChild(document.createTextNode(texto));
+};
+
+/* Selector segmentado: un bloque por opción y el elegido, hundido. Es el
+   patrón de los botones de Minecraft: se ve qué está elegido y qué más hay,
+   sin adivinar que un botón cicla. def = { nombre, opciones: [{id, etiqueta}],
+   actual, alElegir(id) }. Devuelve el grupo, con .fijar(id) para repintarlo. */
+CB.ui.selector = function (def) {
+  const caja = CB.ui.crear('div', 'selector');
+  caja.setAttribute('role', 'radiogroup');
+  if (def.nombre) caja.setAttribute('aria-label', def.nombre);
+  let actual = def.actual;
+
+  function pintar() {
+    const bs = caja.querySelectorAll('.selector__opcion');
+    let i;
+    for (i = 0; i < bs.length; i++) {
+      bs[i].setAttribute('aria-checked',
+        bs[i].getAttribute('data-id') === String(actual) ? 'true' : 'false');
+    }
+  }
+
+  def.opciones.forEach(function (op) {
+    const b = CB.ui.boton(op.etiqueta, 'selector__opcion', function () {
+      if (String(actual) === String(op.id)) return;
+      actual = op.id;
+      pintar();
+      if (def.alElegir) def.alElegir(op.id);
+      /* El lector no ve hundirse el bloque: se le dice. */
+      if (def.nombre) CB.a11y.anunciar(def.nombre + ': ' + op.etiqueta);
+    }, { id: op.id });
+    b.setAttribute('role', 'radio');
+    caja.appendChild(b);
+  });
+  pintar();
+  CB.a11y.conectarFlechas(caja, def.opciones.length);
+  caja.fijar = function (id) { actual = id; pintar(); };
+  return caja;
+};
+
+/* datos.icono no es un atributo: antepone un icono pixelado al texto. */
 CB.ui.boton = function (texto, clase, alPulsar, datos) {
   const b = CB.ui.crear('button', 'btn-bloque ' + (clase || ''), texto);
   b.type = 'button';
   if (datos) {
     let k;
     for (k in datos) {
-      if (Object.prototype.hasOwnProperty.call(datos, k)) b.setAttribute('data-' + k, datos[k]);
+      if (!Object.prototype.hasOwnProperty.call(datos, k)) continue;
+      if (k === 'icono') b.insertBefore(CB.ui.icono(datos.icono), b.firstChild);
+      else b.setAttribute('data-' + k, datos[k]);
     }
   }
   if (alPulsar) b.addEventListener('click', alPulsar);
@@ -12198,10 +12507,10 @@ CB.ui.ponerAltavoz = function (contenedor, textoCrudo, alPulsar) {
    un solo sitio para que la pregunta de la partida y la de la calibración no
    se separen nunca. */
 CB.ui.altavozEnunciado = function (alPulsar) {
-  const b = CB.ui.boton('🔊 Leer', 'btn-bloque--icono enunciado__altavoz',
+  const b = CB.ui.boton('Leer', 'btn-bloque--icono enunciado__altavoz',
     alPulsar || function () {
       if (CB.partida && CB.partida.accionLeerSuave) CB.partida.accionLeerSuave();
-    });
+    }, { icono: 'altavoz' });
   /* «la pregunta» y no «el problema»: ahora lo lleva también la que no es un
      problema de enunciado. */
   b.setAttribute('aria-label', 'Leer la pregunta en voz alta');
@@ -12274,18 +12583,29 @@ CB.ui.relojAnalogico = function (horas, minutos) {
   const caja = CB.ui.crear('div', 'lienzo-explicador');
   const esfera = CB.ui.crear('div');
   esfera.style.position = 'relative';
-  esfera.style.width = '140px'; esfera.style.height = '140px';
+  esfera.style.width = '168px'; esfera.style.height = '168px';
   esfera.style.background = 'var(--bg-caja, #FFF8E7)';
   esfera.style.boxShadow = 'inset 4px 4px 0 0 var(--deco-piedra-cla), ' +
                            'inset -4px -4px 0 0 var(--deco-piedra-osc)';
 
-  [['12', '50%', '8px'], ['3', 'calc(100% - 16px)', '50%'],
-   ['6', '50%', 'calc(100% - 22px)'], ['9', '8px', '50%']].forEach(function (n) {
+  /* Las cifras viven en una banda exterior de 26 px, fuera del anillo por el que
+     giran las agujas (radio interior 58 px > minutera 52 px): el 12 ya no queda
+     tapado por la aguja ni las cifras pegadas al borde. */
+  const anillo = CB.ui.crear('span');
+  anillo.style.position = 'absolute';
+  anillo.style.left = '26px'; anillo.style.top = '26px';
+  anillo.style.right = '26px'; anillo.style.bottom = '26px';
+  anillo.style.boxShadow = 'inset 0 0 0 4px var(--deco-piedra)';
+  esfera.appendChild(anillo);
+
+  [['12', '50%', '4px'], ['3', 'calc(100% - 14px)', 'calc(50% - 12px)'],
+   ['6', '50%', 'calc(100% - 26px)'], ['9', '14px', 'calc(50% - 12px)']].forEach(function (n) {
     const cifra = CB.ui.crear('span', null, n[0]);
     cifra.style.position = 'absolute';
     cifra.style.left = n[1]; cifra.style.top = n[2];
     cifra.style.transform = 'translate(-50%, 0)';
-    cifra.style.fontSize = '18px';
+    cifra.style.fontSize = '20px';
+    cifra.style.lineHeight = '1';
     esfera.appendChild(cifra);
   });
 
@@ -12566,22 +12886,42 @@ CB.ui.mensaje = function (texto, tipo) {
 CB.ui.ocultarMensaje = function () {
   /* Se limpian LOS DOS: si la pantalla cambió entre mostrar y ocultar, el que
      quedó escrito no es el que ahora devuelve nodoMensaje(). */
+  /* Sin data-tipo la caja se hace invisible (visibility) pero conserva su
+     sitio: así las opciones no saltan cuando aparece el mensaje. */
   ['item-mensaje', 'cal-mensaje'].forEach(function (id) {
     const m = document.getElementById(id);
-    if (m) { m.hidden = true; m.textContent = ''; }
+    if (m) { m.hidden = false; m.removeAttribute('data-tipo'); m.textContent = ''; }
   });
 };
 
-/* Bono retrospectivo: GANANCIA, nunca pérdida en directo (§3.4) */
-CB.ui.hileraBono = function (n) {
-  const h = document.getElementById('item-bono');
-  if (!h) return;
-  CB.ui.vaciar(h);
-  if (!n || n <= 0) { h.hidden = true; return; }
-  h.hidden = false;
-  let i;
-  for (i = 0; i < n; i++) h.appendChild(CB.ui.crear('span', 'gemas__icono'));
-  h.appendChild(CB.ui.crear('span', null, '+' + n + ' por rapidez'));
+/* La gema ganada vuela desde el bloque tocado hasta el contador del HUD, que
+   es donde se suma, y al llegar brota allí el «+N» (CB.ui.insignia). Ganancia
+   retrospectiva, nunca una cuenta atrás mientras el niño piensa (§3.4). Con
+   «sin movimiento» no hay vuelo: el «+N» brota directamente. */
+CB.ui.vueloGema = function (origen, n) {
+  if (!(n > 0)) return;
+  const destino = document.getElementById('hud-gemas');
+  if (!origen || !destino || CB.ui.sinMovimiento()) { CB.ui.insignia(n); return; }
+  const a = origen.getBoundingClientRect(), d = destino.getBoundingClientRect();
+  const ax = a.left + a.width / 2, ay = a.top + a.height / 2;
+  const g = CB.ui.crear('span', 'gema-vuelo');
+  g.setAttribute('aria-hidden', 'true');
+  g.style.left = Math.round(ax - 12) + 'px';
+  g.style.top = Math.round(ay - 12) + 'px';
+  g.style.setProperty('--dx', Math.round(d.left + d.width / 2 - ax) + 'px');
+  g.style.setProperty('--dy', Math.round(d.top + d.height / 2 - ay) + 'px');
+  let hecho = false;
+  function llegar() {
+    if (hecho) return;
+    hecho = true;
+    if (g.parentNode) g.parentNode.removeChild(g);
+    CB.ui.insignia(n);
+  }
+  g.addEventListener('animationend', llegar);
+  document.body.appendChild(g);
+  void g.offsetWidth;
+  g.classList.add('gema-vuelo--va');
+  setTimeout(llegar, 900);                    // por si animationend no llega
 };
 
 /* Partículas */
@@ -12623,10 +12963,12 @@ CB.ui.particulasDe = function (el, color) {
 };
 
 /* Criaturas */
+/* Las 11 criaturas del álbum, en su orden; el valor es el sprite de
+   03-sprites que las pinta (desde 3.6.0 ya no son emojis). */
 CB.ui.CRIATURAS = {
-  cubi: '🧍', rocarr: '🪨', gluglu: '💧', chispa: '✨', blopi: '🟩',
-  tronquete: '🌳', ranacubo: '🐸', cristalina: '💠', brasita: '🔥',
-  chispita: '⭐', vagoneto: '🛒'
+  cubi: 'cubi', rocarr: 'rocarr', gluglu: 'gluglu', chispa: 'chispa', blopi: 'blopi',
+  tronquete: 'tronquete', ranacubo: 'ranacubo', cristalina: 'cristalina', brasita: 'brasita',
+  chispita: 'chispita', vagoneto: 'vagoneto'
 };
 
 /* Cada criatura tiene su propia reacción. Un niño debe poder decir qué hace
@@ -12637,11 +12979,12 @@ CB.ui.personaje = function (quien, estado) {
   el.hidden = false;
 
   ['criatura--flota', 'criatura--saltito', 'criatura--asiente',
-   'criatura--gotea', 'criatura--gira'].forEach(function (c) {
+   'criatura--gotea', 'criatura--gira', 'criatura--pica', 'criatura--rasca'].forEach(function (c) {
     el.classList.remove(c);
   });
   void el.offsetWidth;
-  const anim = { acierto: 'criatura--saltito', pista: 'criatura--asiente',
+  /* Cubi trabaja: pica el bloque al acertar y se rasca la cabeza al fallar. */
+  const anim = { acierto: 'criatura--pica', fallo: 'criatura--rasca', pista: 'criatura--asiente',
                moja: 'criatura--gotea', racha: 'criatura--gira' }[estado];
   if (anim) el.classList.add(anim);
   else el.classList.add('criatura--flota');
@@ -12730,6 +13073,12 @@ CB.ui.mostrarReparacion = function (item, hipotesis, alTerminar) {
   const cont = document.getElementById('rep-pasos');
   CB.ui.vaciar(cont);
 
+  /* La pista del error diagnosticado va antes de los pasos y se lee en voz
+     alta con ellos: es la frase que nombra lo que ha pasado de verdad. */
+  if (tarjeta.pista) {
+    cont.appendChild(CB.ui.crear('p', 'reparacion__pista', tarjeta.pista));
+  }
+
   const boton = document.getElementById('btn-lo-pillo');
   boton.disabled = true;
 
@@ -12786,7 +13135,8 @@ CB.ui.mostrarReparacion = function (item, hipotesis, alTerminar) {
     boton.disabled = false;
     boton.classList.add('btn-bloque--destello');
     if (ayuda) ayuda.textContent = 'Rocarr te lo ha enseñado. Puedes seguir.';
-    CB.voz.leer(tarjeta.pasos.map(function (p) { return p.texto; }).join(' '));
+    CB.voz.leer((tarjeta.pista ? tarjeta.pista + ' ' : '') +
+                tarjeta.pasos.map(function (p) { return p.texto; }).join(' '));
   }, tarjeta.salvavidasMs);
 
   const reloj = setInterval(revisar, 400);
@@ -12889,8 +13239,13 @@ CB.ui.resaltarPasoDibujo = function (foco) {
 /* Barra de progreso genérica */
 CB.ui.barra = function (fraccion) {
   const b = CB.ui.crear('div', 'tarjeta-mundo__barra');
+  const pct = Math.round(CB.util.clamp(fraccion, 0, 1) * 100);
+  b.setAttribute('role', 'progressbar');
+  b.setAttribute('aria-valuemin', '0');
+  b.setAttribute('aria-valuemax', '100');
+  b.setAttribute('aria-valuenow', String(pct));
   const i = CB.ui.crear('i', 'tarjeta-mundo__relleno');
-  i.style.width = Math.round(CB.util.clamp(fraccion, 0, 1) * 100) + '%';
+  i.style.width = pct + '%';
   b.appendChild(i);
   return b;
 };
@@ -12960,7 +13315,7 @@ CB.ui.festejo = { _salida: null, _clave: null };
 
 CB.ui.festejo.CELEBRACIONES = {
   /* El acierto de todos los días. Sin banda, sin texto grande, sin parar nada. */
-  normal:     { vehiculo: 'insignia', ms:  700, sfx: 'acierto' },
+  normal:     { vehiculo: 'ninguno',  ms:  700, sfx: 'acierto' },
   /* Le ha costado y lo ha sacado: Cubi salta. */
   esfuerzo:   { vehiculo: 'criatura', ms: 1100, sfx: 'acierto',
                 quien: 'cubi', gesto: 'acierto' },
@@ -13052,9 +13407,9 @@ CB.ui.festejo.mostrar = function (clave, texto, extra) {
     return true;                     // la cinta trae su propio sonido y salida
   }
 
-  if (c.vehiculo === 'insignia') {
-    CB.ui.insignia(1 + (extra.bono || 0));
-  } else if (c.vehiculo === 'criatura') {
+  /* El «+N» de la gema ya no es un vehículo: lo pone CB.ui.vueloGema al llegar
+     la gema al HUD, en todas las categorías. */
+  if (c.vehiculo === 'criatura') {
     CB.ui.personaje(c.quien, c.gesto);
   } else if (c.vehiculo === 'cartel') {
     CB.ui.cartel(texto);
@@ -13126,9 +13481,10 @@ CB.ui.reloj.arrancar = function (ms) {
   if (!r.montar()) return false;
   CB.ui.reloj.parar();
 
-  if (!(ms > 0)) { r.caja.hidden = true; return false; }
+  if (!(ms > 0)) { r.caja.hidden = true; return false; }   // modo sin reloj: sin hueco
 
   r.caja.hidden = false;
+  r.caja.classList.remove('reloj--parado');
   r.caja.classList.remove('reloj--prisa');
   r._totalMs = ms;
   r._finMs = CB.util.ahora() + ms;
@@ -13150,8 +13506,10 @@ CB.ui.reloj.arrancar = function (ms) {
 CB.ui.reloj.parar = function () {
   const r = CB.ui.reloj;
   if (r._tic) { clearInterval(r._tic); r._tic = null; }
+  /* Se apaga, no se quita: el hueco del reloj se reserva y «Pregunta 3 de 20»
+     no salta de sitio al responder. arrancar(0) sí lo esconde (modo sin reloj). */
   if (r.caja) {
-    r.caja.hidden = true;
+    r.caja.classList.add('reloj--parado');
     r.caja.classList.remove('reloj--prisa');
   }
   CB.ui.reloj.ocultarCartel();
@@ -13235,6 +13593,23 @@ CB.pantallas._volviendo = false;    // ir() invocada desde atras(): no apila
 CB.pantallas.alEntrar = {};
 CB.pantallas.alSalir  = {};
 
+/* La pantalla nueva «cae» y asienta (150 ms, a saltos): un corte seco no
+   parece un juego. Solo la entrada: [hidden] es display:none y la salida no se
+   puede animar sin cambiar ese mecanismo. sin-movimiento la anula en CSS. */
+CB.pantallas.caer = function (seccion) {
+  if (!seccion) return;
+  seccion.classList.remove('pantalla--cae');
+  void seccion.offsetWidth;
+  seccion.classList.add('pantalla--cae');
+  function quitar(ev) {
+    if (ev && ev.target !== seccion) return; // las animaciones de dentro también burbujean
+    seccion.classList.remove('pantalla--cae');
+    seccion.removeEventListener('animationend', quitar);
+  }
+  seccion.addEventListener('animationend', quitar);
+  setTimeout(quitar, 400);                   // por si animationend no llega
+};
+
 CB.pantallas.ir = function (id, props) {
   if (CB.pantallas.IDS.indexOf(id) === -1) {
     throw new Error('Pantalla desconocida: ' + id);
@@ -13256,6 +13631,7 @@ CB.pantallas.ir = function (id, props) {
     el = document.getElementById(CB.pantallas.IDS[i]);
     if (el) el.hidden = (CB.pantallas.IDS[i] !== id);
   }
+  CB.pantallas.caer(document.getElementById(id));
 
   if (CB.pantallas.actual && CB.pantallas.actual !== id && !CB.pantallas._volviendo) {
     CB.pantallas.pila.push(CB.pantallas.actual);
@@ -13488,9 +13864,16 @@ CB.componentes.conectarLectura = function (contenedor) {
 
 /* Confirmación de doble toque, tras detectar azar (§12.3) */
 CB.componentes.pedirConfirmacion = function (boton, alConfirmar) {
-  if (!CB.componentes._confirmacionPendiente) { alConfirmar(); return; }
+  /* Es el embudo de los 7 formatos: aquí se marca el bloque que el niño tocó,
+     y CB.partida lo hunde y lo colorea al corregir (data-resultado). */
+  if (!CB.componentes._confirmacionPendiente) {
+    boton.setAttribute('data-elegida', 'si');
+    alConfirmar();
+    return;
+  }
   if (boton.getAttribute('data-confirmando') === 'si') {
     boton.removeAttribute('data-confirmando');
+    boton.setAttribute('data-elegida', 'si');
     alConfirmar();
     return;
   }
@@ -13592,6 +13975,7 @@ CB.componentes.tecladoBloques = function (item, alResponder, opciones) {
         pulsa(t, b);
       }, { tecla: t === '⌫' ? 'borrar' : (t === 'OK' ? 'ok' : t) });
       b.setAttribute('aria-label', t === '⌫' ? 'Borrar' : (t === 'OK' ? 'Confirmar' : t));
+      if (t === '⌫') { b.textContent = ''; b.appendChild(CB.ui.icono('borrar')); }
       if (t === 'OK') botonOK = b;
       teclado.appendChild(b);
     })(teclas[i]);
@@ -13799,7 +14183,7 @@ CB.componentes.ordenarFila = function (item, alResponder, opciones) {
   });
   cont.appendChild(piezas);
 
-  const deshacer = CB.ui.boton('⌫ Quitar', '', function () {
+  const deshacer = CB.ui.boton('Quitar', '', function () {
     if (CB.partida && CB.partida.bloqueado) return;
     if (!CB.componentes._seleccion.length) return;
     CB.componentes._seleccion.pop();
@@ -13813,7 +14197,7 @@ CB.componentes.ordenarFila = function (item, alResponder, opciones) {
       pieza.removeAttribute('data-confirmando');
     }
     CB.audio.sfx('toc');
-  });
+  }, { icono: 'borrar' });
   deshacer.setAttribute('aria-label', 'Quitar el último número colocado');
   cont.appendChild(deshacer);
 
@@ -13994,13 +14378,13 @@ CB.componentes.selectorDatos = function (item, alResponder, opciones) {
     /* Volver a elegir los números. La fase salta sola al tocar el último, así que
        sin esto un error en el penúltimo toque era irreparable. Un toque SOLO
        cuando hace falta: quien acierta a la primera no lo ve ni lo paga. */
-    const volverDatos = CB.ui.boton('◀ Cambiar los números', '', function () {
+    const volverDatos = CB.ui.boton('Cambiar los números', '', function () {
       if (CB.partida && CB.partida.bloqueado) return;
       elegidos.length = 0;
       signoElegido = null;
       fase = 'datos';
       pintarFase();
-    });
+    }, { icono: 'flecha' });
     volverDatos.setAttribute('aria-label', 'Volver a elegir los números del problema');
     zona.appendChild(volverDatos);
 
@@ -14055,13 +14439,16 @@ CB.componentes.tecla = function (k, ev) {
 };
 
 /* Presentación de cada componente la PRIMERA vez (§7.3) */
+/* Se muestra ENCIMA del ítem real (pintarRespuesta → presentar), así que la
+   frase es una instrucción sobre ese ítem, no un ejemplo: «Toca el 5» salía
+   junto a opciones «9 y media / 8 en punto» donde no había ningún 5. */
 CB.componentes.PRESENTACION = {
-  tecladoBloques: 'Escribe el 7',
-  opciones4: 'Toca el 5',
-  selectorSigno: '¿Aquí va más o menos? 4 __ 2 = 6',
-  balanza: '¿Cuál pesa más? 8 y 5',
-  monedas: 'Toca la moneda de 2 euros',
-  ordenarFila: 'Coloca en orden: 3, 1, 2',
+  tecladoBloques: 'Escribe el número y toca OK',
+  opciones4: 'Toca la respuesta buena',
+  selectorSigno: 'Toca el signo que falta',
+  balanza: 'Toca el lado que pesa más',
+  monedas: 'Toca las monedas hasta juntar lo que pide',
+  ordenarFila: 'Toca los números en orden, del primero al último',
   selectorDatos: 'Toca los dos números del cuento'
 };
 
@@ -14394,7 +14781,6 @@ CB.partida.servirItem = function () {
   if (!e) return;
 
   CB.ui.ocultarMensaje();
-  CB.ui.hileraBono(0);
   CB.ui.ocultarPersonaje('rocarr');
   CB.ui.ocultarPersonaje('gluglu');
   CB.ui.ocultarPersonaje('chispa');
@@ -14521,6 +14907,7 @@ CB.partida.pintarRespuesta = function (item) {
   /* Se abre el cerrojo de «una respuesta por intento». Pasa por aquí tanto el
      ítem nuevo (desde servirItem) como el segundo intento tras un fallo. */
   e.respondido = false;
+  CB.partida.limpiarResultado();
 
   /* El oyente que arranca el cronómetro de los problemas en el primer toque.
      Se pide en cada ítem y se instala una sola vez: el contenedor es permanente. */
@@ -14740,8 +15127,35 @@ CB.partida.responder = function (valor, origen, extra) {
   CB.partida.trasFallo(item, nivel, extra);
 };
 
+/* El bloque que el niño tocó (data-elegida, puesto por pedirConfirmacion). */
+CB.partida.bloqueElegido = function () {
+  const cont = CB.componentes.contenedor();
+  return cont ? cont.querySelector('[data-elegida]') : null;
+};
+
+/* La respuesta se ve en el bloque que se tocó: el elegido se hunde y toma el
+   color del resultado, los demás se apagan a piedra (CSS por data-resultado),
+   y el foco va con él, no se queda en el último bloque recorrido. */
+CB.partida.marcarResultado = function (resultado) {
+  const cont = CB.componentes.contenedor();
+  if (!cont) return;
+  cont.setAttribute('data-resultado', resultado);
+  const b = CB.partida.bloqueElegido();
+  if (b && !b.disabled) CB.a11y.enfocar(b);
+};
+
+CB.partida.limpiarResultado = function () {
+  const cont = CB.componentes.contenedor();
+  if (!cont) return;
+  cont.removeAttribute('data-resultado');
+  const marcados = cont.querySelectorAll('[data-elegida]');
+  let i;
+  for (i = 0; i < marcados.length; i++) marcados[i].removeAttribute('data-elegida');
+};
+
 /* Acierto */
 CB.partida.trasAcierto = function (item, nivel, punt, rt, extra) {
+  CB.partida.marcarResultado('acierto');
   const e = CB.partida.estado, perfil = CB.perfil;
 
   e.preguntas++;
@@ -14768,7 +15182,12 @@ CB.partida.trasAcierto = function (item, nivel, punt, rt, extra) {
      respuesta lenta en premio por el hecho de estar en Experto. */
   const bono = CB.modos.rapidezDe(e.modoTiempo,
     CB.puntuacion.gemasDeRapidez(punt.mTiempo));
-  CB.ui.hileraBono(bono);
+  CB.ui.vueloGema(CB.partida.bloqueElegido() || document.getElementById('item-enunciado'),
+                  punt.gemas);
+  if (punt.gemas > 0) {
+    CB.a11y.anunciar('Más ' + punt.gemas + (punt.gemas === 1 ? ' gema' : ' gemas') +
+                     (bono > 0 ? ', ' + bono + ' por rapidez' : ''));
+  }
 
   const vetaNueva = CB.partida.actualizarDestreza(item, nivel, true);
 
@@ -14851,12 +15270,18 @@ CB.partida.trasFallo = function (item, nivel, extra) {
   /* UNA SOLA CONSECUENCIA VISIBLE: no cae la gema y el marcador se queda quieto
      con un parpadeo gris. Jamás un número negativo (§3.4). */
   CB.ui.parpadeoGris();
+  CB.partida.marcarResultado('fallo');
+  CB.ui.personaje('cubi', 'fallo');
 
   if (e.intento === 1) {
     /* Escalón 1: pista de Rocarr. NO apaga luz. NO rompe racha. */
     e.intento = 2;
-    const pistas = CB.datos.MENSAJES.PISTAS[item.destreza];
-    const pista = pistas ? pistas[0] : 'Vuelve a mirarlo con calma.';
+    /* Si el valor que ha escrito coincide con un error conocido (E-S-LLEV-OLV,
+       E-R-INVIERTE…), la pista es la de ESE error: «Mira si al sumar las
+       unidades pasas de diez» en vez de la genérica de la destreza. Las 48
+       pistas de CB.ERRORES estaban escritas y no se enseñaban en ninguna parte. */
+    const pista = CB.reparacion.pistaDe(item, Number(item.valorDado)) ||
+                  CB.reparacion.pistaGenerica(item.destreza);
     /* La regla es que la luz se apaga SOLO al fallar el segundo intento (docs/decisiones.md, Documento 5), y esa regla hay que contarla en el momento en que importa, no dejarla escrita en un documento que el niño no lee. */
     CB.ui.mensaje('Esta no suma gemas. Te queda otro intento. ' + pista, 'animo');
     CB.ui.festejo.mostrar('animo');
@@ -14964,6 +15389,7 @@ CB.partida.trasAzar = function (item, punt) {
   CB.ui.personaje('gluglu', 'moja');
   CB.audio.sfx('gluglu');
   CB.ui.parpadeoGris();
+  CB.partida.marcarResultado('fallo');
 
   setTimeout(function () {
     if (CB.partida.estado !== e || e.itemActual !== item) return;
@@ -15269,8 +15695,10 @@ CB.partida.guardarEnCurso = function () {
 CB.partida.hayPartidaGuardada = function (perfil) {
   const p = perfil && perfil.partidaEnCurso;
   if (!p) return false;
-  /* Caducidad: pasadas 24 h se descarta y se ofrece empezar de nuevo. */
-  if (Date.now() - p.iniciadaTs > 86400000) { perfil.partidaEnCurso = null; return false; }
+  /* Caducidad: pasadas 24 h se descarta y se ofrece empezar de nuevo.
+     (Leía p.iniciadaTs, que guardarEnCurso nunca escribe: NaN > 86400000 es
+     false y la partida guardada no caducaba jamás.) */
+  if (Date.now() - p.guardadaTs > 86400000) { perfil.partidaEnCurso = null; return false; }
   return true;
 };
 
@@ -15336,7 +15764,7 @@ CB.partida.finalizar = function (motivo) {
   perfil.diario.tiempoPantallaPorDia[hoy] =
     (perfil.diario.tiempoPantallaPorDia[hoy] || 0) + Math.round((Date.now() - e.inicioTs) / 1000);
 
-  const mundoCompletado = CB.catalogo.progresoMundo(e.mundo.id, perfil).fraccion >= 0.6;
+  const mundoCompletado = CB.catalogo.progresoMundo(e.mundo.id, perfil).fraccion >= CB.catalogo.UMBRAL_MUNDO;
   /* Se GUARDAN para pintarlos en p-fin. Se aplicaban aquí, estando todavía en
      p-partida, y nueve líneas después la pantalla cambiaba: «Primer pico»,
      «Cantero» y «Vuelvo mañana» sonaban sobre una pantalla que desaparecía. */
@@ -15631,7 +16059,7 @@ CB.partida.sincronizarSonido = function () {
     /* Solo el icono: el rótulo «Sonido» se queda, y escribir sobre el botón
        entero se lo llevaría por delante. */
     ico = bs[i].querySelector('.btn-bloque__ico') || bs[i];
-    ico.textContent = s ? '🔇' : '🔈';
+    ico.setAttribute('data-icono', s ? 'altavozMudo' : 'altavoz');
     bs[i].setAttribute('aria-pressed', s ? 'true' : 'false');
   }
 };
@@ -15662,7 +16090,7 @@ CB.partida.pedirSalida = function (nodo) {
 
   if (CB.partida._rotuloSalir == null) CB.partida._rotuloSalir = boton.textContent;
   boton.setAttribute('data-confirmando', 'si');
-  boton.textContent = '◀ Salir de verdad';
+  CB.ui.rotular(boton, 'Salir de verdad', 'flecha');
   CB.ui.mensaje('Toca otra vez para salir. La expedición se guarda.', 'animo');
 
   if (CB.partida._temporizadorSalir) clearTimeout(CB.partida._temporizadorSalir);
@@ -15686,7 +16114,7 @@ CB.partida.soltarSalida = function (boton) {
   }
   if (!boton) return;
   boton.removeAttribute('data-confirmando');
-  if (CB.partida._rotuloSalir != null) boton.textContent = CB.partida._rotuloSalir;
+  if (CB.partida._rotuloSalir != null) CB.ui.rotular(boton, CB.partida._rotuloSalir, 'flecha');
 };
 
 CB.partida.conectarBarra = function () {
@@ -15714,61 +16142,14 @@ CB.partida.conectarBarra = function () {
 var CB = CB || {};
 CB.adulto = CB.adulto || {};
 
-CB.adulto.desbloqueado = false;
-CB.adulto.FRASES_PUERTA = [
-  { frase: 'La cantera guarda muchas gemas azules', n: 4 },
-  { frase: 'Los mineros bajan temprano con su pico', n: 3 },
-  { frase: 'El musgo crece sobre las piedras antiguas', n: 5 },
-  { frase: 'Una vagoneta cruza el túnel cargada', n: 2 }
-];
-
-/* Efecto real: pulsar la llave de la portada NUNCA abría el panel del adulto. */
+/* La llave de la portada abre el panel directamente. Hubo una «puerta
+   parental» (escribir la n-ésima palabra de una frase que se enseñaba en
+   pantalla): la abría cualquier niño que supiera leer, así que no protegía
+   nada y solo estorbaba. Se retiró en 3.5.0. */
 CB.adulto.abrir = function () {
-  const puerta = document.getElementById('adulto-puerta');
   const contenido = document.getElementById('adulto-contenido');
-
-  if (CB.adulto.desbloqueado) {
-    puerta.hidden = true;
-    contenido.hidden = false;
-    CB.adulto.pintar();
-    return;
-  }
-  puerta.hidden = false;
-  contenido.hidden = true;
-
-  const reto = CB.adulto.FRASES_PUERTA[
-    CB.util.hash32(CB.util.hoyISO()) % CB.adulto.FRASES_PUERTA.length];
-  const orden = ['primera', 'segunda', 'tercera', 'cuarta', 'quinta', 'sexta'];
-
-  const preg = document.getElementById('adulto-pregunta');
-  preg.textContent = 'Para entrar, escribe la ' + orden[reto.n - 1] +
-                     ' palabra de esta frase: «' + reto.frase + '»';
-
-  const campo = document.getElementById('adulto-respuesta');
-  const error = document.getElementById('adulto-error');
-  campo.value = '';
-  campo.setAttribute('aria-describedby', 'adulto-pregunta');
-  campo.setAttribute('aria-errormessage', 'adulto-error');
-  campo.setAttribute('aria-invalid', 'false');
-  error.setAttribute('role', 'alert');
-  error.hidden = true;
-
-  document.getElementById('adulto-entrar').onclick = function () {
-    const esperada = CB.util.palabras(reto.frase)[reto.n - 1].toLowerCase();
-    if (CB.util.normalizar(campo.value) === CB.util.normalizar(esperada)) {
-      campo.setAttribute('aria-describedby', 'adulto-pregunta');
-      campo.setAttribute('aria-invalid', 'false');
-      CB.adulto.desbloqueado = true;
-      puerta.hidden = true;
-      contenido.hidden = false;
-      CB.adulto.pintar();
-    } else {
-      campo.setAttribute('aria-describedby', 'adulto-pregunta adulto-error');
-      campo.setAttribute('aria-invalid', 'true');
-      error.hidden = false;
-      CB.a11y.enfocar(campo);
-    }
-  };
+  if (contenido) contenido.hidden = false;
+  CB.adulto.pintar();
 };
 
 /* Las 10 métricas */
@@ -15998,68 +16379,6 @@ CB.adulto.crearResumenJuego = function (metricas) {
   return caja;
 };
 
-CB.adulto.crearSeccionOffline = function () {
-  if (!CB.offline || !CB.offline.DISPONIBLE) return null;
-  const caja = CB.ui.crear('div', 'adulto__caja');
-  caja.appendChild(CB.ui.crear('h2', null, 'Sin conexión'));
-  caja.appendChild(CB.ui.crear('p', null,
-    'El juego ya funciona sin internet: no pide nada a la red. Lo único que ' +
-    'no se guarda por su cuenta es la música, porque son 42 MB.'));
-
-  const estado = CB.ui.crear('p', 'texto texto--menor', 'Comprobando…');
-  caja.appendChild(estado);
-  CB.offline.musicaGuardada(function (cantidad) {
-    estado.textContent = cantidad === 0
-      ? 'Ahora mismo no hay ninguna pista guardada.'
-      : 'Guardadas ' + cantidad + ' de 9 pistas.';
-  });
-
-  const fila = CB.ui.crear('div', 'fila');
-  /* La rama 'cancelado' del resultado existia desde 1.x y ningun boton la
-     alcanzaba: CB.offline.cancelarDescarga era una funcion muerta. */
-  let cancelar = null;
-  const descargar = CB.ui.boton('Descargar la música (42 MB)', 'btn-adulto', function () {
-    descargar.disabled = true;
-    if (cancelar) cancelar.hidden = false;
-    estado.textContent = 'Descargando… 0 de 9';
-    CB.offline.descargarMusica(
-      function (intentadas, total) {
-        estado.textContent = 'Descargando… ' + intentadas + ' de ' + total;
-      },
-      function (resultado) {
-        descargar.disabled = false;
-        if (cancelar) cancelar.hidden = true;
-        const hechas = resultado.hechas || 0;
-        if (resultado.ok) {
-          estado.textContent = 'Listo: las ' + hechas + ' pistas están guardadas.';
-        } else if (resultado.fallos) {
-          estado.textContent = 'Guardadas ' + hechas + ' de 9. ' + resultado.fallos +
-            (resultado.fallos === 1
-              ? ' pista no se ha podido descargar'
-              : ' pistas no se han podido descargar') +
-            '. Comprueba la conexión y vuelve a intentarlo.';
-        } else if (resultado.motivo === 'cancelado') {
-          estado.textContent = 'Descarga cancelada. Guardadas ' + hechas + ' de 9.';
-        } else {
-          estado.textContent = 'No se ha podido guardar ninguna pista. Puedes volver a intentarlo.';
-        }
-        CB.a11y.anunciar(estado.textContent);
-      });
-  });
-  fila.appendChild(descargar);
-  cancelar = CB.ui.boton('Cancelar la descarga', 'btn-adulto', function () {
-    CB.offline.cancelarDescarga();
-  });
-  cancelar.hidden = true;
-  fila.appendChild(cancelar);
-  fila.appendChild(CB.ui.boton('Borrar lo guardado y recargar',
-    'btn-adulto btn-adulto--peligro', function () {
-      CB.offline.olvidarTodo(function () { location.reload(); });
-    }));
-  caja.appendChild(fila);
-  return caja;
-};
-
 CB.adulto.crearSeccionDatos = function (perfil) {
   const caja = CB.ui.crear('div', 'adulto__caja');
   caja.appendChild(CB.ui.crear('h2', null, 'Datos'));
@@ -16096,8 +16415,21 @@ CB.adulto.crearSeccionDatos = function (perfil) {
 CB.adulto.pintar = function () {
   const perfil = CB.perfil;
   const cont = document.getElementById('adulto-contenido');
-  if (!perfil || !cont) return;
+  if (!cont) return;
   CB.ui.vaciar(cont);
+
+  /* Sin perfil no hay nada que medir. Se dice, y se deja salir: antes lo
+     cubría el botón Salir de la puerta parental, que ya no existe. */
+  if (!perfil) {
+    cont.appendChild(CB.ui.crear('h1', null, 'Panel de personas adultas'));
+    cont.appendChild(CB.ui.crear('p', null,
+      'Todavía no hay ningún minero elegido. Entra en «¿Quién juega?», elige ' +
+      'o crea uno, y vuelve aquí para ver cómo va.'));
+    cont.appendChild(CB.ui.boton('Salir', 'btn-bloque', function () {
+      CB.pantallas.ir('p-portada');
+    }, { icono: 'flecha' }));
+    return;
+  }
 
   const m = CB.adulto.metricas(perfil);
 
@@ -16144,18 +16476,14 @@ CB.adulto.pintar = function () {
   /* Ajustes */
   cont.appendChild(CB.adulto.cajaAjustes(perfil));
 
-  /* Sin conexión */
-  const seccionOffline = CB.adulto.crearSeccionOffline();
-  if (seccionOffline) cont.appendChild(seccionOffline);
-
   /* Datos */
   cont.appendChild(CB.adulto.crearSeccionDatos(perfil));
 
-  cont.appendChild(CB.ui.boton('◀ Salir', 'btn-bloque', function () {
-    /* Sin ternario: las dos ramas decían 'p-portada'. Al panel se entra por la
-       puerta parental de la portada, y a la portada se vuelve, haya perfil o no. */
+  cont.appendChild(CB.ui.boton('Salir', 'btn-bloque', function () {
+    /* Al panel se entra por la llave de la portada, y a la portada se vuelve,
+       haya perfil o no. */
     CB.pantallas.ir('p-portada');
-  }));
+  }, { icono: 'flecha' }));
 };
 
 CB.adulto.metrica = function (cont, etiqueta, valor) {
@@ -16535,7 +16863,6 @@ CB.adulto.confirmarBorrado = function (perfil, cont) {
     if (campo.value.trim().toUpperCase() !== 'BORRAR') return;
     CB.almacen.borrarPerfil(perfil.id);
     CB.perfil = null;
-    CB.adulto.desbloqueado = false;
     CB.pantallas.ir('p-perfiles');
   }));
   cont.appendChild(caja);
@@ -16619,7 +16946,7 @@ CB.jefes.iniciar = function (mundoId) {
   const n = document.getElementById('jefe-nombre');
   if (n) n.textContent = mundo.jefe;
   const c = document.getElementById('jefe-criatura');
-  if (c) c.textContent = def.icono;
+  if (c) c.setAttribute('data-quien', mundo.jefe.toLowerCase());
 
   const av = document.getElementById('jefe-aviso');
   if (av) {
@@ -16882,7 +17209,7 @@ CB.jefes.terminar = function (porBloques) {
      aplicada al tercer pintor. */
   for (i = 0; i < nuevos.length; i++) {
     enun.appendChild(CB.ui.crear('p', 'texto texto--menor',
-      '🏅 Logro: ' + nuevos[i].nombre));
+      'Logro: ' + nuevos[i].nombre));
   }
   opc.appendChild(CB.ui.boton('Volver al mapa', 'btn-bloque--primario btn-bloque--medio',
     function () { CB.pantallas.ir('p-mapa'); }));
@@ -16904,6 +17231,14 @@ CB.mapaDestrezas.mundoActual = function (perfil) {
     if (perfil.mundos[m.id] && perfil.mundos[m.id].desbloqueado) ultimo = m;
   }
   return ultimo;
+};
+
+/* El sprite de cada estado (capa DOM; CB.memoria.ICONO sigue siendo el texto
+   del panel adulto). Piedra con candado, pico donde se puede cavar, la gema
+   incrustada en las superadas, musgo en las que hay que repasar. */
+CB.mapaDestrezas.SPRITE = {
+  bloqueado: 'candado', nuevo: 'pico', aprendiendo: 'pico',
+  afianzada: 'gema', dominada: 'gema', oxidada: 'musgo'
 };
 
 CB.mapaDestrezas.pintar = function () {
@@ -16943,11 +17278,16 @@ CB.mapaDestrezas.pintar = function () {
     const veta = CB.ui.crear('div', 'veta');
     veta.setAttribute('data-estado', estado);
     veta.setAttribute('role', 'img');
-    /* Nunca solo color: icono + nombre + estado en texto (§10.4). */
+    /* Nunca solo color: icono + nombre + estado en texto (§10.4). El lector
+       lo oye entero; en pantalla es un frente de mina: las cerradas son
+       piedra sin texto, y el nombre solo se ve donde se puede cavar y al
+       pasar o enfocar (por eso las abiertas son enfocables). */
     veta.setAttribute('aria-label', nivel.nombre + ': ' + CB.memoria.ETIQUETA[estado]);
-    veta.appendChild(CB.ui.crear('span', 'veta__icono', CB.memoria.ICONO[estado]));
-    veta.appendChild(CB.ui.crear('span', null, nivel.nombre));
-    veta.appendChild(CB.ui.crear('span', 'texto texto--menor', CB.memoria.ETIQUETA[estado]));
+    if (estado !== 'bloqueado') veta.setAttribute('tabindex', '0');
+    veta.appendChild(CB.ui.icono(CB.mapaDestrezas.SPRITE[estado], 'veta__icono'));
+    veta.appendChild(CB.ui.crear('span', 'veta__nombre', nivel.nombre));
+    veta.appendChild(CB.ui.crear('span', 'veta__estado texto texto--menor',
+                                 CB.memoria.ETIQUETA[estado]));
 
     if (frontera.indexOf(id) !== -1) veta.classList.add('veta--frontera');
     if (estado === 'oxidada') veta.classList.add('veta--musgo');
@@ -16961,12 +17301,15 @@ CB.mapaDestrezas.pintar = function () {
   const ley = document.getElementById('leyenda-vetas');
   if (ley) {
     CB.ui.vaciar(ley);
+    const fila = CB.ui.crear('div', 'leyenda-vetas');
     ['dominada', 'afianzada', 'aprendiendo', 'oxidada', 'nuevo', 'bloqueado'].forEach(function (k) {
       if (!conteo[k]) return;
-      const s = CB.ui.crear('span', null,
-        CB.memoria.ICONO[k] + ' ' + conteo[k] + ' ' + CB.memoria.ETIQUETA[k] + '   ');
-      ley.appendChild(s);
+      const s = CB.ui.crear('span', 'leyenda-vetas__item');
+      s.appendChild(CB.ui.icono(CB.mapaDestrezas.SPRITE[k]));
+      s.appendChild(CB.ui.crear('span', null, conteo[k] + ' ' + CB.memoria.ETIQUETA[k]));
+      fila.appendChild(s);
     });
+    ley.appendChild(fila);
     if (conteo.oxidada) {
       ley.appendChild(CB.ui.crear('p', 'texto texto--menor',
         'Las vetas con musgo se repasan en dos minutos.'));
@@ -17006,12 +17349,13 @@ CB.mapaDestrezas.pintarMundos = function () {
   CB.MUNDOS.forEach(function (m) {
     const estado = perfil.mundos[m.id] || { desbloqueado: false };
     const prog = CB.catalogo.progresoMundo(m.id, perfil);
-    const tarjeta = CB.ui.crear('div', 'tarjeta-mundo');
-    tarjeta.setAttribute('data-bloqueado', estado.desbloqueado ? 'no' : 'si');
-
-    const cinta = CB.ui.crear('div', 'tarjeta-mundo__cinta');
-    cinta.setAttribute('data-bioma', m.bioma);
-    tarjeta.appendChild(cinta);
+    const marco = CB.ui.crear('div', 'tarjeta-mundo');
+    marco.setAttribute('data-bloqueado', estado.desbloqueado ? 'no' : 'si');
+    /* La textura del bioma es el fondo de TODA la tarjeta (hierba, musgo,
+       agua, piedra), no una tira: los cuatro mundos se distinguen de lejos. */
+    marco.setAttribute('data-bioma', m.bioma);
+    const tarjeta = CB.ui.crear('div', 'tarjeta-mundo__cuerpo');
+    marco.appendChild(tarjeta);
 
     tarjeta.appendChild(CB.ui.crear('h2', null, m.nombre));   /* h2, no h3: el h1 es el de la pantalla y saltarse un nivel rompe la navegacion por encabezados */
 
@@ -17033,19 +17377,19 @@ CB.mapaDestrezas.pintarMundos = function () {
       tarjeta.appendChild(d);
     }
 
-    tarjeta.appendChild(CB.ui.barra(prog.fraccion));
-    tarjeta.appendChild(CB.ui.crear('p', 'texto texto--menor',
-      prog.hechos + ' de ' + prog.total + ' vetas abiertas'));
-
     if (estado.desbloqueado) {
+      tarjeta.appendChild(CB.ui.barra(prog.fraccion));
+      tarjeta.appendChild(CB.ui.crear('p', 'texto texto--menor',
+        prog.hechos + ' de ' + prog.total + ' vetas abiertas'));
+
       tarjeta.appendChild(CB.ui.boton('Cavar aquí', 'btn-bloque--primario btn-bloque--ancho',
         function () { CB.partida.iniciar({ mundoId: m.id, modo: 'expedicion' }); }));
 
       /* El jefe NO bloquea el paso al mundo siguiente: cierra el mundo con una
          victoria (§5.3). */
-      if (prog.fraccion >= 0.6) {
-        tarjeta.appendChild(CB.ui.boton(m.jefeIcono + ' Reto: ' + m.jefe, 'btn-bloque--ancho',
-          function () { CB.jefes.iniciar(m.id); }));
+      if (prog.fraccion >= CB.catalogo.UMBRAL_MUNDO) {
+        tarjeta.appendChild(CB.ui.boton('Reto: ' + m.jefe, 'btn-bloque--ancho',
+          function () { CB.jefes.iniciar(m.id); }, { icono: m.jefe.toLowerCase() }));
       }
 
       /* Se lee aquí, y solo aquí: es un RECUERDO retrospectivo, no una apuesta. */
@@ -17053,10 +17397,18 @@ CB.mapaDestrezas.pintarMundos = function () {
         tarjeta.appendChild(CB.ui.crear('span', 'distintivo', 'cerrado sin un fallo'));
       }
     } else {
+      /* Concreto y contable, con la barra del mundo ANTERIOR, que es el que
+         manda: «Cava 3 vetas más en la Pradera», no «se abre al cavar más». */
+      const idx = CB.MUNDOS.indexOf(m);
+      const previo = CB.MUNDOS[Math.max(0, idx - 1)];
+      const pp = CB.catalogo.progresoMundo(previo.id, perfil);
+      const meta = Math.max(1, Math.ceil(CB.catalogo.UMBRAL_MUNDO * pp.total));
+      const faltan = Math.max(0, meta - pp.hechos);
+      tarjeta.appendChild(CB.ui.barra(pp.hechos / meta));
       tarjeta.appendChild(CB.ui.crear('p', 'texto texto--menor',
-        'Se abre al cavar más vetas del mundo anterior.'));
+        'Cava ' + faltan + (faltan === 1 ? ' veta más en ' : ' vetas más en ') + previo.corto + '.'));
     }
-    cont.appendChild(tarjeta);
+    cont.appendChild(marco);
   });
 };
 
@@ -17092,9 +17444,12 @@ CB.casa.pintar = function () {
 
   const resumen = document.getElementById('casa-resumen');
   if (resumen) {
-    resumen.textContent = perfil.cromos.length + ' de ' +
-      Object.keys(CB.casa.NOMBRES_CROMO).length + ' cromos · ' +
-      Math.max(0, perfil.gemas) + ' gemas';
+    const total = Object.keys(CB.casa.NOMBRES_CROMO).length;
+    resumen.textContent = perfil.cromos.length + ' de ' + total + ' cromos · ' +
+      Math.max(0, perfil.gemas) + ' gemas' +
+      /* La pista de cómo se consiguen va UNA vez, aquí, no once veces en
+         once cromos: un muro de texto era justo lo que se quería quitar. */
+      (perfil.cromos.length < total ? '. Los que faltan ' + CB.casa.PISTA_OCULTO : '.');
   }
 
   const cont = document.getElementById('rejilla-cromos');
@@ -17104,16 +17459,15 @@ CB.casa.pintar = function () {
   Object.keys(CB.casa.NOMBRES_CROMO).forEach(function (id) {
     const tiene = perfil.cromos.indexOf(id) !== -1;
     const c = CB.ui.crear('div', 'cromo' + (tiene ? '' : ' cromo--bloqueado'));
-    const icono = CB.ui.crear('div', 'criatura', tiene ? (CB.ui.CRIATURAS[id] || '◆') : '?');
-    icono.style.width = 'auto'; icono.style.height = '64px'; icono.style.fontSize = '40px';
-    c.appendChild(icono);
+    /* El cromo que falta enseña su SILUETA (el sprite en oscuro): el niño ve
+       qué forma persigue, no un «?» igual que los otros diez. */
+    c.appendChild(CB.ui.icono(CB.ui.CRIATURAS[id] || id, 'cromo__icono' + (tiene ? '' : ' icono-px--silueta')));
     c.appendChild(CB.ui.crear('div', null, tiene ? CB.casa.NOMBRES_CROMO[id] : '???'));
-    if (tiene) {
-      c.appendChild(CB.ui.crear('div', 'texto texto--menor', CB.casa.DESCRIPCION[id]));
-    }
+    if (tiene) c.appendChild(CB.ui.crear('div', 'texto texto--menor', CB.casa.DESCRIPCION[id]));
+    c.setAttribute('role', 'img');
     c.setAttribute('aria-label', tiene
       ? (CB.casa.NOMBRES_CROMO[id] + ': ' + CB.casa.DESCRIPCION[id])
-      : 'Cromo por descubrir');
+      : 'Cromo por descubrir. Los que faltan ' + CB.casa.PISTA_OCULTO);
     cont.appendChild(c);
   });
 
@@ -17126,13 +17480,20 @@ CB.casa.pintar = function () {
    por modo (mejorPuntuacion) y los logros de la versión 1. Los premios que
    faltan se enseñan cerrados, como los cromos: una vitrina con huecos dice
    «esto se puede ganar»; una vitrina que los oculta no dice nada. */
+/* Los cromos salen al azar en cualquier veta (CB.partida.darCromo): la línea
+   de la silueta dice eso, y no inventa una condición que el juego no impone. */
+CB.casa.PISTA_OCULTO = 'se esconden en cualquier veta. Sigue cavando.';
+
+/* Cada premio lleva su tipo (diploma, guardián, récord, logro) y su sprite:
+   la vitrina los pinta distintos, y el diploma de 1.º y el de 6.º ya no son
+   el mismo cuadrado gris. */
 CB.casa.premios = function (perfil) {
   const lista = [];
 
   CB.catalogo.cursosDisponibles().forEach(function (c) {
     const tiene = (perfil.cursosCompletados || []).indexOf(c) !== -1;
     lista.push({
-      icono: '📜', tiene: tiene,
+      tipo: 'diploma', icono: 'diploma', numero: c + '.º', tiene: tiene,
       nombre: 'Diploma de ' + c + '.º',
       desc: tiene ? 'Todo el curso dominado.' : 'Domina todas las vetas de ' + c + '.º.'
     });
@@ -17142,24 +17503,24 @@ CB.casa.premios = function (perfil) {
     const em = perfil.mundos[m.id];
     const tiene = !!(em && em.jefe);
     lista.push({
-      icono: m.jefeIcono, tiene: tiene,
-      nombre: tiene ? (m.jefe + ' vencido') : 'Guardián por vencer',
-      desc: tiene ? ('El guardián de ' + m.nombre + '.') : ''
+      tipo: 'guardian', icono: m.jefe.toLowerCase(), tiene: tiene,
+      nombre: tiene ? (m.jefe + ' vencido') : ('Guardián de ' + m.corto),
+      desc: tiene ? ('El guardián de ' + m.nombre + '.') : ('Vence al guardián de ' + m.corto + '.')
     });
   });
 
   CB.modos.ORDEN.forEach(function (modo) {
     const v = perfil.mejorPuntuacion[modo] || 0;
     lista.push({
-      icono: '🏆', tiene: v > 0,
+      tipo: 'record', icono: 'trofeo', tiene: v > 0,
       nombre: 'Récord en ' + CB.modos.etiqueta(modo),
-      desc: v > 0 ? (v + ' puntos.') : ''
+      desc: v > 0 ? (v + ' puntos.') : ('Termina una expedición en modo ' + CB.modos.etiqueta(modo) + '.')
     });
   });
 
   CB.logros.LISTA.filter(function (l) { return l.version === 1; }).forEach(function (l) {
     const tiene = CB.logros.yaTiene(perfil, l.id);
-    lista.push({ icono: '⭐', tiene: tiene,
+    lista.push({ tipo: 'logro', icono: 'estrella', tiene: tiene,
                  nombre: tiene ? l.nombre : '???',
                  desc: tiene ? l.desc : '' });
   });
@@ -17181,12 +17542,15 @@ CB.casa.pintarVitrina = function (perfil) {
   }
 
   premios.forEach(function (p) {
-    const c = CB.ui.crear('div', 'cromo' + (p.tiene ? '' : ' cromo--bloqueado'));
-    const icono = CB.ui.crear('div', 'criatura', p.tiene ? p.icono : '?');
-    icono.style.width = 'auto'; icono.style.height = '64px'; icono.style.fontSize = '40px';
-    c.appendChild(icono);
-    c.appendChild(CB.ui.crear('div', null, p.nombre));
-    if (p.tiene && p.desc) {
+    const c = CB.ui.crear('div', 'premio premio--' + p.tipo + (p.tiene ? '' : ' premio--pendiente'));
+    const marco = CB.ui.crear('div', 'premio__marco');
+    marco.appendChild(CB.ui.icono(p.icono, 'premio__icono'));
+    if (p.numero) marco.appendChild(CB.ui.crear('span', 'premio__numero', p.numero));
+    c.appendChild(marco);
+    c.appendChild(CB.ui.crear('div', 'premio__nombre', p.nombre));
+    /* También en los que faltan: una vitrina con huecos dice «esto se puede
+       ganar», y la línea de abajo dice cómo. */
+    if (p.desc) {
       c.appendChild(CB.ui.crear('div', 'texto texto--menor', p.desc));
     }
     c.setAttribute('role', 'img');
@@ -17233,125 +17597,6 @@ CB.casa.pintarGlosario = function () {
     }
     cont.appendChild(fila);
   });
-};
-
-/* 45-offline.js — el service worker, y la guarda que impide que estorbe */
-
-var CB = CB || {};
-CB.offline = CB.offline || {};
-
-CB.offline.DISPONIBLE = (function () {
-  try {
-    return typeof navigator !== 'undefined' &&
-           'serviceWorker' in navigator &&
-           typeof window !== 'undefined' &&
-           window.isSecureContext === true &&
-           location.protocol !== 'file:';
-  } catch (e) { return false; }
-})();
-
-CB.offline.registrar = function () {
-  if (!CB.offline.DISPONIBLE) return false;
-  try {
-    navigator.serviceWorker.register('sw.js', { scope: './' })
-      .then(function () { }, function () { });   /* el rechazo TAMBIÉN se traga */
-  } catch (e) { return false; }
-  return true;
-};
-
-/* La música, bajo control de un adulto */
-/* Escribirlas otra vez sería una cuarta copia de la misma lista —ya hay tres: dist/audio/, la tabla de 07-musica.js y CREDITOS.txt— y la cuarta es la peligrosa, porque es la única que nadie mira al renombrar un fichero: la música seguiría… */
-CB.offline.urlesPistas = function () {
-  const m = CB.musica;
-  if (!m || !m.PISTAS) return [];
-  const raiz = m.RAIZ || 'audio/';
-  const urles = [];
-  for (const k in m.PISTAS) {
-    if (Object.prototype.hasOwnProperty.call(m.PISTAS, k)) urles.push(raiz + m.PISTAS[k].fichero);
-  }
-  return urles;
-};
-
-CB.offline.CACHE_MUSICA = 'cubomatica-musica';
-CB.offline._cancelar = false;
-
-/* CONTAR LO QUE FALLA, NO SOLO LO QUE TERMINA. */
-CB.offline.descargarMusica = function (alAvanzar, alTerminar) {
-  const urles = CB.offline.urlesPistas();
-  if (!CB.offline.DISPONIBLE || typeof caches === 'undefined' || !urles.length) {
-    if (alTerminar) alTerminar({ ok: false, motivo: 'no-disponible', hechas: 0, fallos: 0 });
-    return;
-  }
-  CB.offline._cancelar = false;
-  const total = urles.length;
-  let i = 0, guardadas = 0, fallos = 0;
-
-  caches.open(CB.offline.CACHE_MUSICA + '-' + CB.offline.mayor()).then(function (c) {
-    function siguiente() {
-      if (CB.offline._cancelar) {
-        if (alTerminar) alTerminar({ ok: false, motivo: 'cancelado', hechas: guardadas, fallos: fallos });
-        return;
-      }
-      if (i >= total) {
-        if (alTerminar) {
-          alTerminar(fallos === 0
-            ? { ok: true, hechas: guardadas, fallos: 0 }
-            : { ok: false, motivo: 'fallos', hechas: guardadas, fallos: fallos });
-        }
-        return;
-      }
-      const url = urles[i];
-      /* Una pista que falla no tira las otras ocho —por eso no se usa addAll,
-         que es atómico—, pero SÍ se cuenta y sale en el resultado. */
-      c.add(url).then(function () {
-        i++; guardadas++;
-        if (alAvanzar) alAvanzar(i, total, guardadas);
-        siguiente();
-      }, function () {
-        i++; fallos++;
-        if (alAvanzar) alAvanzar(i, total, guardadas);
-        siguiente();
-      });
-    }
-    siguiente();
-  }, function () {
-    if (alTerminar) alTerminar({ ok: false, motivo: 'sin-cache', hechas: 0, fallos: 0 });
-  });
-};
-
-CB.offline.cancelarDescarga = function () { CB.offline._cancelar = true; };
-
-/* La caché de música se indexa por versión MAYOR, no por versión completa: los
-   nueve MP3 son una lista cerrada que no cambia nunca, y volver a bajar 42 MB
-   porque se ha tocado el CSS es inaceptable. */
-CB.offline.mayor = function () {
-  return String(CB.VERSION || '0').split('.')[0];
-};
-
-/* Y el botón que un maestro puede pulsar sin saber qué es un service worker
-   cuando algo se queda pegado. Es lo que evita el peor fallo de esta fase: un
-   worker mal invalidado sirviendo la versión de la semana pasada para siempre. */
-CB.offline.olvidarTodo = function (alTerminar) {
-  if (typeof caches === 'undefined') { if (alTerminar) alTerminar(false); return; }
-  caches.keys().then(function (claves) {
-    const pendientes = claves.filter(function (k) { return k.indexOf('cubomatica-') === 0; });
-    if (!pendientes.length) { if (alTerminar) alTerminar(true); return; }
-    let n = 0;
-    pendientes.forEach(function (k) {
-      caches['delete'](k).then(function () {
-        if (++n === pendientes.length && alTerminar) alTerminar(true);
-      });
-    });
-  }, function () { if (alTerminar) alTerminar(false); });
-};
-
-/* Cuánto ocupa lo descargado, para poder decírselo al adulto antes de que
-   decida. Sin esto, «Borrar la música» es un botón que no se sabe si hace algo. */
-CB.offline.musicaGuardada = function (alSaber) {
-  if (typeof caches === 'undefined') { alSaber(0); return; }
-  caches.open(CB.offline.CACHE_MUSICA + '-' + CB.offline.mayor()).then(function (c) {
-    c.keys().then(function (ks) { alSaber(ks.length); }, function () { alSaber(0); });
-  }, function () { alSaber(0); });
 };
 
 /* 99-arranque.js — ÚNICO DOMContentLoaded del proyecto */
@@ -17416,13 +17661,18 @@ CB.calibracion = {
     ]
   },
   indice: 0,
-  aciertos: 0
+  aciertos: 0,
+  /* Un booleano por pregunta, en el orden del banco. El número total sirve para
+     deducir el trimestre; para fijar el theta de cada destreza hace falta saber
+     CUÁLES se han acertado, no cuántas. */
+  resultados: []
 };
 CB.calibracion.ITEMS = CB.calibracion.BANCOS[2];
 
 CB.calibracion.iniciar = function () {
   CB.calibracion.indice = 0;
   CB.calibracion.aciertos = 0;
+  CB.calibracion.resultados = [];
   CB.calibracion.ITEMS =
     CB.calibracion.BANCOS[CB.catalogo.cursoDe(CB.perfil)] || CB.calibracion.BANCOS[2];
   CB.pantallas.ir('p-calibracion');
@@ -17473,6 +17723,7 @@ CB.calibracion.servir = function () {
     contestada = true;
     const ok = Number(valor) === it.respuesta;
     if (ok) CB.calibracion.aciertos++;
+    CB.calibracion.resultados[i] = ok;
     /* Sin cronómetro, sin luces, sin puntuación: esto no parece un test. */
     CB.ui.mensaje(ok ? '¡Muy bien!' : 'Vamos con la siguiente.', ok ? 'acierto' : 'animo');
     CB.audio.sfx(ok ? 'acierto' : 'picar');
@@ -17508,13 +17759,29 @@ CB.calibracion.terminar = function () {
   perfil.trimestreDeducido = Math.min(porResultado, porCalendario);
   perfil.calibrado = true;
 
-  /* Los 4 resultados fijan el theta inicial de cada destreza tocada. */
+  /* Los 4 resultados fijan el theta inicial de cada destreza tocada. Se mira
+     el resultado de CADA pregunta: hasta 3.4.7 se comparaba la posición con el
+     número de aciertos, y fallar la primera y acertar la cuarta dejaba alta la
+     destreza fallada y baja la acertada. Una destreza que aparece en dos
+     preguntas (p. ej. suma_sin_llevar en 1.º) sube solo si acierta las dos,
+     baja si falla las dos y se queda en el theta inicial si acierta una. */
   const hoy = CB.util.hoyISO();
+  const porDestreza = {};
   CB.calibracion.ITEMS.forEach(function (it, i) {
-    const d = perfil.destrezas[it.destreza] ||
-            (perfil.destrezas[it.destreza] = CB.adaptativo.nuevaDestreza(hoy));
-    d.theta = (i < a) ? 1080 : 920;
+    const ok = CB.calibracion.resultados[i] === true;
+    const r = porDestreza[it.destreza] || (porDestreza[it.destreza] = { ok: 0, mal: 0 });
+    if (ok) r.ok++; else r.mal++;
   });
+  let destreza;
+  for (destreza in porDestreza) {
+    if (!Object.prototype.hasOwnProperty.call(porDestreza, destreza)) continue;
+    const d = perfil.destrezas[destreza] ||
+            (perfil.destrezas[destreza] = CB.adaptativo.nuevaDestreza(hoy));
+    const r = porDestreza[destreza];
+    if (r.mal === 0) d.theta = 1080;
+    else if (r.ok === 0) d.theta = 920;
+    else d.theta = CB.adaptativo.THETA_INICIAL;
+  }
 
   CB.almacen.guardarPerfil(perfil);
 
@@ -17593,9 +17860,9 @@ CB.perfiles.crear = function () {
   });
   cont.appendChild(fila);
 
-  cont.appendChild(CB.ui.boton('◀ Volver', '', function () {
+  cont.appendChild(CB.ui.boton('Volver', '', function () {
     CB.perfiles.pintar();
-  }));
+  }, { icono: 'flecha' }));
   CB.a11y.anunciar('¿En qué curso de Primaria está?');
 };
 
@@ -17671,71 +17938,109 @@ CB.ajustesNino = function (props) {
   if (titulo) titulo.textContent = enPausa ? 'En pausa' : 'Ajustes';
   let numeroAjuste = 0;
 
-  function fila(etiqueta, valor, alPulsar) {
+  /* Cada fila es un rótulo y un selector segmentado (CB.ui.selector): el
+     bloque elegido está hundido, así que «Música: Media» ya no es un botón
+     que cicla sin decirlo. */
+  function fila(etiqueta, control) {
     const f = CB.ui.crear('div', 'ajuste');
     const numero = ++numeroAjuste;
     const rotulo = CB.ui.crear('span', 'ajuste__etiqueta', etiqueta);
     rotulo.id = 'ajuste-nino-etiqueta-' + numero;
     f.appendChild(rotulo);
-    const b = CB.ui.boton(valor, '', function () { alPulsar(b); });
-    b.id = 'ajuste-nino-control-' + numero;
-    b.setAttribute('aria-labelledby', rotulo.id + ' ' + b.id);
-    f.appendChild(b);
+    control.setAttribute('aria-labelledby', rotulo.id);
+    f.appendChild(control);
     cont.appendChild(f);
-    return b;
+    return f;
   }
 
+  const SI_NO = [{ id: 'no', etiqueta: 'No' }, { id: 'si', etiqueta: 'Sí' }];
   const ap = CB.almacen.ajustesDispositivo();
-  const botonSonido = fila('Sonido', CB.audio.silenciado ? 'No' : 'Sí', function (b) {
-    const s = CB.audio.silenciar(!CB.audio.silenciado);
-    ap.silencio = s;
-    CB.almacen.guardarAjustesDispositivo(ap);
-    b.textContent = s ? 'No' : 'Sí';
-    b.setAttribute('aria-pressed', s ? 'false' : 'true');
-  });
-  botonSonido.setAttribute('aria-pressed', CB.audio.silenciado ? 'false' : 'true');
+
+  fila('Sonido', CB.ui.selector({
+    nombre: 'Sonido', opciones: SI_NO,
+    actual: CB.audio.silenciado ? 'no' : 'si',
+    alElegir: function (id) {
+      ap.silencio = CB.audio.silenciar(id === 'no');
+      CB.almacen.guardarAjustesDispositivo(ap);
+    }
+  }));
 
   /* La música tiene su propio nivel, aparte del de los efectos, y llega hasta el silencio total en un solo toque. */
-  fila('Música', CB.musica.NIVELES[CB.musica.nivelActual()].etiqueta, function (b) {
-    const i = (CB.musica.nivelActual() + 1) % CB.musica.NIVELES.length;
-    CB.musica.fijarNivel(i);
-    ap.nivelMusica = i;
-    CB.almacen.guardarAjustesDispositivo(ap);
-    b.textContent = CB.musica.NIVELES[i].etiqueta;
-  });
+  fila('Música', CB.ui.selector({
+    nombre: 'Música',
+    opciones: CB.musica.NIVELES.map(function (n, i) { return { id: i, etiqueta: n.etiqueta }; }),
+    actual: CB.musica.nivelActual(),
+    alElegir: function (id) {
+      const i = Number(id);
+      CB.musica.fijarNivel(i);
+      ap.nivelMusica = i;
+      CB.almacen.guardarAjustesDispositivo(ap);
+    }
+  }));
 
   if (perfil) {
-    /* Los tres modos se pueden cambiar también desde la pausa. Los rótulos y el
-       orden salen de CB.modos: aquí vivía una copia a mano de los tres nombres. */
-    fila('Modo de juego', CB.modos.etiqueta(perfil.ajustes.modoTiempo), function (b) {
-      perfil.ajustes.modoTiempo = CB.modos.siguiente(perfil.ajustes.modoTiempo);
-      b.textContent = CB.modos.etiqueta(perfil.ajustes.modoTiempo);
-      if (CB.partida.estado) CB.partida.estado.modoTiempo = perfil.ajustes.modoTiempo;
-      CB.almacen.guardarPerfil(perfil);
-    });
-    const botonLetra = fila('Letra grande', perfil.ajustes.letraGrande ? 'Sí' : 'No', function (b) {
-      perfil.ajustes.letraGrande = !perfil.ajustes.letraGrande;
-      b.textContent = perfil.ajustes.letraGrande ? 'Sí' : 'No';
-      b.setAttribute('aria-pressed', perfil.ajustes.letraGrande ? 'true' : 'false');
+    function guardarYAplicar() {
       CB.a11y.aplicarAjustes(perfil.ajustes, ap);
       CB.almacen.guardarPerfil(perfil);
-    });
-    botonLetra.setAttribute('aria-pressed', perfil.ajustes.letraGrande ? 'true' : 'false');
-    const botonVoz = fila('Leer en voz alta', perfil.ajustes.voz ? 'Sí' : 'No', function (b) {
-      perfil.ajustes.voz = !perfil.ajustes.voz;
-      CB.voz.activa = perfil.ajustes.voz;
-      b.textContent = perfil.ajustes.voz ? 'Sí' : 'No';
-      b.setAttribute('aria-pressed', perfil.ajustes.voz ? 'true' : 'false');
-      CB.almacen.guardarPerfil(perfil);
-    });
-    botonVoz.setAttribute('aria-pressed', perfil.ajustes.voz ? 'true' : 'false');
+    }
+
+    /* Los tres modos se pueden cambiar también desde la pausa. La partida en curso toma el nuevo modo en el ítem siguiente. */
+    fila('Modo de juego', CB.ui.selector({
+      nombre: 'Modo de juego',
+      opciones: CB.modos.ORDEN.map(function (id) { return { id: id, etiqueta: CB.modos.etiqueta(id) }; }),
+      actual: perfil.ajustes.modoTiempo,
+      alElegir: function (id) {
+        perfil.ajustes.modoTiempo = id;
+        if (CB.partida.estado) CB.partida.estado.modoTiempo = id;
+        CB.almacen.guardarPerfil(perfil);
+      }
+    }));
+
+    fila('Letra grande', CB.ui.selector({
+      nombre: 'Letra grande', opciones: SI_NO,
+      actual: perfil.ajustes.letraGrande ? 'si' : 'no',
+      alElegir: function (id) { perfil.ajustes.letraGrande = (id === 'si'); guardarYAplicar(); }
+    }));
+    /* Se ve al instante: aplicarAjustes cambia los tokens y esta frase de
+       muestra crece o encoge con ellos, aquí mismo. */
+    cont.appendChild(CB.ui.crear('p', 'ajustes__muestra texto--lectura',
+      'Cubi cava 3 + 4 = 7 gemas.'));
+
+    /* Alto contraste y animaciones son requisitos de accesibilidad y este es
+       su sitio: hasta 3.6.0 solo estaban (el primero) en el panel del adulto. */
+    fila('Alto contraste', CB.ui.selector({
+      nombre: 'Alto contraste', opciones: SI_NO,
+      actual: perfil.ajustes.altoContraste ? 'si' : 'no',
+      alElegir: function (id) { perfil.ajustes.altoContraste = (id === 'si'); guardarYAplicar(); }
+    }));
+
+    /* reduceMotion: 'no' = animaciones sí, 'si' = sin movimiento, 'auto' =
+       lo que diga el aparato (prefers-reduced-motion). */
+    fila('Animaciones', CB.ui.selector({
+      nombre: 'Animaciones',
+      opciones: [{ id: 'no', etiqueta: 'Sí' }, { id: 'si', etiqueta: 'No' },
+                 { id: 'auto', etiqueta: 'Como el aparato' }],
+      actual: (perfil.ajustes.reduceMotion === 'si' || perfil.ajustes.reduceMotion === 'no')
+        ? perfil.ajustes.reduceMotion : 'auto',
+      alElegir: function (id) { perfil.ajustes.reduceMotion = id; guardarYAplicar(); }
+    }));
+
+    fila('Leer en voz alta', CB.ui.selector({
+      nombre: 'Leer en voz alta', opciones: SI_NO,
+      actual: perfil.ajustes.voz ? 'si' : 'no',
+      alElegir: function (id) {
+        perfil.ajustes.voz = (id === 'si');
+        CB.voz.activa = perfil.ajustes.voz;
+        CB.almacen.guardarPerfil(perfil);
+      }
+    }));
   }
 
   /* PRIMERO, no al final de la lista: es lo que ha venido a hacer. */
   if (CB.partida.estado && CB.partida.estado.pausada) {
     cont.insertBefore(
-      CB.ui.boton('◀ Seguir cavando', 'btn-bloque--primario btn-bloque--medio',
-        function () { CB.partida.reanudar(); }),
+      CB.ui.boton('Seguir cavando', 'btn-bloque--primario btn-bloque--medio',
+        function () { CB.partida.reanudar(); }, { icono: 'flecha' }),
       cont.firstChild);
   }
 };
@@ -17791,11 +18096,23 @@ CB.creditos = function () {
 /* El rotulo del boton de modo. Se pinta al entrar y tras cada toque: el modo
    tambien se cambia desde Ajustes, desde la pausa y desde el panel del adulto,
    asi que el mapa no puede darlo por sabido. */
+/* El modo, como selector de tres bloques con el elegido hundido (antes era un
+   botón que ciclaba sin parecerlo). Mismo componente que en Ajustes. */
 CB.pintarBotonModo = function () {
-  const b = document.getElementById('btn-modo');
-  if (!b || !CB.perfil) return null;
-  b.textContent = 'Modo: ' + CB.modos.etiqueta(CB.perfil.ajustes.modoTiempo);
-  return b;
+  const caja = document.getElementById('selector-modo');
+  if (!caja || !CB.perfil) return null;
+  CB.ui.vaciar(caja);
+  const sel = CB.ui.selector({
+    nombre: 'Modo de juego',
+    opciones: CB.modos.ORDEN.map(function (id) { return { id: id, etiqueta: CB.modos.etiqueta(id) }; }),
+    actual: CB.perfil.ajustes.modoTiempo,
+    alElegir: function (id) {
+      CB.perfil.ajustes.modoTiempo = id;
+      CB.almacen.guardarPerfil(CB.perfil);
+    }
+  });
+  caja.appendChild(sel);
+  return sel;
 };
 
 CB.pantallas.alEntrar['p-mapa'] = function () {
@@ -17836,7 +18153,7 @@ CB.arranque = function () {
   const t0 = CB.util.ahora();
 
   CB.texturas.generarTodas();
-  CB.sprites.precalentar();
+  CB.sprites.publicar();
 
   CB.ui.iniciarParticulas();
 
@@ -17882,16 +18199,14 @@ CB.arranque = function () {
     });
   }
 
-  const btnModo = document.getElementById('btn-modo');
-  if (btnModo) {
-    btnModo.addEventListener('click', function () {
-      if (!CB.perfil) return;
-      CB.perfil.ajustes.modoTiempo = CB.modos.siguiente(CB.perfil.ajustes.modoTiempo);
-      CB.almacen.guardarPerfil(CB.perfil);
-      CB.pintarBotonModo();
-      /* El lector de pantalla no ve el rotulo cambiar solo: el boton se queda
-         enfocado y su nombre accesible ES su texto, asi que hay que decirlo. */
-      CB.a11y.anunciar('Modo ' + CB.modos.etiqueta(CB.perfil.ajustes.modoTiempo));
+
+  const seguir = document.getElementById('btn-seguir');
+  if (seguir) {
+    seguir.addEventListener('click', function () {
+      CB.audio.iniciar();
+      const m = CB.arranque.mundoReciente(CB.perfil);
+      if (!m) { CB.pantallas.ir('p-mapa'); return; }
+      CB.partida.iniciar({ mundoId: m.id, modo: 'expedicion' });
     });
   }
 
@@ -17990,11 +18305,33 @@ CB.arranque.pistaJugar = function (perfil) {
 };
 
 /* PINTA, no navega: el contrato de alEntrar (ver casos-regresiones.js, E1). */
+/* El mundo al que volver en un toque: el de la última expedición terminada,
+   si sigue abierto. Con expedición a medias no hace falta: JUGAR ya dice
+   «Seguir jugando». */
+CB.arranque.mundoReciente = function (perfil) {
+  if (!perfil || !perfil.calibrado) return null;
+  if (CB.partida.hayPartidaGuardada(perfil)) return null;
+  const h = perfil.historial || [];
+  const id = h.length ? h[h.length - 1].mundo : null;
+  if (!id) return null;
+  const m = CB.catalogo.getMundo(id);
+  return (m && perfil.mundos[m.id] && perfil.mundos[m.id].desbloqueado) ? m : null;
+};
+
 CB.pantallas.alEntrar['p-portada'] = function () {
   const b = document.getElementById('btn-jugar');
   if (b) b.textContent = CB.arranque.rotuloJugar(CB.perfil);
   const p = document.getElementById('portada-pista');
   if (p) p.textContent = CB.arranque.pistaJugar(CB.perfil);
+  /* Para quien vuelve: «Seguir cavando en el Bosque» encima de JUGAR, en vez
+     de JUGAR → mapa → tarjeta → cavar para lo que hacía ayer. */
+  const seguir = document.getElementById('btn-seguir');
+  if (seguir) {
+    const m = CB.arranque.mundoReciente(CB.perfil);
+    seguir.hidden = !m;
+    if (m) CB.ui.rotular(seguir, 'Seguir cavando en ' + m.corto);
+    if (b) b.classList.toggle('btn-bloque--primario', !m);
+  }
 };
 
 CB.arranque.esRecarga = function (perfil, ahoraMs) {
@@ -18078,8 +18415,6 @@ document.addEventListener('DOMContentLoaded', function () {
   /* La suite de pruebas carga los mismos 43 scripts pero NO debe arrancar una
      partida: monta su propio banco de pruebas sobre los mismos módulos. */
   if (!document.getElementById('btn-jugar')) return;
-
-  try { CB.offline.registrar(); } catch (eSW) { }
 
   try {
     CB.arranque();
