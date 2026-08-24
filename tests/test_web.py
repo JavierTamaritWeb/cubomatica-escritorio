@@ -117,6 +117,43 @@ class TestUrlDeCarga:
         )
 
 
+class TestPantallaCompleta:
+    """
+    La app abre a pantalla completa, como al pulsar el boton verde.
+
+    Pedirselo a pywebview (fullscreen=True en create_window) NO vale: la orden
+    sale antes de que la ventana este en pantalla y macOS la descarta sin
+    avisar, asi que unas veces entra y otras se queda en 1280x800. Por eso
+    main.py habla directamente con Cocoa y COMPRUEBA el resultado.
+    """
+
+    def _main(self) -> str:
+        ruta = ROOT / "src" / "cubomatica" / "main.py"
+        return ruta.read_text(encoding="utf-8")
+
+    def test_pide_pantalla_completa_a_cocoa(self):
+        assert "toggleFullScreen_" in self._main(), (
+            "main.py debe entrar a pantalla completa con toggleFullScreen_"
+        )
+
+    def test_comprueba_que_ha_entrado(self):
+        assert "MASCARA_PANTALLA_COMPLETA" in self._main(), (
+            "hay que comprobar el styleMask de la ventana: pedirlo una sola "
+            "vez y confiar es justo lo que fallaba de forma intermitente"
+        )
+
+    def test_no_se_lo_pide_a_pywebview(self):
+        # Se busca la forma de ARGUMENTO (sangrado y con coma). Los dos nombres
+        # aparecen tambien en los comentarios, explicando por que no se usan.
+        texto = self._main()
+        assert "\n        fullscreen=True," not in texto, (
+            "fullscreen=True en create_window es el camino que falla"
+        )
+        assert "\n        maximized=True," not in texto, (
+            "maximized=True solo redimensiona la ventana; no es pantalla completa"
+        )
+
+
 class TestPyprojectToml:
     def _toml(self) -> dict:
         import tomllib

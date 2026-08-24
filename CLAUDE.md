@@ -8,45 +8,54 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.1.0**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.2.0**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
-apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.4.7), which is set
-upstream and must not be edited here.
+apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.4.7); it tracks the
+game's content, moves on its own schedule, and nothing on the Python side reads it.
 
-The Python here is deliberately thin (two short modules). **The game itself is not developed in this
-repository** — see the next section before touching anything under `src/cubomatica/web/`.
+The Python here is deliberately thin (two short modules); nearly everything else is the game bundle.
+Read the next section before touching anything under `src/cubomatica/web/` — those files load in a
+way that punishes the obvious guess.
 
 Everything user-facing is in Spanish: UI, docs, comments, test names. Match that when writing.
 
-## `src/cubomatica/web/` is generated output — do not edit it
+## Stay inside this repository
 
-It is a byte-identical copy of `~/Desktop/mathsgame/dist/`. **`~/Desktop/mathsgame` is the real
-game project**: a git repo with a gulp build, ESLint/Stylelint, SCSS under `src/scss/`, and 49
-numbered JS modules under `src/js/` (`00-nucleo.js`, `01-almacen.js`, … `19a-gen-division.js`, …).
+**Do not touch `~/Desktop/mathsgame`.** It is a separate project, and the owner has ruled it out of
+scope: everything happens with the files in `~/Desktop/cubomatica`. This is a standing instruction,
+not a default to weigh against convenience.
 
-Two traps that waste a lot of time:
+`src/cubomatica/web/` originally arrived as a byte-identical copy of `mathsgame/dist/` — build
+output from a gulp/SCSS pipeline that lives over there. That history explains the shape of the files
+but no longer says where to edit them. **Here, `src/cubomatica/web/` is the source.**
+
+Three traps come with that, and each will waste an afternoon:
 
 1. `index.html` loads **only** `css/cubomatica.min.css` and `js/cubomatica.min.js`. Editing
-   `cubomatica.js` or `cubomatica.css` here changes nothing at runtime — they ship as dead weight.
-2. `cubomatica.js` is itself a concatenation of the numbered source modules (the boundary comments
-   `/* 00-nucleo.js`, `/* 07-musica.js` … survive in the bundle). There is no minifier, gulpfile or
-   `package.json` in this repository, so nothing here can regenerate the `.min` files.
+   `cubomatica.css` or `cubomatica.js` changes nothing at runtime.
+2. …but the non-minified twins still ship, and they are what anyone reads to understand the code.
+   **A change goes in both files**, hand-applied: the `.min` one is what runs, the plain one is what
+   keeps it legible. Leaving them out of step is how the next reader gets misled.
+3. There is no minifier, gulpfile or `package.json` in this repository, so nothing here can
+   regenerate a `.min` file from its twin. Minified CSS is one line: use a targeted replacement, not
+   a rewrite.
 
-To change game behaviour: edit in `~/Desktop/mathsgame`, run `npm run build` there, then copy
-`dist/` over `src/cubomatica/web/`. **Read `~/Desktop/mathsgame/CLAUDE.md`** — it documents the game
-architecture, its enforced contracts and its accessibility constraints, which are legal requirements
-rather than preferences.
+`cubomatica.js` is a concatenation of 56 modules whose boundary comments (`/* 00-nucleo.js`,
+`/* 07-musica.js` …) survive in the bundle — see the next section for the map. The CSS is BEM in
+Spanish, and the game's accessibility rules are legal requirements rather than preferences: root
+classes `letra-grande`, `alto-contraste` and `sin-movimiento` must keep working, and anything that
+centres content while also scrolling needs the `safe` keyword (`justify-content: safe center`), or
+whatever overflows above becomes unreachable — `scrollTop` cannot go negative.
 
-The copy currently omits six files present in `mathsgame/dist/`: `sw.js`, `.huellas.json`, `LICENSE`,
-`AVISO-LEGAL.txt`, `LEEME.txt` and `LICENCIAS-TERCEROS.md`. The missing `sw.js` is why the game's
-service-worker registration silently no-ops; the missing licence files mean the shipped `.app`
-carries no licence text, which is worth fixing before distributing it.
+`src/cubomatica/web/` carries no licence text (`LICENSE`, `AVISO-LEGAL.txt`,
+`LICENCIAS-TERCEROS.md` were never copied), so the shipped `.app` carries none either. Worth fixing
+before distributing it. There is no `sw.js` either, which is why the game's service-worker
+registration silently no-ops — harmless, since a service worker cannot run under `file://` anyway.
 
-## Orienting inside the bundle (read-only — fix upstream)
+## Orienting inside the bundle
 
-You will sometimes need to *read* `cubomatica.js` to trace a bug before fixing it in `mathsgame`.
-It is 18k lines but navigable: the 56 concatenated modules (49 from `src/js/`, 7 data tables from
-`src/datos/`) each keep their header comment, so this prints the table of contents with line numbers:
+`cubomatica.js` is 18k lines but navigable: the 56 concatenated modules each keep their header
+comment, so this prints the table of contents with line numbers:
 
 ```bash
 grep -nE '^/\* [0-9A-Za-z][-A-Za-z0-9]*\.js' src/cubomatica/web/js/cubomatica.js
@@ -80,9 +89,27 @@ Three pieces of wiring explain most behaviour:
 - **`CB.catalogo`** declares levels as positional arrays and calls itself a contract. Adaptive
   difficulty tracks Elo **per skill slug** (26 of them), not per level.
 
-The CSS is BEM in Spanish with design tokens on `:root`, zero comments, and accessibility handled by
-root classes (`letra-grande`, `alto-contraste`, `sin-movimiento`) so a stored child preference beats
-the OS setting. Breakpoints are mostly height-driven: the target is a school tablet in landscape.
+The CSS is BEM in Spanish with design tokens on `:root`, and accessibility handled by root classes
+(`letra-grande`, `alto-contraste`, `sin-movimiento`) so a stored child preference beats the OS
+setting. Breakpoints were mostly height-driven — the original target was a school tablet in
+landscape — and the desktop-width ones are newer.
+
+**Width is negotiated through custom properties, never by styling a block from its container.** The
+container declares, the block consumes: `.pantalla--mapa` declares `--ancho-contenido: 1040px`,
+`.contenido--doble` declares `--ancho-contenido`, `--ancho-panel` and `--ancho-lectura`, and
+`.contenido` / `.panel-bloque` / `.texto` each read the property with a fallback. Follow that shape
+rather than adding `.pantalla--x .algo { … }` rules.
+
+`.contenido--doble` (Créditos) puts its panels in two flow columns above 1200px. Two things there
+were found the hard way and should not be "simplified": the panels are `display: inline-block`,
+because with `break-inside: avoid` alone WebKit still left an empty fragment — a dark strip with
+the panel's shadow and no content — at the foot of a column; and the columns live on a
+`.contenido__paneles` wrapper rather than on `.contenido`, because `column-span: all` on the title
+and the exit button fragments the multicol and scrambles the panel order.
+
+Flow columns are right for a screen that fits in about one scroll. They are wrong for a long one:
+Ayuda has 18 panels, and newspaper columns would mean reading to the bottom and scrolling all the
+way back up. It stays in a single column on purpose.
 
 ## Commands
 
@@ -90,7 +117,7 @@ the OS setting. Breakpoints are mostly height-driven: the target is a school tab
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (36 tests, fast)
+uv run pytest                        # full suite (39 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg
@@ -132,9 +159,23 @@ optional** on Apple Silicon — macOS kills an unsigned bundle on launch.
 `tests/test_web.py::TestPersistencia` and `::TestUrlDeCarga` guard the first and third; do not
 "simplify" them away.
 
-The window opens **maximized** (`maximized=True`) because the game targets landscape, full screen.
-`width`/`height` (1280×800) are therefore the *restored* size, not the startup size — a detail worth
-knowing before "fixing" them.
+**The window opens in real full screen** — what the green button does — because the game targets a
+landscape tablet. `width`/`height` (1280×800) are therefore the size the window *returns* to when
+someone leaves full screen, not the startup size.
+
+`pantalla_completa()` does this itself, and neither `fullscreen=True` nor `maximized=True` is
+passed to `create_window`. Both were tried:
+
+- `maximized=True` only calls `maximize()`, which resizes the window to the screen. macOS keeps it
+  below the menu bar and the title bar stays visible — it is Option-green, not green.
+- `fullscreen=True` calls `toggleFullScreen_` before the window is on screen, and macOS drops the
+  message with no error. It works perhaps two launches in three. **This is intermittent, so a
+  single successful launch proves nothing** — the flakiness is what cost the time.
+
+So `pantalla_completa()` waits for `shown`, then *checks* rather than asks: it reads the native
+window's `styleMask` for `NSWindowStyleMaskFullScreen` and retries up to four times. Verified 9
+launches out of 9. Everything touching AppKit goes through `AppHelper.callAfter` (UI thread only)
+and the waiting happens on a worker thread. `tests/test_web.py::TestPantallaCompleta` guards it.
 
 **The native "Juego" menu is hand-built with PyObjC on purpose.** `webview.start(menu=...)` is
 broken on macOS in pywebview 5.3.2 in two independent ways, and both fail silently: `start()`

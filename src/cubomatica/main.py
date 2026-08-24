@@ -8,6 +8,7 @@ La apariencia visual es IDENTICA a la del navegador.
 import os
 import sys
 import threading
+import time
 from pathlib import Path
 
 import webview
@@ -31,6 +32,11 @@ MENU_PANTALLAS = [
 # Por eso el .app (es.javiertamarit.cubomatica) y el modo desarrollo
 # (org.python.python) NO comparten perfiles ni progreso.
 STORAGE_DIR = Path.home() / "Library" / "Application Support" / "Cubomatica"
+
+# Constantes de Cocoa. Se escriben aqui para no importar AppKit al arrancar
+# (en Windows y Linux ni existe) y para que el numero lleve su nombre al lado.
+MASCARA_PANTALLA_COMPLETA = 1 << 14        # NSWindowStyleMaskFullScreen
+COMPORTAMIENTO_PANTALLA_COMPLETA = 1 << 7  # NSWindowCollectionBehaviorFullScreenPrimary
 
 
 def localizar_index() -> Path:
@@ -97,6 +103,79 @@ def accion_ir_a(ventana, pantalla: str):
         threading.Thread(target=ejecutar, daemon=True).start()
 
     return accion
+
+
+def pantalla_completa(ventana) -> None:
+    """
+    Abre el juego a pantalla completa, igual que al pulsar el boton verde.
+
+    NO sirve fullscreen=True de create_window. pywebview llama a
+    toggleFullScreen_ antes de que la ventana este en pantalla y macOS
+    descarta la orden sin avisar. Tampoco basta con pedirlo una vez desde el
+    evento shown: arrancando varias veces se ve que unas entra y otras se
+    queda en 1280x800, porque la orden puede llegar antes de que el bucle de
+    eventos de Cocoa este corriendo.
+
+    Asi que en vez de pedirlo se COMPRUEBA: se mira el styleMask de la ventana
+    nativa, que es la unica fuente fiable de si esta o no a pantalla completa,
+    y se insiste hasta que lo diga. Cuatro intentos, unos siete segundos como
+    mucho; en la practica entra al primero.
+
+    Todo lo que toca AppKit va por AppHelper.callAfter, porque es interfaz y
+    solo se puede tocar desde el hilo principal. El hilo de aqui unicamente
+    duerme entre intentos: hacerlo en el hilo de la interfaz la congelaria.
+    """
+    if sys.platform != "darwin":
+        return
+
+    lanzado = threading.Event()
+
+    def al_mostrar(*_) -> None:
+        if lanzado.is_set():  # una recarga no vuelve a lanzar esto
+            return
+        lanzado.set()
+
+        logrado = threading.Event()
+
+        def ventana_nativa():
+            import AppKit
+
+            for candidata in AppKit.NSApplication.sharedApplication().windows():
+                if candidata.title() == ventana.title:
+                    return candidata
+            return None
+
+        def comprobar() -> None:
+            nativa = ventana_nativa()
+            if nativa is not None and nativa.styleMask() & MASCARA_PANTALLA_COMPLETA:
+                logrado.set()
+
+        def entrar() -> None:
+            nativa = ventana_nativa()
+            if nativa is None or nativa.styleMask() & MASCARA_PANTALLA_COMPLETA:
+                return  # ya esta: volver a pedirlo la SACARIA de pantalla completa
+            nativa.setCollectionBehavior_(COMPORTAMIENTO_PANTALLA_COMPLETA)
+            nativa.toggleFullScreen_(None)
+
+        def ejecutar() -> None:
+            from PyObjCTools import AppHelper
+
+            for _ in range(4):
+                AppHelper.callAfter(comprobar)
+                time.sleep(0.3)
+                if logrado.is_set():
+                    return
+                AppHelper.callAfter(entrar)
+                time.sleep(1.5)  # la animacion de macOS tarda cerca de un segundo
+
+            AppHelper.callAfter(comprobar)
+            time.sleep(0.3)
+            if not logrado.is_set():
+                print("[cubomatica] no he podido ir a pantalla completa", file=sys.stderr)
+
+        threading.Thread(target=ejecutar, daemon=True).start()
+
+    ventana.events.shown += al_mostrar
 
 
 def instalar_menu(ventana) -> None:
@@ -202,9 +281,8 @@ def main() -> None:
         title="Cubomática",
         url=index.as_uri(),
         js_api=api,          # <-- puente JavaScript -> Python
-        # Arranca ocupando toda la pantalla. width/height son el tamano al que
-        # vuelve la ventana si el usuario la restaura, no el de arranque.
-        maximized=True,
+        # La pantalla completa NO se pide aqui (ver pantalla_completa mas abajo).
+        # width/height son el tamano al que vuelve la ventana al salir de ella.
         width=1280,
         height=800,
         min_size=(1024, 640),  # el juego esta pensado para apaisado
@@ -216,6 +294,7 @@ def main() -> None:
     # persista. Con private_mode=True el backend Cocoa usa un almacen
     # no persistente y el juego pierde perfiles y progreso al cerrar.
     # DevTools solo bajo demanda:  CUBOMATICA_DEBUG=1 uv run cubomatica
+    pantalla_completa(ventana)
     instalar_menu(ventana)
 
     opciones = {

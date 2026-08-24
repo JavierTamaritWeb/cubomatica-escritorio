@@ -3,12 +3,12 @@
   <h1>Cubomática</h1>
   <p><b>El juego de matemáticas de Educación Primaria,<br>como aplicación de escritorio para macOS.</b></p>
   <p>
-    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.1.0-2B7BB9" alt="Versión 4.1.0"></a>
+    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.2.0-2B7BB9" alt="Versión 4.2.0"></a>
     <a href=".python-version"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
     <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
     <a href="#requisitos"><img src="https://img.shields.io/badge/plataforma-macOS%2011%2B-555555?logo=apple" alt="macOS 11 o superior"></a>
-    <a href="#tests"><img src="https://img.shields.io/badge/tests-36%20passing-2EA043" alt="36 tests"></a>
+    <a href="#tests"><img src="https://img.shields.io/badge/tests-39%20passing-2EA043" alt="39 tests"></a>
   </p>
   <br>
   <img src="docs/portada.png" width="840" alt="Portada de Cubomática ejecutándose como app de escritorio">
@@ -43,9 +43,10 @@ Ya no es una web ni una PWA. Se abre como cualquier aplicación del Mac, funcion
 y **no abre ningún puerto** en el equipo.
 
 > [!IMPORTANT]
-> La carpeta `src/cubomatica/web/` es **salida generada**: es una copia del `dist/` del proyecto
-> del juego. Los cambios en el juego se hacen allí y se vuelven a copiar. Aquí solo vive la
-> cáscara de escritorio (`main.py` y `api.py`).
+> `index.html` carga **solo** `css/cubomatica.min.css` y `js/cubomatica.min.js`. Los gemelos sin
+> minificar viajan igualmente y son los que se leen para entender el código, así que **un cambio
+> va en los dos ficheros**: el `.min` es el que corre, el otro es el que se lee. Aquí no hay
+> minificador que los mantenga a la par.
 
 ---
 
@@ -122,7 +123,7 @@ uv run cubomatica
 ## Tests
 
 ```bash
-uv run pytest                                              # los 36
+uv run pytest                                              # los 39
 uv run pytest --cov=cubomatica --cov-report=term-missing   # con cobertura
 ```
 
@@ -137,6 +138,7 @@ revierte, rompe la app **en silencio**.
 | Todas las rutas del HTML son relativas | Que el `.app` abra una ventana en blanco |
 | `main.py` carga con `file://` | El `404 Not Found` por choque de puertos |
 | `main.py` usa `private_mode=False` | Perder los perfiles y el progreso al cerrar |
+| La pantalla completa se comprueba, no se pide | Que arranque en ventana una vez de cada tres |
 | `pyproject.toml` y el `.spec` declaran la misma versión | Que la app diga una versión y el paquete otra |
 | Todas las librerías están fijadas con `==` | Que una actualización silenciosa rompa la app |
 
@@ -180,9 +182,10 @@ cubomatica/
     └── cubomatica/
         ├── main.py          # abre la ventana y monta el menú
         ├── api.py           # puente JavaScript ↔ Python
-        └── web/             # EL JUEGO (generado, no editar aquí)
+        └── web/             # EL JUEGO
             ├── index.html
-            ├── css/  js/  img/
+            ├── css/  js/    # ojo: solo cargan los .min (ver más arriba)
+            ├── img/
             └── audio/       # música, ~42 MB
 ```
 
@@ -193,11 +196,18 @@ cubomatica/
 Cuatro decisiones sostienen la app. Ninguna es cosmética: revertir cualquiera de ellas la
 rompe, y en tres casos **sin dar ningún error**.
 
-### La ventana arranca maximizada
+### La ventana arranca a pantalla completa
 
-El juego está pensado para apaisado y a pantalla completa, así que nadie tiene que colocar nada
-antes de jugar. `width` y `height` (1280 × 800) no son el tamaño de arranque, sino el que tendrá
-la ventana si se restaura. El mínimo es 1024 × 640.
+El juego está pensado para apaisado, así que arranca a pantalla completa de verdad —lo mismo que
+el botón verde—, y nadie tiene que colocar nada antes de jugar. `width` y `height` (1280 × 800)
+no son el tamaño de arranque, sino el que tendrá la ventana al salir de ella. El mínimo es
+1024 × 640.
+
+Lo hace `pantalla_completa()`, no pywebview. `fullscreen=True` en `create_window` manda la orden
+antes de que la ventana esté en pantalla y macOS la descarta en silencio: entra dos de cada tres
+veces. Como el fallo es intermitente, un arranque bueno no demuestra nada. Así que la función no
+lo pide y se fía, sino que **comprueba** el `styleMask` de la ventana nativa y reintenta hasta
+que diga que sí.
 
 ### El juego se carga con `file://`
 
@@ -305,7 +315,7 @@ Los métodos que empiezan por `_` no se exponen, y hay un test que lo protege.
 
 | | |
 |---|---|
-| **Versión de la app** | **4.1.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
+| **Versión de la app** | **4.2.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
 | **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.4.7) |
 | **Identificador** | `es.javiertamarit.cubomatica` |
 

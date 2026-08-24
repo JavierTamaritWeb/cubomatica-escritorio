@@ -5,7 +5,47 @@ Todas las novedades reseñables de la app de escritorio. El formato sigue
 [semántico](https://semver.org/lang/es/).
 
 Esta versión es la de **la app**, no la del juego: el juego lleva la suya propia
-(`CB.VERSION`) y se versiona en su proyecto.
+(`CB.VERSION`), que va por su cuenta y no la lee nadie desde Python.
+
+---
+
+## [4.2.0] — 2026-08-24
+
+### Añadido
+
+- Tres tests (`TestPantallaCompleta`) que protegen la pantalla completa: el
+  fallo era intermitente, así que sin ellos una regresión pasaría por buena en
+  cuanto un arranque saliera bien.
+
+### Cambiado
+
+- **La ventana arranca a pantalla completa**, lo mismo que al pulsar el botón
+  verde. Antes solo se maximizaba: se quedaba debajo de la barra de menús y
+  seguía enseñando el marco.
+- **El contenido de las pantallas se centra en vertical** en lugar de quedarse
+  pegado arriba con media pantalla vacía debajo.
+- **Los créditos usan dos columnas** a partir de 1200 px de ancho. Aprovechan
+  el ancho de un monitor sin alargar la línea de texto, que sigue en una medida
+  cómoda de leer.
+
+### Corregido
+
+- La pantalla completa entraba unas veces sí y otras no. `fullscreen=True` de
+  pywebview manda la orden antes de que la ventana esté en pantalla y macOS la
+  descarta sin dar ningún error. Ahora se comprueba el `styleMask` de la
+  ventana nativa y se reintenta.
+
+### Notas técnicas
+
+Centrar y desbordar a la vez esconde lo que sobresale por arriba y no hay forma
+de llegar a ello, porque `scrollTop` no puede ser negativo. Por eso el centrado
+es `justify-content: safe center`: centra mientras quepa y se comporta como
+`start` en cuanto no quepa.
+
+Las columnas de los créditos son columnas de flujo y no una rejilla: en rejilla
+las filas se alinean por el panel más alto y uno largo deja un agujero al lado
+del corto. Los paneles van como bloques en línea, que WebKit no parte nunca; con
+`break-inside: avoid` a secas dejaba una tira vacía al pie de la columna.
 
 ---
 
@@ -68,5 +108,6 @@ ningún puerto en el equipo.
 - **Se perdía el progreso al cerrar.** `private_mode=False` es lo único que hace
   persistir `localStorage`, donde el juego guarda perfiles y avance.
 
+[4.2.0]: #420--2026-08-24
 [4.1.0]: #410--2026-08-24
 [4.0.0]: #400--2026-08-24

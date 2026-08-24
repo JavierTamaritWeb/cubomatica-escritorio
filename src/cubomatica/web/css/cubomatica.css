@@ -381,6 +381,7 @@ button:disabled {
   flex-direction: column;
   min-height: 0;
   padding: var(--e4);
+  justify-content: safe center;
 }
 
 .pila-centro {
@@ -455,7 +456,7 @@ button:disabled {
   color: var(--texto-principal);
   padding: var(--e4);
   box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--blanco), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--btn-borde-sombra), var(--e2) var(--e2) 0 0 rgba(0, 0, 0, 0.45);
-  max-width: 640px;
+  max-width: var(--ancho-panel, 640px);
   width: 100%;
 }
 
@@ -2960,5 +2961,60 @@ button:disabled {
   }
   .bioma::after, .tarjeta-mundo__cinta {
     border: 1px solid CanvasText;
+  }
+}
+/* En escritorio la ventana es apaisada y ancha, y una columna de 720px deja
+   media pantalla vacía. Las pantallas que son una pila de paneles lo declaran
+   con `contenido--doble` y pasan a dos columnas.
+
+   Se ensancha el contenedor, NO la línea de texto: 48ch sigue siendo una
+   medida cómoda de leer. Una línea de 100 caracteres se lee peor, y quien
+   juega tiene siete años. */
+/* La pila de paneles, en su propia caja. Existe para que las columnas de
+   escritorio afecten SOLO a los paneles: el título y el botón de salir se
+   quedan fuera y siguen centrados por el flex de .contenido.
+
+   Se intentó antes sin esta caja, poniendo columns en .contenido y
+   `column-span: all` al título y al botón. Column-span parte el multicolumna
+   en fragmentos y los paneles salieron desordenados, con el botón en medio. */
+.contenido__paneles {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--e3);
+  width: 100%;
+}
+
+@media (min-width: 1200px) {
+  /* En escritorio la ventana es apaisada y ancha, y una columna de 720px deja
+     media pantalla vacía. La pantalla que lo quiera lo declara con
+     `contenido--doble` y el bloque lo consume: el patrón de --ancho-contenido.
+
+     Se ensancha el contenedor, NO la línea de texto: 48ch sigue siendo una
+     medida cómoda. Una línea de 100 caracteres se lee peor, y quien juega
+     tiene siete años. */
+  .contenido--doble {
+    --ancho-contenido: 1180px;
+    --ancho-panel: 100%;
+    --ancho-lectura: 48ch;
+  }
+
+  /* Columnas de flujo y NO una rejilla: en rejilla las filas se alinean por el
+     panel más alto, así que un panel largo deja un agujero al lado del corto.
+     Las columnas empaquetan por altura. `gap` no existe aquí: márgenes. */
+  .contenido--doble .contenido__paneles {
+    display: block;
+    columns: 2;
+    column-gap: var(--e3);
+  }
+  .contenido--doble .contenido__paneles > .panel-bloque {
+    -webkit-column-break-inside: avoid;
+    break-inside: avoid;
+    /* En línea: un bloque en línea es atómico y WebKit no lo parte nunca.
+       Solo con break-inside dejaba un fragmento vacío al pie de la columna,
+       una tira oscura con la sombra del panel y sin contenido dentro. */
+    display: inline-block;
+    vertical-align: top;
+    margin-bottom: var(--e3);
   }
 }
