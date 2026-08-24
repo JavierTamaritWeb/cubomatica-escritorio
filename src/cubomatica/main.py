@@ -7,11 +7,22 @@ La apariencia visual es IDENTICA a la del navegador.
 
 import os
 import sys
+import threading
 from pathlib import Path
 
 import webview
 
 from cubomatica.api import Api
+
+# Pantallas del juego que se pueden abrir desde la barra de menus.
+# Los identificadores son los mismos que usan los botones data-ir del HTML.
+MENU_PANTALLAS = [
+    ("¿Quién juega?", "p-perfiles"),
+    ("Ajustes", "p-ajustes"),
+    None,  # separador
+    ("Ayuda", "p-ayuda"),
+    ("Créditos", "p-creditos"),
+]
 
 # Carpeta de datos persistentes para los backends que la respetan (Windows, Linux).
 # OJO: en macOS pywebview la IGNORA. El backend Cocoa usa siempre
@@ -47,6 +58,129 @@ def localizar_index() -> Path:
     )
 
 
+# Mantiene vivos los objetos que reciben los clics del menu. Cocoa NO retiene
+# el "target" de un NSMenuItem, asi que si Python los recolecta el menu se
+# queda mudo: se despliega, se puede pulsar, y no pasa absolutamente nada.
+_REFERENCIAS_MENU: list = []
+
+
+def accion_ir_a(ventana, pantalla: str):
+    """
+    Devuelve la funcion que lleva el juego a una pantalla.
+
+    OJO con el hilo. webview.evaluate_js encola el trabajo en el hilo de la
+    interfaz y se queda esperando el resultado, asi que ejecutarlo EN ese hilo
+    congela la app para siempre. Por eso el JS sale a un hilo aparte.
+    """
+    # El guion comprueba que el juego este cargado: pulsar el menu durante el
+    # arranque no debe romper nada, solo no hacer nada.
+    guion = (
+        "(function () {"
+        "  try {"
+        "    if (window.CB && CB.pantallas && CB.pantallas.ir) {"
+        f"      CB.pantallas.ir('{pantalla}'); return 'ok';"
+        "    }"
+        "    return 'no-listo';"
+        "  } catch (e) { return 'error: ' + e.message; }"
+        "})()"
+    )
+
+    def accion() -> None:
+        def ejecutar() -> None:
+            try:
+                resultado = ventana.evaluate_js(guion)
+            except Exception as e:  # noqa: BLE001 - un menu nunca debe tumbar la app
+                resultado = f"excepcion: {e}"
+            if os.environ.get("CUBOMATICA_DEBUG") == "1":
+                print(f"[cubomatica] menu {pantalla} -> {resultado}", file=sys.stderr)
+
+        threading.Thread(target=ejecutar, daemon=True).start()
+
+    return accion
+
+
+def instalar_menu(ventana) -> None:
+    """
+    Añade el menu "Juego" a la barra de macOS.
+
+    Se construye a mano con PyObjC en vez de usar el parametro menu= de
+    webview.start(), porque en pywebview 5.3.2 ese camino no funciona en macOS
+    por dos motivos distintos:
+
+    1. start() monta el menu ANTES de crear la ventana, y al crearla pywebview
+       llama a _clear_main_menu() y lo borra. El menu ni siquiera aparece.
+    2. Aunque aparezca, sus objetos internos se pierden por recoleccion de
+       basura y los elementos quedan mudos.
+
+    Por eso se instala con el evento loaded (ya pasado el borrado) y guardando
+    las referencias en _REFERENCIAS_MENU.
+    """
+    if sys.platform != "darwin":
+        return
+
+    puesto = threading.Event()
+
+    def montar() -> None:
+        import AppKit
+        import objc
+        from Foundation import NSObject
+
+        class DestinoMenu(NSObject):
+            """Recibe los clics. Un solo selector; el tag dice cual es."""
+
+            def activar_(self, remitente) -> None:
+                try:
+                    self.acciones[remitente.tag()]()
+                except Exception as e:  # noqa: BLE001
+                    print(f"[cubomatica] menu: {e}", file=sys.stderr)
+
+        destino = DestinoMenu.alloc().init()
+        destino.acciones = []
+        _REFERENCIAS_MENU.append(destino)
+
+        submenu = AppKit.NSMenu.alloc().initWithTitle_("Juego")
+        # Sin esto macOS decide solo que elementos estan activos y los apaga.
+        submenu.setAutoenablesItems_(False)
+
+        for entrada in MENU_PANTALLAS:
+            if entrada is None:
+                submenu.addItem_(AppKit.NSMenuItem.separatorItem())
+                continue
+
+            titulo, pantalla = entrada
+            elemento = AppKit.NSMenuItem.alloc().initWithTitle_action_keyEquivalent_(
+                titulo, objc.selector(DestinoMenu.activar_, signature=b"v@:@"), ""
+            )
+            elemento.setTarget_(destino)
+            elemento.setTag_(len(destino.acciones))
+            elemento.setEnabled_(True)
+            destino.acciones.append(accion_ir_a(ventana, pantalla))
+            submenu.addItem_(elemento)
+
+        raiz = AppKit.NSMenuItem.alloc().init()
+        raiz.setTitle_("Juego")
+        raiz.setSubmenu_(submenu)
+
+        barra = AppKit.NSApplication.sharedApplication().mainMenu()
+        if barra is not None:
+            barra.addItem_(raiz)
+            _REFERENCIAS_MENU.append(raiz)
+
+    def al_cargar(*_) -> None:
+        if puesto.is_set():  # si la pagina se recarga, no repetimos el menu
+            return
+        puesto.set()
+        try:
+            from PyObjCTools import AppHelper
+
+            # Tocar el menu es tocar la interfaz: tiene que ir al hilo principal.
+            AppHelper.callAfter(montar)
+        except Exception as e:  # noqa: BLE001 - sin menu la app sigue siendo usable
+            print(f"[cubomatica] no he podido montar el menu: {e}", file=sys.stderr)
+
+    ventana.events.loaded += al_cargar
+
+
 def main() -> None:
     api = Api()
     index = localizar_index()
@@ -64,7 +198,7 @@ def main() -> None:
     # Con file:// no se levanta ningun servidor: no hay puerto, no hay colision,
     # y no queda un socket a la escucha en el equipo. Comprobado que localStorage
     # persiste igual entre arranques.
-    webview.create_window(
+    ventana = webview.create_window(
         title="Cubomática",
         url=index.as_uri(),
         js_api=api,          # <-- puente JavaScript -> Python
@@ -82,6 +216,8 @@ def main() -> None:
     # persista. Con private_mode=True el backend Cocoa usa un almacen
     # no persistente y el juego pierde perfiles y progreso al cerrar.
     # DevTools solo bajo demanda:  CUBOMATICA_DEBUG=1 uv run cubomatica
+    instalar_menu(ventana)
+
     opciones = {
         "private_mode": False,
         "debug": os.environ.get("CUBOMATICA_DEBUG") == "1",

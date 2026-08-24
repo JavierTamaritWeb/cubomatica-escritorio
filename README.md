@@ -154,6 +154,42 @@ cubomatica/
 
 ---
 
+## El menu "Juego"
+
+En la barra de macOS, junto a `Cubomatica` y `View`, hay un menu **Juego** que
+lleva a cuatro pantallas sin tener que volver a la portada:
+
+| Elemento | Pantalla |
+|---|---|
+| ¿Quién juega? | `p-perfiles` |
+| Ajustes | `p-ajustes` |
+| Ayuda | `p-ayuda` |
+| Créditos | `p-creditos` |
+
+Cada uno ejecuta `CB.pantallas.ir('<pantalla>')`, el mismo router que usan los
+botones del juego. Para añadir o quitar entradas basta con tocar la lista
+`MENU_PANTALLAS` de `main.py`.
+
+### Por que el menu esta hecho a mano
+
+No se usa el parametro `menu=` de `webview.start()`. En pywebview 5.3.2 ese
+camino **no funciona en macOS**, por dos motivos independientes:
+
+1. `start()` monta el menu ANTES de crear la ventana, y al crearla pywebview
+   ejecuta `_clear_main_menu()` y lo borra. El menu no llega a aparecer, y no
+   se registra ningun error.
+2. Aunque aparezca, los objetos internos que reciben el clic se pierden por
+   recoleccion de basura, porque Cocoa **no retiene** el `target` de un
+   `NSMenuItem`. El menu se despliega, se deja pulsar, y no pasa nada.
+
+Por eso `instalar_menu()` lo construye con PyObjC despues del evento `loaded`
+(ya pasado el borrado) y guarda las referencias en `_REFERENCIAS_MENU`.
+
+Ojo tambien con el hilo: `evaluate_js` espera al hilo de la interfaz, asi que
+llamarlo desde la accion de un menu sin sacarlo a otro hilo **congela la app**.
+
+---
+
 ## La ventana
 
 Arranca **maximizada**, ocupando toda la pantalla (`maximized=True`). El juego

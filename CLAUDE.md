@@ -132,6 +132,16 @@ optional** on Apple Silicon — macOS kills an unsigned bundle on launch.
 `tests/test_web.py::TestPersistencia` and `::TestUrlDeCarga` guard the first and third; do not
 "simplify" them away.
 
+**The native "Juego" menu is hand-built with PyObjC on purpose.** `webview.start(menu=...)` is
+broken on macOS in pywebview 5.3.2 in two independent ways, and both fail silently: `start()`
+installs the menu before the window is created and window creation then calls `_clear_main_menu()`,
+so it never appears; and even when it does, the objects receiving the click are garbage-collected
+because Cocoa does not retain an `NSMenuItem`'s target, leaving a menu that opens and does nothing.
+`instalar_menu()` therefore builds it after the `loaded` event and parks the targets in
+`_REFERENCIAS_MENU`. Menu entries live in `MENU_PANTALLAS`; each runs `CB.pantallas.ir(...)`, the
+game's own router. Every action must dispatch its JS on a separate thread — `evaluate_js` waits on
+the UI thread, so calling it from a menu action freezes the app permanently.
+
 `api.py` exposes a `js_api` bridge (public methods reach JS as `window.pywebview.api.*`, underscore
 methods stay private). The game does not currently call it; it exists for future needs such as
 printing or exporting progress. `tests/test_api.py` locks the public/private contract.
