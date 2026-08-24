@@ -8,9 +8,9 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.9.1**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.10.0**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
-apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.8.0); it tracks the
+apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.9.0); it tracks the
 game's content, moves on its own schedule, and nothing on the Python side reads it.
 
 The Python here is deliberately thin (two short modules); nearly everything else is the game bundle.
@@ -111,6 +111,15 @@ the index entry beside mote and avatar, so the card can show it without reading 
 `pintar` back-fills older entries once. The portada prints `CB.arranque.quienJuega` in its top-left
 corner, facing the key that changes it. Four questions of calibration deduce the *trimester*, never
 the course, and every wording around them has to keep saying so.
+
+In game, the strip under the HUD says it too — «CURSO 3.º ▸ LA PRADERA DE LOS NÚMEROS ▸ EL HUECO DE
+LA SUMA». `CB.ui.pintarVeta(nivel, mundo, curso)` takes the course as a third argument and
+`servirItem` passes `CB.catalogo.cursoDe(CB.perfil)`: the **miner's** course, not `nivel.curso` —
+an expedition can serve a veta from an earlier course to revise, and reading it off the level would
+tell the child they had gone down a year mid-game. It is written out in full («Curso 3.º») because a
+bare «3.º» in front of a world name says nothing, and unlike `.rotulo-veta__mundo` it is never
+hidden on narrow screens; `.rotulo-veta__curso:empty` removes it, and its «▸», when there is no
+course. `TestEleccionDeCurso` guards the three pieces.
 
 **`.pantalla > *:not(.cielo):not(.cinta):not(.cartel)` sets `position: relative` to lift content
 over the sky, and it outweighs a plain `.portada__llave { position: absolute }`.** That is how the
@@ -223,7 +232,7 @@ global `.05em` is tuned for lower case and reads tight in caps. Keep both if you
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (78 tests, fast)
+uv run pytest                        # full suite (79 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg

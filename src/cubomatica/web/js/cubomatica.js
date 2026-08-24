@@ -1525,7 +1525,7 @@ CB.bus = new CB.util.EventoSimple();
 
 /* CB.LEGAL */
 /* Versión */
-CB.VERSION = '3.8.0';
+CB.VERSION = '3.9.0';
 
 CB.LEGAL = {
   /* El texto completo viaja en web/LICENCIA.txt. Aquí va solo la línea que
@@ -12309,11 +12309,18 @@ CB.ui.pintarHUD = function (estado) {
 };
 
 /* EN QUÉ VETA SE ESTÁ */
-CB.ui.pintarVeta = function (nivel, mundo) {
+CB.ui.pintarVeta = function (nivel, mundo, curso) {
   const nombre = document.getElementById('hud-veta-nombre');
   const mun = document.getElementById('hud-veta-mundo');
+  const cur = document.getElementById('hud-veta-curso');
   if (nombre) nombre.textContent = nivel ? nivel.nombre : '';
   if (mun) mun.textContent = mundo ? mundo.nombre : '';
+  /* El curso del MINERO, no el de la veta: en una expedición puede caer una
+     veta de un curso anterior para repasar, y el rótulo diría que el niño ha
+     bajado de curso. Se escribe entero -«Curso 2.º»- porque un «2.º» suelto
+     delante del nombre del mundo no dice de qué es. Sin curso queda vacío, y
+     el CSS lo esconde con :empty. */
+  if (cur) cur.textContent = curso ? 'Curso ' + curso + '.º' : '';
 };
 
 /* UNA PIEZA DE DINERO */
@@ -14870,7 +14877,7 @@ CB.partida.servirItem = function () {
   /* EN QUÉ VETA ESTAMOS */
   const superada = CB.partida.vetaSuperada(nivelId);
   e.vetaPrevia = nivelId;
-  CB.ui.pintarVeta(nivel, e.mundo);
+  CB.ui.pintarVeta(nivel, e.mundo, CB.catalogo.cursoDe(CB.perfil));
 
   CB.ui.pintarItem(item);
   CB.ui.pintarBioma(e.mundo.bioma, e.indice / Math.max(1, e.guion.length));

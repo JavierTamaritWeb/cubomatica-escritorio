@@ -310,6 +310,24 @@ class TestEleccionDeCurso:
         assert "CB.arranque.quienJuega = function" in js
         assert "de Primaria" in js
 
+    def test_la_partida_dice_en_que_curso_se_esta(self, web_dir):
+        """
+        La franja de la partida decia el mundo y la veta, pero no el curso:
+        con el mismo nombre de veta en varios cursos, la unica forma de saber
+        en cual jugaba el nino era salir al panel de personas adultas.
+
+        Se pinta el curso del MINERO, no el de la veta: una expedicion puede
+        servir una veta de un curso anterior para repasar.
+        """
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        js = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+        css = (web_dir / "css" / "cubomatica.css").read_text(encoding="utf-8")
+        assert 'id="hud-veta-curso"' in html
+        assert "CB.ui.pintarVeta = function (nivel, mundo, curso)" in js
+        assert "CB.ui.pintarVeta(nivel, e.mundo, CB.catalogo.cursoDe(CB.perfil))" in js
+        # Sin curso no debe quedarse el separador «▸» huerfano.
+        assert ".rotulo-veta__curso:empty" in css
+
     def test_la_ficha_del_minero_pinta_el_sprite(self, web_dir):
         """
         CB.sprites.avatar dibuja los 16 mineros desde 3.0.0 y no lo llamaba

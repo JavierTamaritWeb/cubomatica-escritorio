@@ -9,6 +9,41 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.10.0] — 2026-08-24
+
+La partida dice en qué curso se está. Juego 3.9.0.
+
+### Añadido
+
+- **El curso, a la cabeza de la franja de la partida**: «CURSO 3.º ▸ LA PRADERA
+  DE LOS NÚMEROS ▸ EL HUECO DE LA SUMA». Hasta ahora la franja decía el mundo y
+  la veta, y con el mismo nombre de veta repetido en varios cursos la única
+  forma de saber en cuál se jugaba era salir al panel de personas adultas.
+- Se pinta el curso del **minero**, no el de la veta: una expedición puede
+  servir una veta de un curso anterior para repasar, y leerlo del nivel le
+  diría al niño que ha bajado de curso a mitad de partida.
+
+### Notas
+
+- Va entero —«Curso 3.º»— porque un «3.º» suelto delante del nombre del mundo
+  no dice de qué es; y, al revés que el nombre del mundo, no se esconde en
+  pantallas estrechas: cabe, y es el dato que da sentido al resto.
+- En oro claro, el mismo que ya usan los demás textos dorados sobre fondo
+  oscuro, para distinguirse de un vistazo del nombre de la veta.
+- Sin curso, `.rotulo-veta__curso:empty` se lleva también el «▸», para no dejar
+  el separador huérfano.
+- Un test nuevo (78 → 79), dentro de `TestEleccionDeCurso`.
+
+### Mantenimiento
+
+- **`.gitignore` reescrito**: cachés que faltaban (`.mypy_cache`, `coverage.xml`),
+  la basura que deja macOS al copiar a un disco ajeno (`._*`), `.env` por si
+  acaso, y una nota al pie de lo que **sí** viaja a git —`uv.lock`,
+  `.python-version`, el `.spec` y el bundle entero— para que nadie lo añada
+  aquí por descuido.
+
+---
+
 ## [4.9.1] — 2026-08-24
 
 Los diálogos nativos hablan español. Juego 3.8.0 (sin cambios).

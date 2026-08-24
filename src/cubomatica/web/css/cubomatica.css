@@ -2153,6 +2153,25 @@ button:disabled {
   overflow: hidden;
 }
 
+/* EL CURSO DEL MINERO, a la cabeza de la franja. Va en oro y en la tipografía
+   de píxeles, como el nombre del mundo, pero no se esconde en pantallas
+   estrechas: cabe -«Curso 2.º»- y es el dato que da sentido a todo lo demás.
+   Vacío (perfil sin curso) desaparece, para no dejar el «▸» huérfano. */
+.rotulo-veta__curso {
+  flex: 0 0 auto;
+  font-family: var(--fuente-pixel);
+  font-size: var(--tam-texto-min);
+  color: var(--deco-oro-cla);
+}
+
+.rotulo-veta__curso::after {
+  content: " ▸";
+}
+
+.rotulo-veta__curso:empty {
+  display: none;
+}
+
 .rotulo-veta__mundo {
   position: absolute;
   width: 1px;

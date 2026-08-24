@@ -1,28 +1,63 @@
-# Entorno virtual
+# Qué NO viaja a git. Todo lo de aquí se regenera con un comando; si algo
+# necesita un comando que no está en el README, no debería estar en esta lista.
+
+# ---- Entorno de Python (lo rehace `uv sync --all-extras`) ----
 .venv/
 venv/
+.python-version.local
 
-# Python
+# ---- Bytecode y metadatos de instalación ----
 __pycache__/
 *.py[cod]
+*$py.class
 *.egg-info/
+.eggs/
+
+# ---- Empaquetado (lo rehace `./build-mac.sh`) ----
+# `build/` es el trabajo intermedio de PyInstaller y `dist/` el .app entero:
+# 69 MB, de los que 42 MB son los nueve temas de música. En git no cabe una
+# copia por versión, y no hace falta: el .spec la reconstruye.
 build/
 dist/
+*.app/
 
-# Editores
-.vscode/
-.idea/
-.DS_Store
+# ---- Icono a medio hacer (solo queda si `./make-icon.sh` falla a mitad) ----
+icon.iconset/
 
-# NO ignorar uv.lock ni .python-version -> deben ir a git
-
-# pytest
+# ---- Cachés de las herramientas ----
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
 .coverage
+.coverage.*
+coverage.xml
 htmlcov/
 
-# ruff
-.ruff_cache/
+# ---- Editores y utillaje personal ----
+# Nada de esto es del proyecto: cada quien trae el suyo.
+.vscode/
+.idea/
+*.swp
+*~
+.claude/settings.local.json
 
-# temporal de make-icon.sh (solo queda si el script falla a medias)
-icon.iconset/
+# ---- Basura de macOS ----
+# .DS_Store lo escribe el Finder con solo abrir la carpeta, y los ._* los deja
+# al copiar a un disco que no es APFS/HFS+.
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# ---- Secretos y notas locales ----
+# El juego no toca la red y no necesita ninguna clave, pero un .env que se
+# cuele en un repositorio es difícil de sacar después.
+.env
+.env.*
+*.local.md
+
+# ---- Lo que SÍ va a git, por si alguien duda ----
+# uv.lock          -> las versiones exactas; sin él `uv sync --frozen` no existe
+# .python-version  -> fija 3.11 (el Python del sistema es 3.13)
+# Cubomatica.spec  -> la receta del .app; no es un fichero generado
+# src/cubomatica/web/  -> el juego ENTERO, fuentes, música e imágenes incluidas
