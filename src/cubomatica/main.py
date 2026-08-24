@@ -33,6 +33,25 @@ MENU_PANTALLAS = [
 # (org.python.python) NO comparten perfiles ni progreso.
 STORAGE_DIR = Path.home() / "Library" / "Application Support" / "Cubomatica"
 
+# Rotulos de pywebview. Su diccionario por defecto esta en ingles y se cuela
+# en los dialogos nativos: el titulo del panel de guardar decia "Save file" en
+# una aplicacion que por lo demas esta entera en espanol.
+TEXTOS = {
+    "global.quitConfirmation": "¿Seguro que quieres salir?",
+    "global.ok": "Vale",
+    "global.quit": "Salir",
+    "global.cancel": "Cancelar",
+    "global.saveFile": "Guardar fichero",
+    "cocoa.menu.about": "Acerca de",
+    "cocoa.menu.services": "Servicios",
+    "cocoa.menu.view": "Ver",
+    "cocoa.menu.hide": "Ocultar",
+    "cocoa.menu.hideOthers": "Ocultar los demás",
+    "cocoa.menu.showAll": "Mostrar todo",
+    "cocoa.menu.quit": "Salir",
+    "cocoa.menu.fullscreen": "Pantalla completa",
+}
+
 # Constantes de Cocoa. Se escriben aqui para no importar AppKit al arrancar
 # (en Windows y Linux ni existe) y para que el numero lleve su nombre al lado.
 MASCARA_PANTALLA_COMPLETA = 1 << 14        # NSWindowStyleMaskFullScreen
@@ -313,6 +332,10 @@ def main() -> None:
     opciones = {
         "private_mode": False,
         "debug": os.environ.get("CUBOMATICA_DEBUG") == "1",
+        # Los rotulos que pone pywebview. Los botones de los dialogos (Cancelar,
+        # Guardar, Imprimir) los pone macOS y NO se traducen desde aqui: eso lo
+        # decide CFBundleLocalizations en Cubomatica.spec.
+        "localization": TEXTOS,
     }
 
     # storage_path solo en Windows y Linux. En macOS pywebview lo ignora, pero

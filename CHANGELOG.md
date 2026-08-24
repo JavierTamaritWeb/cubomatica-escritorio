@@ -9,6 +9,33 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.9.1] — 2026-08-24
+
+Los diálogos nativos hablan español. Juego 3.8.0 (sin cambios).
+
+### Corregido
+
+- **Los paneles de guardar, abrir e imprimir salían en inglés** —«Save file»,
+  «Cancel», «Printer»— en un Mac configurado en es-ES, dentro de una
+  aplicación que por lo demás está entera en español. Son dos causas
+  distintas y hacían falta las dos:
+  - El **título** lo pone pywebview, cuyo diccionario por defecto está en
+    inglés. `main.py` le pasa el suyo (`TEXTOS`).
+  - Los **botones y el resto del panel** los pinta macOS, que elige idioma
+    cruzando los del usuario con los que **declara el paquete**. No declaraba
+    ninguno. `Cubomatica.spec` añade `CFBundleDevelopmentRegion` y
+    `CFBundleLocalizations`.
+
+### Notas
+
+- Ejecutando desde el código (`uv run cubomatica`) los botones siguen en
+  inglés: ahí el paquete del proceso es `Python.app`, no el `.app`. Es lo
+  esperado, no una regresión.
+- Dos tests nuevos (76 → 78), uno por cada mitad: quien arregle solo una se
+  entera.
+
+---
+
 ## [4.9.0] — 2026-08-24
 
 El panel de personas adultas deja de mentir. Juego 3.8.0.

@@ -8,7 +8,7 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.9.0**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.9.1**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
 apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.8.0); it tracks the
 game's content, moves on its own schedule, and nothing on the Python side reads it.
@@ -223,7 +223,7 @@ global `.05em` is tuned for lower case and reads tight in caps. Keep both if you
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (76 tests, fast)
+uv run pytest                        # full suite (78 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg
@@ -316,6 +316,18 @@ JS reaches all three through `CB.adulto.puente()`, which returns `null` in a pla
 `window.print()` and the blob link work fine and stay the fallback path. `tests/test_api.py` pins
 the exposed set exactly, and `tests/test_web.py::TestSalidasDelPanelAdulto` pins the JS side,
 including that the bridge is tried **before** the blob.
+
+**Everything the user reads is Spanish, including the dialogs the game does not paint.** Save,
+open and print panels are drawn by macOS, which picks their language by intersecting the user's
+preferred languages with the ones the *bundle declares* — and declaring none meant English panels
+on a Mac set to es-ES. `Cubomatica.spec` therefore carries `CFBundleDevelopmentRegion: "es"` and
+`CFBundleLocalizations: ["es"]` (4.9.1); check with
+`NSBundle.bundleWithPath_(...).preferredLocalizations()`, which must answer `['es']`. The panel
+*title* is separate and comes from pywebview, whose default dictionary is English too: `main.py`
+passes its own `TEXTOS` as `localization=`. Both halves are needed — the dictionary alone leaves
+the buttons in English, the plist alone leaves the title as «Save file» — and `TestIdioma` guards
+each. Running from source (`uv run cubomatica`) keeps the English buttons, because the process
+bundle is then Python.app; that is expected and not a regression.
 
 Related: **`text_select=True` is passed to `create_window`** (4.9.0). pywebview defaults it to
 False and then injects `body { user-select: none }` into any page, which left the parent panel —

@@ -13,7 +13,7 @@ from pathlib import Path
 
 APP_NAME = "Cubomatica"
 BUNDLE_ID = "es.javiertamarit.cubomatica"
-VERSION = "4.9.0"
+VERSION = "4.9.1"
 
 ROOT = Path(SPECPATH)
 WEB_DIR = ROOT / "src" / "cubomatica" / "web"
@@ -99,6 +99,13 @@ app = BUNDLE(
     info_plist={
         "CFBundleName": APP_NAME,
         "CFBundleDisplayName": "Cubomática",
+        # El juego es solo en espanol, pero los dialogos NATIVOS -guardar,
+        # abrir, imprimir- los pinta macOS, y los pinta en el idioma que
+        # resulta de cruzar los del usuario con los que declara el paquete.
+        # Sin estas dos claves no declara ninguno, y el panel de guardar salia
+        # en ingles ("Save file", "Cancel") en un Mac configurado en es-ES.
+        "CFBundleDevelopmentRegion": "es",
+        "CFBundleLocalizations": ["es"],
         "CFBundleShortVersionString": VERSION,
         "CFBundleVersion": VERSION,
         "NSHighResolutionCapable": True,          # pantallas Retina

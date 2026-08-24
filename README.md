@@ -3,12 +3,12 @@
   <h1>Cubomática</h1>
   <p><b>El juego de matemáticas de Educación Primaria,<br>como aplicación de escritorio para macOS.</b></p>
   <p>
-    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.9.0-2B7BB9" alt="Versión 4.9.0"></a>
+    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.9.1-2B7BB9" alt="Versión 4.9.1"></a>
     <a href=".python-version"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
     <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
     <a href="#requisitos"><img src="https://img.shields.io/badge/plataforma-macOS%2011%2B-555555?logo=apple" alt="macOS 11 o superior"></a>
-    <a href="#tests"><img src="https://img.shields.io/badge/tests-76%20passing-2EA043" alt="76 tests"></a>
+    <a href="#tests"><img src="https://img.shields.io/badge/tests-78%20passing-2EA043" alt="78 tests"></a>
   </p>
   <br>
   <img src="docs/partida.png" width="840" alt="Una partida de Cubomática: el bloque acertado hundido y en verde, los demás apagados a piedra, y el mensaje junto a las opciones">
@@ -128,7 +128,7 @@ uv run cubomatica
 ## Tests
 
 ```bash
-uv run pytest                                              # los 76
+uv run pytest                                              # los 78
 uv run pytest --cov=cubomatica --cov-report=term-missing   # con cobertura
 ```
 
@@ -165,6 +165,7 @@ revierte, rompe la app **en silencio**.
 | Los dos sitios que conectan «Imprimir» lo hacen igual | Arreglar el informe y dejar muda la ficha de refuerzo |
 | Restaurar una copia no depende de un gesto humano | Un botón que funciona por suerte |
 | Sin ningún minero todavía se puede restaurar | Perder la copia de seguridad justo el día que hace falta |
+| El paquete declara el español | Que macOS pinte «Save file» y «Cancel» en un juego en español |
 
 ---
 
@@ -396,6 +397,7 @@ Los métodos que empiezan por `_` no se exponen —ahí viaja la ventana, que no
 |---|---|
 | **Seleccionar texto** | Solo se puede copiar en el panel de personas adultas, el informe y los créditos. En las pantallas de juego la selección está apagada a propósito: arrastrar el dedo sobre un bloque de respuesta lo pintaría de azul. |
 | **Diálogos nativos** | Guardar, abrir e imprimir bloquean la ventana mientras están abiertos, como cualquier aplicación de macOS. |
+| **Idioma de los diálogos en desarrollo** | Ejecutando con `uv run cubomatica`, los botones de los diálogos salen en inglés: el paquete del proceso es entonces `Python.app`, que no declara español. En el `.app` salen en español. |
 
 ---
 
@@ -403,7 +405,7 @@ Los métodos que empiezan por `_` no se exponen —ahí viaja la ventana, que no
 
 | | |
 |---|---|
-| **Versión de la app** | **4.9.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
+| **Versión de la app** | **4.9.1**, declarada en `pyproject.toml` y `Cubomatica.spec` |
 | **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.8.0) |
 | **Identificador** | `es.javiertamarit.cubomatica` |
 

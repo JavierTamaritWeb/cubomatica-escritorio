@@ -384,6 +384,34 @@ class TestSeleccionDeTexto:
         )
 
 
+class TestIdioma:
+    """
+    Todo lo que ve el usuario esta en espanol, incluidos los dialogos que NO
+    pinta el juego.
+
+    Los de guardar, abrir e imprimir los pinta macOS, y elige idioma cruzando
+    los del usuario con los que DECLARA el paquete. Sin declarar ninguno, el
+    panel de guardar salia en ingles ("Save file", "Cancel") en un Mac
+    configurado en es-ES. El titulo lo pone ademas pywebview, cuyo diccionario
+    por defecto tambien esta en ingles.
+    """
+
+    def test_el_paquete_declara_el_espanol(self):
+        spec = (ROOT / "Cubomatica.spec").read_text(encoding="utf-8")
+        assert '"CFBundleLocalizations": ["es"]' in spec, (
+            "sin esto macOS pinta los dialogos nativos en ingles"
+        )
+        assert '"CFBundleDevelopmentRegion": "es"' in spec
+
+    def test_los_rotulos_de_pywebview_van_traducidos(self):
+        main = (ROOT / "src" / "cubomatica" / "main.py").read_text(encoding="utf-8")
+        assert '"localization": TEXTOS,' in main, (
+            "pywebview usa su diccionario en ingles si no se le pasa otro"
+        )
+        assert '"global.saveFile": "Guardar fichero"' in main
+        assert '"global.cancel": "Cancelar"' in main
+
+
 class TestSalidasDelPanelAdulto:
     """
     Las cuatro salidas al mundo del panel adulto (informe, CSV, copia .json y
