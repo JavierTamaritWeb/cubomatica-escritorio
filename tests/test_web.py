@@ -350,6 +350,126 @@ class TestAjustesAccesibilidad:
         assert "CB.ui.selector(" in cuerpo
 
 
+class TestSeleccionDeTexto:
+    """
+    Se puede copiar el texto del panel de personas adultas.
+
+    pywebview trae `text_select` APAGADO y, cuando lo esta, inyecta
+    `body { -webkit-user-select: none }` en cualquier pagina. Eso dejaba el
+    panel -aviso legal, metricas, recomendaciones- imposible de seleccionar,
+    sin que hubiera una sola linea del juego pidiendolo.
+    """
+
+    def test_main_enciende_la_seleccion(self):
+        main = (ROOT / "src" / "cubomatica" / "main.py").read_text(encoding="utf-8")
+        assert "\n        text_select=True," in main, (
+            "sin text_select=True pywebview apaga la seleccion en toda la pagina"
+        )
+
+    def test_el_juego_decide_donde_vale(self, web_dir):
+        css = (web_dir / "css" / "cubomatica.css").read_text(encoding="utf-8")
+        # Apagada por defecto: son bloques que se tocan, no un documento.
+        assert re.search(r":root \{[^}]*user-select: none", css, re.S), (
+            "encender text_select sin apagarla en el juego pinta de azul los "
+            "bloques al arrastrar el dedo"
+        )
+        # Y encendida donde el texto es para leer y copiar.
+        assert ".pantalla--documento *" in css
+        assert "#p-creditos *" in css
+
+    def test_los_botones_de_esas_pantallas_siguen_fuera(self, web_dir):
+        css = (web_dir / "css" / "cubomatica.css").read_text(encoding="utf-8")
+        assert ".pantalla--documento button" in css, (
+            "seleccionar el rotulo de un boton al pulsarlo es ruido"
+        )
+
+
+class TestSalidasDelPanelAdulto:
+    """
+    Las cuatro salidas al mundo del panel adulto (informe, CSV, copia .json y
+    restaurar) funcionan DENTRO de la aplicacion, no solo en un navegador.
+
+    Bajo WKWebView, `window.print()` no hace nada -y no lanza excepcion- y la
+    descarga por `<a download href="blob:...">` es peor que inutil: no
+    descarga, NAVEGA al blob. La ventana se iba del juego, pintaba el CSV como
+    texto plano, y sin barra de direcciones ni boton de atras no habia forma de
+    volver. Comprobado pulsando los botones de verdad dentro de la app.
+    """
+
+    def _js(self, web_dir) -> str:
+        return (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+
+    def test_imprimir_pasa_por_el_puente(self, web_dir):
+        js = self._js(web_dir)
+        assert "CB.adulto.imprimir = function" in js
+        assert "b.onclick = CB.adulto.imprimir;" in js, (
+            "el boton Imprimir no puede llamar directo a window.print(): "
+            "WKWebView no lo implementa y el boton se queda mudo"
+        )
+        assert js.count("b.onclick = CB.adulto.imprimir;") == 2, (
+            "hay DOS sitios que conectan el boton: el informe y la ficha de "
+            "refuerzo; si solo se arregla uno, el otro sigue mudo"
+        )
+
+    def test_guardar_pasa_por_el_dialogo_nativo(self, web_dir):
+        js = self._js(web_dir)
+        inicio = js.index("CB.adulto.descargar = function")
+        cuerpo = js[inicio : js.index("CB.adulto.confirmarBorrado", inicio)]
+        assert "api.guardar_texto(" in cuerpo, (
+            "dentro de la app hay que guardar con el dialogo nativo"
+        )
+        assert cuerpo.index("api.guardar_texto(") < cuerpo.index("a.download"), (
+            "el blob es el CAMINO DE RESPALDO para el navegador; si va "
+            "primero, dentro de la app se lleva la pagina por delante"
+        )
+
+    def test_el_puente_es_opcional(self, web_dir):
+        js = self._js(web_dir)
+        assert "CB.adulto.puente = function" in js
+        assert "window.pywebview && window.pywebview.api" in js, (
+            "en un navegador normal no hay puente y el juego debe seguir"
+        )
+
+    def test_restaurar_no_depende_del_gesto_humano(self, web_dir):
+        js = self._js(web_dir)
+        inicio = js.index("CB.adulto.restaurar = function")
+        cuerpo = js[inicio : js.index("CB.adulto.confirmarBorrado", inicio)]
+        assert "api.abrir_texto(" in cuerpo, (
+            "el <input type=file> solo abre el selector si el clic nace de un "
+            "gesto humano, y aqui lo dispara JavaScript"
+        )
+        assert cuerpo.index("api.abrir_texto(") < cuerpo.index("input.click()"), (
+            "el input es el camino de respaldo del navegador"
+        )
+        assert "CB.adulto.aplicarCopia" in cuerpo, (
+            "los dos caminos deben compartir la validacion"
+        )
+
+    def test_sin_perfil_todavia_se_puede_restaurar(self, web_dir):
+        """
+        La copia de seguridad sirve sobre todo cuando NO queda nada. El boton
+        vivia solo en la seccion Datos de un perfil, asi que desaparecia justo
+        el dia que hacia falta: con el indice vacio, el panel ofrecia «Salir»
+        y nada mas.
+        """
+        js = self._js(web_dir)
+        inicio = js.index("CB.adulto.pintar = function")
+        cuerpo = js[inicio : js.index("CB.adulto.metrica = function", inicio)]
+        sin_perfil = cuerpo[: cuerpo.index("const m = CB.adulto.metricas(perfil);")]
+        assert "CB.adulto.restaurar" in sin_perfil, (
+            "sin minero elegido tiene que poder restaurarse una copia"
+        )
+        assert "adulto-aviso-datos" in sin_perfil, (
+            "y con su hueco de aviso, o el resultado no se ve"
+        )
+
+    def test_la_copia_restaurada_recuerda_el_curso(self, web_dir):
+        js = self._js(web_dir)
+        assert "curso: p.curso" in js, (
+            "desde 4.8.0 la ficha de «¿Quién juega?» lee el curso del indice"
+        )
+
+
 class TestTipografia:
     """
     El juego se lee con OpenDyslexic y la fuente viaja DENTRO del bundle.

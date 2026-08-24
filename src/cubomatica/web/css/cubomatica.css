@@ -335,6 +335,41 @@ body {
   touch-action: manipulation;
 }
 
+/* Seleccionar y copiar texto.
+
+   pywebview trae `text_select` apagado e inyecta `body { user-select: none }`
+   en cualquier página; main.py lo enciende (4.9.0) y la decisión de dónde se
+   puede seleccionar se toma AQUÍ, que es donde se sabe qué es cada pantalla.
+
+   En el juego sigue apagada a propósito: son bloques que se tocan, y arrastrar
+   el dedo sobre un enunciado o sobre una respuesta lo pintaría de azul sin que
+   el niño haya pedido nada. Se enciende en las pantallas que son documento —el
+   panel de personas adultas y el informe— y en los créditos, que llevan los
+   textos de licencia que alguien puede querer copiar. Los botones de esas
+   pantallas se quedan fuera: seleccionar el rótulo al pulsarlos es ruido. */
+:root {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.pantalla--documento,
+.pantalla--documento *,
+#p-creditos,
+#p-creditos * {
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: auto;
+}
+
+.pantalla--documento button,
+.pantalla--documento button *,
+#p-creditos button,
+#p-creditos button * {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
+}
+
 h1, h2, h3 {
   font-family: var(--fuente-pixel);
   font-weight: 400;

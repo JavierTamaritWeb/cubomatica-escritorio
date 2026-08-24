@@ -1525,7 +1525,7 @@ CB.bus = new CB.util.EventoSimple();
 
 /* CB.LEGAL */
 /* Versión */
-CB.VERSION = '3.7.2';
+CB.VERSION = '3.8.0';
 
 CB.LEGAL = {
   /* El texto completo viaja en web/LICENCIA.txt. Aquí va solo la línea que
@@ -16443,6 +16443,24 @@ CB.adulto.pintar = function () {
     cont.appendChild(CB.ui.crear('p', null,
       'Todavía no hay ningún minero elegido. Entra en «¿Quién juega?», elige ' +
       'o crea uno, y vuelve aquí para ver cómo va.'));
+
+    /* Restaurar una copia se ofrece TAMBIÉN aquí. El botón vivía solo en la
+       sección Datos de un perfil, así que desaparecía justo el día que hace
+       falta: cuando no queda ningún minero que enseñar. */
+    const rescate = CB.ui.crear('div', 'adulto__caja');
+    rescate.appendChild(CB.ui.crear('h2', null, '¿Tienes una copia guardada?'));
+    rescate.appendChild(CB.ui.crear('p', null,
+      'Si alguna vez exportaste una copia .json, aquí se recupera el minero ' +
+      'con todo su progreso.'));
+    rescate.appendChild(CB.ui.boton('Restaurar copia (.json)', 'btn-adulto', function () {
+      CB.adulto.restaurar(rescate);
+    }));
+    const avisoRescate = CB.ui.crear('p', 'texto texto--menor');
+    avisoRescate.id = 'adulto-aviso-datos';
+    avisoRescate.setAttribute('role', 'status');
+    rescate.appendChild(avisoRescate);
+    cont.appendChild(rescate);
+
     cont.appendChild(CB.ui.boton('Salir', 'btn-bloque', function () {
       CB.pantallas.ir('p-portada');
     }, { icono: 'flecha' }));
@@ -16726,7 +16744,7 @@ CB.adulto.imprimirInforme = function (perfilId) {
 
   CB.pantallas.ir('p-informe');
   const b = document.getElementById('btn-imprimir');
-  if (b) b.onclick = function () { window.print(); };
+  if (b) b.onclick = CB.adulto.imprimir;
 };
 
 /* Ficha de refuerzo en papel: 10 ítems del tipo exacto que falla */
@@ -16766,7 +16784,46 @@ CB.adulto.fichaRefuerzo = function (perfil, codigoError) {
 
   CB.pantallas.ir('p-informe');
   const b = document.getElementById('btn-imprimir');
-  if (b) b.onclick = function () { window.print(); };
+  if (b) b.onclick = CB.adulto.imprimir;
+};
+
+/* El puente con la aplicación de escritorio. Solo existe dentro del .app:
+   en un navegador normal devuelve null y todo sigue por el camino de siempre. */
+CB.adulto.puente = function () {
+  return (window.pywebview && window.pywebview.api) ? window.pywebview.api : null;
+};
+
+/* Aviso visible para el adulto. Hay dos huecos posibles —el párrafo de la
+   sección Datos del panel y el del informe— y las dos pantallas conservan su
+   DOM aunque estén ocultas, así que se elige por lo que se VE, no por lo que
+   existe. Siempre habla además al lector de pantalla. */
+CB.adulto.decir = function (texto) {
+  const donde = ['informe-aviso', 'adulto-aviso-datos'];
+  let i, el, aviso = null;
+  for (i = 0; i < donde.length; i++) {
+    el = document.getElementById(donde[i]);
+    if (el && el.offsetParent !== null) { aviso = el; break; }
+  }
+  if (aviso) aviso.textContent = texto;
+  CB.a11y.anunciar(texto);
+};
+
+/* Imprimir.
+
+   WKWebView NO implementa window.print(). No lanza excepción y no abre nada:
+   el botón parecía funcionar y no imprimía. Dentro de la aplicación se imprime
+   por el puente, que abre el panel de impresión de macOS — y ese panel lleva
+   «PDF ▸ Guardar como PDF», así que también sirve para guardar el informe. */
+CB.adulto.imprimir = function () {
+  const api = CB.adulto.puente();
+  if (!api || !api.imprimir) { window.print(); return; }
+  api.imprimir().then(function (r) {
+    if (r && r.ok) return;
+    CB.adulto.decir('Este equipo no ha podido abrir la impresión' +
+      (r && r.motivo ? ' (' + r.motivo + ')' : '') + '.');
+  }).catch(function () {
+    CB.adulto.decir('Este equipo no ha podido abrir la impresión.');
+  });
 };
 
 /* CSV */
@@ -16785,7 +16842,29 @@ CB.adulto.descargarCSV = function (perfil) {
     'cubomatica-' + perfil.mote.replace(/\s+/g, '-') + '.csv', 'text/csv');
 };
 
+/* Guardar un fichero.
+
+   Dentro de la aplicación NO se puede usar el truco del <a download>: WKWebView
+   no descarga el blob, NAVEGA a él. La ventana se iba del juego, pintaba el CSV
+   como texto plano, y sin barra de direcciones ni botón de atrás no había forma
+   de volver: había que cerrar y reabrir la aplicación. Por eso, si hay puente,
+   se guarda con el diálogo nativo del sistema. */
 CB.adulto.descargar = function (texto, nombre, tipo) {
+  const api = CB.adulto.puente();
+
+  if (api && api.guardar_texto) {
+    CB.adulto.decir('Elige dónde guardar «' + nombre + '»…');
+    api.guardar_texto(nombre, texto).then(function (r) {
+      if (r && r.ok) CB.adulto.decir('Guardado en ' + r.ruta);
+      else if (r && r.motivo === 'cancelado') CB.adulto.decir('No se ha guardado nada.');
+      else CB.adulto.decir('No se ha podido guardar el fichero' +
+        (r && r.motivo ? ': ' + r.motivo : '') + '.');
+    }).catch(function () {
+      CB.adulto.decir('No se ha podido guardar el fichero.');
+    });
+    return;
+  }
+
   try {
     const blob = new Blob([texto], { type: tipo + ';charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -16795,18 +16874,72 @@ CB.adulto.descargar = function (texto, nombre, tipo) {
     a.click();
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    CB.adulto.decir('Descargando «' + nombre + '».');
   } catch (e) {
-    CB.a11y.anunciar('No se ha podido descargar el fichero en este navegador.');
+    CB.adulto.decir('No se ha podido descargar el fichero en este navegador.');
   }
 };
 
 /* Borrar exige escribir la palabra BORRAR (§15.8). */
 
+/* Aplicar una copia ya leída. La comparten los dos caminos —el diálogo nativo
+   de la aplicación y el <input type="file"> del navegador—, así que la
+   validación y el «se restaura encima» viven aquí una sola vez. */
+CB.adulto.aplicarCopia = function (texto, decir) {
+  let crudo;
+  try {
+    crudo = JSON.parse(String(texto));
+  } catch (e) {
+    decir('Ese fichero no es una copia de Cubomática: no se entiende su contenido.');
+    return;
+  }
+  const v = CB.almacen.validarImportado(crudo, CB.datos.MOTES);
+  if (!v.ok) {
+    decir(v.motivo === 'version'
+      ? 'Esa copia viene de una versión más nueva del juego. Actualiza Cubomática antes de restaurarla.'
+      : 'Ese fichero no tiene la forma de una copia de Cubomática.');
+    return;
+  }
+
+  const p = v.perfil;
+  const idx = CB.almacen.indice();
+  const existe = idx.some(function (e) { return e.id === p.id; });
+  /* Si ya hay un perfil con ese id, se restaura ENCIMA: es lo que espera
+     quien recupera su propia copia. Si es nuevo, se añade al índice. */
+  CB.almacen.guardarPerfil(p);
+  if (!existe) {
+    idx.push({ id: p.id, mote: p.mote, avatar: p.avatar, curso: p.curso });
+    CB.almacen.guardarIndice(idx);
+  }
+  CB.almacen.fijarUltimoPerfil(p.id);
+  decir('Copia restaurada: ' + p.mote + (existe ? ' (se ha sustituido el perfil que había)' : '') + '.');
+  CB.perfiles.activar(p.id);
+};
+
+/* Restaurar una copia.
+
+   Dentro de la aplicación se pide el fichero por el puente. El
+   <input type="file"> también abre el selector nativo bajo WKWebView, pero
+   solo si el clic nace de un gesto humano: WebKit exige activación del
+   usuario, y aquí el clic lo dispara JavaScript. Funcionaba de milagro. */
 CB.adulto.restaurar = function (cont) {
-  const aviso = document.getElementById('adulto-aviso-datos');
-  function decir(t) {
-    if (aviso) aviso.textContent = t;
-    CB.a11y.anunciar(t);
+  const decir = CB.adulto.decir;
+  const api = CB.adulto.puente();
+
+  if (api && api.abrir_texto) {
+    decir('Elige la copia que quieres restaurar…');
+    api.abrir_texto('.json').then(function (r) {
+      if (r && r.ok) { CB.adulto.aplicarCopia(r.contenido, decir); return; }
+      if (r && r.motivo === 'cancelado') { decir('No se ha restaurado nada.'); return; }
+      if (r && r.motivo === 'demasiado grande') {
+        decir('Ese fichero es demasiado grande para ser una copia de Cubomática.');
+        return;
+      }
+      decir('No se ha podido leer el fichero.');
+    }).catch(function () {
+      decir('No se ha podido leer el fichero.');
+    });
+    return;
   }
 
   /* La llamada anterior pudo dejar su input oculto en cont: se retira, para
@@ -16831,36 +16964,7 @@ CB.adulto.restaurar = function (cont) {
     }
     const lector = new FileReader();
     lector.onerror = function () { decir('No se ha podido leer el fichero.'); };
-    lector.onload = function () {
-      let crudo;
-      try {
-        crudo = JSON.parse(String(lector.result));
-      } catch (e) {
-        decir('Ese fichero no es una copia de Cubomática: no se entiende su contenido.');
-        return;
-      }
-      const v = CB.almacen.validarImportado(crudo, CB.datos.MOTES);
-      if (!v.ok) {
-        decir(v.motivo === 'version'
-          ? 'Esa copia viene de una versión más nueva del juego. Actualiza Cubomática antes de restaurarla.'
-          : 'Ese fichero no tiene la forma de una copia de Cubomática.');
-        return;
-      }
-
-      const p = v.perfil;
-      const idx = CB.almacen.indice();
-      const existe = idx.some(function (e) { return e.id === p.id; });
-      /* Si ya hay un perfil con ese id, se restaura ENCIMA: es lo que espera
-         quien recupera su propia copia. Si es nuevo, se añade al índice. */
-      CB.almacen.guardarPerfil(p);
-      if (!existe) {
-        idx.push({ id: p.id, mote: p.mote, avatar: p.avatar });
-        CB.almacen.guardarIndice(idx);
-      }
-      CB.almacen.fijarUltimoPerfil(p.id);
-      decir('Copia restaurada: ' + p.mote + (existe ? ' (se ha sustituido el perfil que había)' : '') + '.');
-      CB.perfiles.activar(p.id);
-    };
+    lector.onload = function () { CB.adulto.aplicarCopia(lector.result, decir); };
     lector.readAsText(f);
   });
 

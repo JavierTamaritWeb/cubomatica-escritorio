@@ -8,9 +8,9 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.8.2**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.9.0**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
-apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.7.2); it tracks the
+apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.8.0); it tracks the
 game's content, moves on its own schedule, and nothing on the Python side reads it.
 
 The Python here is deliberately thin (two short modules); nearly everything else is the game bundle.
@@ -223,7 +223,7 @@ global `.05em` is tuned for lower case and reads tight in caps. Keep both if you
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (65 tests, fast)
+uv run pytest                        # full suite (76 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg
@@ -297,10 +297,33 @@ game's own router. Every action must dispatch its JS on a separate thread — `e
 the UI thread, so calling it from a menu action freezes the app permanently.
 
 `api.py` exposes a `js_api` bridge (public methods reach JS as `window.pywebview.api.*`, underscore
-methods stay private). The class is **empty on purpose**: the game does not call it, and the
-template's example methods were removed in 4.6.0. It exists for future needs such as printing or
-exporting progress; `tests/test_api.py` fails if a public method appears without that being
-deliberate, and checks that any that does takes only JSON-serialisable parameters.
+methods stay private). It was **empty on purpose** until 4.9.0 and now carries exactly three
+methods — `guardar_texto`, `abrir_texto`, `imprimir` — because **the parent panel's four ways out
+to the world do not work under WKWebView on their own**:
+
+- `window.print()` is not implemented. It raises nothing and opens nothing: the button looked fine
+  and printed nothing. `imprimir()` runs `printOperationWithPrintInfo:` on the native `WKWebView`
+  as a sheet, and macOS's print panel includes «PDF ▸ Guardar como PDF», so it covers saving too.
+- **`<a download href="blob:…">` is worse than useless: WKWebView does not download it, it
+  NAVIGATES to it.** The window left the game, rendered the CSV as plain text, and with no address
+  bar and no back button there was no way back — the app had to be relaunched. `guardar_texto()`
+  puts up the native save panel instead.
+- `<input type="file">` does open the native picker (pywebview implements
+  `runOpenPanelWithParameters`), but only from a real user gesture; the game clicks it from
+  JavaScript, so it worked by luck. `abrir_texto()` has no gesture to depend on.
+
+JS reaches all three through `CB.adulto.puente()`, which returns `null` in a plain browser — where
+`window.print()` and the blob link work fine and stay the fallback path. `tests/test_api.py` pins
+the exposed set exactly, and `tests/test_web.py::TestSalidasDelPanelAdulto` pins the JS side,
+including that the bridge is tried **before** the blob.
+
+Related: **`text_select=True` is passed to `create_window`** (4.9.0). pywebview defaults it to
+False and then injects `body { user-select: none }` into any page, which left the parent panel —
+legal notice, metrics, recommendations — impossible to select or copy. The switch is on and the
+CSS decides where selection is worth having: off across the game (dragging over an answer block
+would paint it blue), on in `.pantalla--documento` and `#p-creditos`, off again on their buttons.
+`TestSeleccionDeTexto` guards both halves; turning the flag on without the CSS half is a
+regression, not a fix.
 
 `.github/workflows/ci.yml` runs lint, tests, the HTML format check and a `node --check` of the
 bundle on every push and PR, then builds the `.app` on `macos-latest` and uploads it as an artifact.
@@ -325,8 +348,11 @@ coin/banknote images are referenced by the game — none are dead files.
   `tests/test_web.py::TestRutasRelativas` checks the HTML for both. Diagnose with
   `CUBOMATICA_DEBUG=1`, which prints the resolved index path and URL to stderr.
 - **Progress disappears on restart** — `private_mode` regressed to its default.
-- **`window.print()` does nothing** — WKWebView does not implement it, so the game's printable
-  report button is inert in the desktop app. Routing it through `api.py` is the fix if it is needed.
+- **A button in the parent panel does nothing, or the window leaves the game and shows raw text** —
+  something regressed to the browser path. Print and downloads must go through `api.py`; see the
+  bridge section above. The blob-link failure is the loud one: the app has no way back.
+- **Text cannot be selected or copied** — `text_select=True` went missing from `create_window`, or
+  the CSS rules that re-enable selection on the document screens did.
 - **Finder shows a stale icon** — icon cache, not a build failure: `touch dist/Cubomatica.app &&
   killall Finder Dock`.
 

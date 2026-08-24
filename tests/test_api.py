@@ -17,18 +17,32 @@ def _metodos_publicos(api) -> set[str]:
     }
 
 
+# Lo que el puente expone HOY, y nada mas. Cada nombre esta aqui porque hay
+# JavaScript que lo llama; ver tests/test_web.py::TestSalidasDelPanelAdulto.
+EXPUESTOS = {"guardar_texto", "abrir_texto", "imprimir"}
+
+
 class TestPuenteJavaScript:
-    def test_hoy_no_expone_nada(self, api):
+    def test_expone_exactamente_lo_previsto(self, api):
         """
-        El juego no llama al puente. Si esto falla es que alguien ha anadido
-        un metodo publico: bien, pero que sea a proposito, con su test y
-        con quien lo llame desde JS.
+        Si esto falla es que alguien ha anadido o quitado un metodo publico:
+        bien, pero que sea a proposito, con su test y con quien lo llame
+        desde JS. Hasta 4.8.2 el conjunto estaba VACIO.
         """
-        assert _metodos_publicos(api) == set()
+        assert _metodos_publicos(api) == EXPUESTOS
 
     def test_lo_privado_no_se_expone(self, api):
         """Un metodo con guion bajo no debe contar como publico."""
         assert not any(n.startswith("_") for n in _metodos_publicos(api))
+
+    def test_la_ventana_no_llega_a_javascript(self, api):
+        """
+        El puente guarda la ventana de pywebview para los dialogos nativos y
+        para imprimir. Tiene que viajar en un atributo privado: un objeto
+        Window no es serializable como JSON y romperia el puente entero.
+        """
+        assert hasattr(api, "_ventana")
+        assert "_asociar" not in _metodos_publicos(api)
 
     def test_todo_lo_publico_es_serializable(self, api):
         """
@@ -41,3 +55,17 @@ class TestPuenteJavaScript:
             firma = inspect.signature(getattr(api, nombre))
             for parametro in firma.parameters.values():
                 assert parametro.annotation in simples, f"{nombre}: {parametro}"
+            assert firma.return_annotation in simples, nombre
+
+    def test_no_revientan_sin_ventana(self, api):
+        """
+        Quien llama es JavaScript: una excepcion aqui solo deja una promesa
+        rechazada y un boton mudo. Sin ventana asociada tienen que devolver
+        su dict con el motivo.
+        """
+        r = api.guardar_texto("prueba.txt", "hola")
+        assert r["ok"] is False and r["motivo"]
+        r = api.abrir_texto(".json")
+        assert r["ok"] is False and r["motivo"]
+        r = api.imprimir()
+        assert r["ok"] is False and r["motivo"]

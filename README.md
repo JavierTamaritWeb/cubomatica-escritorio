@@ -3,12 +3,12 @@
   <h1>Cubomática</h1>
   <p><b>El juego de matemáticas de Educación Primaria,<br>como aplicación de escritorio para macOS.</b></p>
   <p>
-    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.8.2-2B7BB9" alt="Versión 4.8.2"></a>
+    <a href="#versionado"><img src="https://img.shields.io/badge/versi%C3%B3n-4.9.0-2B7BB9" alt="Versión 4.9.0"></a>
     <a href=".python-version"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
     <a href="pyproject.toml"><img src="https://img.shields.io/badge/pywebview-5.3.2-5AA02C" alt="pywebview 5.3.2"></a>
     <a href="https://docs.astral.sh/uv/"><img src="https://img.shields.io/badge/uv-%E2%89%A5%200.12.0-DE5FE9" alt="uv 0.12.0 o superior"></a>
     <a href="#requisitos"><img src="https://img.shields.io/badge/plataforma-macOS%2011%2B-555555?logo=apple" alt="macOS 11 o superior"></a>
-    <a href="#tests"><img src="https://img.shields.io/badge/tests-65%20passing-2EA043" alt="65 tests"></a>
+    <a href="#tests"><img src="https://img.shields.io/badge/tests-76%20passing-2EA043" alt="76 tests"></a>
   </p>
   <br>
   <img src="docs/partida.png" width="840" alt="Una partida de Cubomática: el bloque acertado hundido y en verde, los demás apagados a piedra, y el mensaje junto a las opciones">
@@ -128,7 +128,7 @@ uv run cubomatica
 ## Tests
 
 ```bash
-uv run pytest                                              # los 65
+uv run pytest                                              # los 76
 uv run pytest --cov=cubomatica --cov-report=term-missing   # con cobertura
 ```
 
@@ -137,8 +137,9 @@ revierte, rompe la app **en silencio**.
 
 | Comprobación | Qué evita |
 |---|---|
-| La lógica de `api.py` | Regresiones en el puente |
+| El puente expone exactamente tres métodos | Que algo llegue a JavaScript por descuido |
 | Los métodos `_privados` no se exponen a JavaScript | Filtrar API interna al navegador |
+| La ventana viaja en un atributo privado | Romper el puente entero con un objeto que no es JSON |
 | Existen `index.html`, CSS, JS, imágenes y audio | Empaquetar una app incompleta |
 | Todas las rutas del HTML son relativas | Que el `.app` abra una ventana en blanco |
 | `main.py` carga con `file://` | El `404 Not Found` por choque de puertos |
@@ -159,6 +160,11 @@ revierte, rompe la app **en silencio**.
 | Ayuda, Mis vetas, el álbum y los perfiles se ensanchan | Leer una tira de 640 px con media pantalla vacía al lado |
 | Quitar un minero va detrás de un modo, no de un aspa | Que un toque de más se lleve por delante el progreso de otro |
 | La expedición a medias se puede dejar | Quedarse con «Seguir jugando» hasta que caduque a las 24 h |
+| Se puede seleccionar texto en el panel adulto | Que pywebview vuelva a apagar la selección en toda la página |
+| Guardar e imprimir pasan por el puente antes que por el blob | Que la ventana se vaya del juego y no haya forma de volver |
+| Los dos sitios que conectan «Imprimir» lo hacen igual | Arreglar el informe y dejar muda la ficha de refuerzo |
+| Restaurar una copia no depende de un gesto humano | Un botón que funciona por suerte |
+| Sin ningún minero todavía se puede restaurar | Perder la copia de seguridad justo el día que hace falta |
 
 ---
 
@@ -345,25 +351,38 @@ la acción de un menú sin sacarlo a otro hilo **congela la aplicación**.
 
 ## El puente JavaScript ↔ Python
 
-El juego es autocontenido y hoy no lo usa: la clase `Api` de `api.py` está **vacía a propósito**
-(hasta 4.5.0 llevaba tres métodos de ejemplo de la plantilla que viajaban en el `.app` sin que
-nadie los llamara). Sigue conectada como `js_api`, lista para cuando haga falta disco o sistema.
+La clase `Api` estuvo **vacía a propósito** hasta la 4.8.2. Desde la 4.9.0 expone tres métodos, y
+cada uno está ahí porque una salida del panel de personas adultas no funcionaba dentro de la app:
 
-**En Python** (`api.py`), cada método público que se añada queda expuesto:
+| Método | Para qué | Qué fallaba sin él |
+|---|---|---|
+| `guardar_texto(nombre, contenido)` | CSV e informes, con el diálogo nativo | `<a download href="blob:…">` **no descarga en WKWebView: navega al blob**. La ventana se iba del juego, pintaba el CSV como texto plano, y sin barra de direcciones no había vuelta atrás |
+| `abrir_texto(extension)` | Restaurar una copia `.json` | `<input type="file">` solo abre el selector si el clic nace de un gesto humano; el juego lo dispara desde JavaScript |
+| `imprimir()` | El informe en papel o en PDF | `window.print()` no está implementado en WKWebView: no lanza nada y no abre nada |
+
+**En Python** (`api.py`), cada método público queda expuesto y devuelve siempre un `dict`, nunca
+lanza: quien llama es JavaScript, y una excepción aquí solo deja una promesa rechazada.
 
 ```python
 class Api:
-    def guardar_fichero(self, nombre: str, texto: str) -> bool:
+    def guardar_texto(self, nombre: str, contenido: str) -> dict:
         ...
 ```
 
-**En JavaScript**, se llama así:
+**En JavaScript**, el puente es opcional. `CB.adulto.puente()` devuelve `null` en un navegador
+normal, donde el enlace `blob:` y `window.print()` sí funcionan y siguen siendo el camino:
 
 ```javascript
-const ok = await window.pywebview.api.guardar_fichero("copia.json", texto);
+const api = CB.adulto.puente();
+if (api && api.guardar_texto) {
+  const r = await api.guardar_texto("copia.json", texto);   // diálogo nativo
+} else {
+  /* …el <a download> de siempre */
+}
 ```
 
-Los métodos que empiezan por `_` no se exponen, y `tests/test_api.py` protege el contrato.
+Los métodos que empiezan por `_` no se exponen —ahí viaja la ventana, que no es serializable— y
+`tests/test_api.py` fija el conjunto expuesto exactamente.
 
 > [!TIP]
 > Espera siempre al evento `pywebviewready` antes de usar la API: `window.pywebview.api` no
@@ -375,7 +394,8 @@ Los métodos que empiezan por `_` no se exponen, y `tests/test_api.py` protege e
 
 | Limitación | Detalle |
 |---|---|
-| **Imprimir el informe** | WKWebView no implementa `window.print()`, así que el botón «Imprimir» del informe no hace nada dentro de la app. Se podría resolver exponiendo la impresión desde `api.py`. |
+| **Seleccionar texto** | Solo se puede copiar en el panel de personas adultas, el informe y los créditos. En las pantallas de juego la selección está apagada a propósito: arrastrar el dedo sobre un bloque de respuesta lo pintaría de azul. |
+| **Diálogos nativos** | Guardar, abrir e imprimir bloquean la ventana mientras están abiertos, como cualquier aplicación de macOS. |
 
 ---
 
@@ -383,8 +403,8 @@ Los métodos que empiezan por `_` no se exponen, y `tests/test_api.py` protege e
 
 | | |
 |---|---|
-| **Versión de la app** | **4.8.2**, declarada en `pyproject.toml` y `Cubomatica.spec` |
-| **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.7.2) |
+| **Versión de la app** | **4.9.0**, declarada en `pyproject.toml` y `Cubomatica.spec` |
+| **Versión del juego** | `CB.VERSION`, dentro del bundle web (hoy 3.8.0) |
 | **Identificador** | `es.javiertamarit.cubomatica` |
 
 Son dos números distintos a propósito: esta app empaqueta el juego, pero el juego se versiona en

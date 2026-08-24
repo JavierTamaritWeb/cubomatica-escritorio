@@ -288,7 +288,20 @@ def main() -> None:
         min_size=(1024, 640),  # el juego esta pensado para apaisado
         resizable=True,
         confirm_close=False,
+        # text_select viene apagado por defecto en pywebview, que inyecta
+        #   body { -webkit-user-select: none; cursor: default; }
+        # en CUALQUIER pagina. Eso deja el panel de personas adultas -texto
+        # legal, metricas, recomendaciones- imposible de seleccionar y de
+        # copiar. Se enciende aqui y es el CSS del juego el que decide donde
+        # vale la pena (.pantalla--documento y los creditos): en las pantallas
+        # de juego la seleccion sigue apagada, porque arrastrar sobre un
+        # bloque de respuesta pintaria el texto en azul.
+        text_select=True,
     )
+
+    # El puente necesita la ventana para los dialogos nativos y para imprimir.
+    # Es un metodo privado: no llega a JavaScript.
+    api._asociar(ventana)
 
     # private_mode=False es CRITICO: es lo UNICO que hace que localStorage
     # persista. Con private_mode=True el backend Cocoa usa un almacen

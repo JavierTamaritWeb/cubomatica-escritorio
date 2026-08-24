@@ -9,6 +9,69 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.9.0] — 2026-08-24
+
+El panel de personas adultas deja de mentir. Juego 3.8.0.
+
+Tres de sus cuatro salidas al mundo no funcionaban dentro de la app, y ninguna
+lo decía. Comprobado pulsando los botones de verdad con una sonda que abre la
+aplicación y los acciona desde dentro, no leyendo el código.
+
+### Corregido
+
+- **Descargar CSV y Exportar copia `.json` se llevaban el juego por delante.**
+  WKWebView no descarga un `<a download href="blob:…">`: **navega** a él. La
+  ventana se iba del juego, pintaba el CSV como texto plano y, sin barra de
+  direcciones ni botón de atrás, no había forma de volver: había que cerrar y
+  reabrir la aplicación. Ahora se guarda con el diálogo nativo del sistema, a
+  través de `Api.guardar_texto`.
+- **El botón «Imprimir» del informe no imprimía.** `window.print()` no está
+  implementado en WKWebView y no lanza excepción: no hacía absolutamente nada,
+  que es la peor forma de fallar. `Api.imprimir` abre el panel de impresión de
+  macOS sobre la ventana —y ese panel lleva «PDF ▸ Guardar como PDF», así que
+  también sirve para guardar el informe. Se arreglan **los dos** sitios que
+  conectaban el botón: el informe y la ficha de refuerzo.
+- **«Restaurar copia (.json)» funcionaba por suerte.** El `<input type="file">`
+  sí abre el selector nativo, pero solo si el clic nace de un gesto humano:
+  WebKit exige activación del usuario y el juego lo disparaba desde JavaScript.
+  Ahora se pide el fichero por el puente (`Api.abrir_texto`).
+- **No se podía seleccionar ni copiar el texto del panel.** No era cosa del
+  juego: pywebview trae `text_select` apagado e inyecta
+  `body { user-select: none }` en cualquier página. Se enciende en `main.py` y
+  es el CSS del juego el que decide dónde vale la pena.
+- **Sin ningún minero, el panel no ofrecía restaurar una copia.** El botón
+  vivía solo en la sección Datos de un perfil, así que desaparecía justo el día
+  que hace falta: cuando no queda nada que enseñar.
+- Una copia restaurada volvía al índice sin su curso, que la ficha de
+  «¿Quién juega?» lee desde la 4.8.0.
+
+### Añadido
+
+- **El puente `api.py` deja de estar vacío**: `guardar_texto`, `abrir_texto` e
+  `imprimir`. Los tres devuelven siempre un `dict` y nunca lanzan —quien llama
+  es JavaScript, y una excepción ahí solo deja una promesa rechazada y un botón
+  mudo—, y la ventana viaja en `_ventana`, privado, porque un objeto `Window`
+  no es serializable como JSON y rompería el puente entero.
+- El panel y el informe avisan de lo que ha pasado (`CB.adulto.decir`), en
+  pantalla y para el lector de pantalla: dónde se ha guardado el fichero, o que
+  no se ha guardado nada.
+- Once tests nuevos (65 → 76), entre ellos que el puente se intenta **antes**
+  que el blob: al revés, dentro de la app se pierde la página.
+
+### Notas de diseño
+
+- **El puente es opcional.** `CB.adulto.puente()` devuelve `null` en un
+  navegador normal, donde el enlace `blob:` y `window.print()` sí funcionan y
+  siguen siendo el camino. El juego no depende de correr dentro del `.app`.
+- **La selección se enciende por pantalla, no en general.** En el juego sigue
+  apagada: son bloques que se tocan, y arrastrar el dedo sobre un enunciado o
+  sobre una respuesta lo pintaría de azul sin que el niño haya pedido nada. Se
+  enciende en las pantallas que son documento —el panel y el informe— y en los
+  créditos, que llevan los textos de licencia. Los botones de esas pantallas se
+  quedan fuera.
+
+---
+
 ## [4.8.2] — 2026-08-24
 
 Deshacer lo empezado. Juego 3.7.2.
