@@ -9,6 +9,46 @@ Esta versión es la de **la app**, no la del juego: el juego lleva la suya propi
 
 ---
 
+## [4.8.2] — 2026-08-24
+
+Deshacer lo empezado. Juego 3.7.2.
+
+### Añadido
+
+- **Quitar un minero desde «¿Quién juega?»**, sin pasar por el panel del
+  adulto. Hasta ahora había que entrar con ese minero, abrir la llave y
+  escribir BORRAR; probar el juego dejaba mineros de prueba imposibles de
+  limpiar sin saberse ese camino.
+- **«Dejarla y empezar otra»** en la portada, cuando hay una expedición a
+  medias. No había forma de tirarla: JUGAR decía «Seguir jugando» y la única
+  salida era esperar 24 h a que caducara. `CB.partida.descartarGuardada`
+  vacía `partidaEnCurso` y guarda; el progreso aprendido no se toca, solo se
+  pierden las gemas de esa expedición.
+- La Ayuda cuenta las dos cosas, con lo que se pierde en cada caso.
+
+### Notas de diseño
+
+- **El borrado va detrás de un modo, no de un aspa en cada ficha.** Esta
+  pantalla la ve el niño, y un aspa en la esquina se toca sin querer y se lleva
+  por delante el progreso del hermano. Hay que entrar a propósito en «Quitar un
+  minero» —que oculta «Nuevo minero» y pinta las fichas en brasa—, y aun dentro
+  la ficha pregunta por su nombre, con su cara delante, antes de irse.
+- El panel del adulto conserva su propio borrado, el que pide escribir BORRAR,
+  para el perfil activo. Esto es lo mismo con la puerta a la altura del niño.
+- Bloques `--peligro` en brasa con la estructura de bisel del primario: en la
+  misma ficha donde antes ponía JUGAR, el color es lo primero que avisa de que
+  este bloque no lleva a jugar. Negro sobre blanco en alto contraste, como el
+  resto.
+
+### Corregido
+
+- Quitar el último minero dejaba la pantalla **sin «Nuevo minero»**: el modo
+  quitar se apagaba después de decidir qué botones se ven, así que ese
+  repintado los ocultaba los dos. Se apaga antes, y hay un test que compara el
+  orden de las dos líneas.
+
+---
+
 ## [4.8.1] — 2026-08-24
 
 Una columna, pero ancha. Juego 3.7.1.

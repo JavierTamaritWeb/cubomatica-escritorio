@@ -196,6 +196,46 @@ class TestIconografia:
         assert ".icono-px" in css
 
 
+class TestBorrado:
+    """Se puede deshacer lo empezado, sin pasar por el panel del adulto.
+
+    Hasta 3.7.2 un minero solo se borraba entrando con el, abriendo la llave y
+    escribiendo BORRAR, y la expedicion a medias no se podia dejar: JUGAR decia
+    «Seguir jugando» hasta que caducaba a las 24 h.
+    """
+
+    def test_quitar_minero_existe_y_va_detras_de_un_modo(self, web_dir):
+        """
+        Esta pantalla la ve el nino: nada de un aspa en cada ficha, que se toca
+        sin querer y se lleva por delante al hermano.
+        """
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        js = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+        assert 'id="btn-quitar-minero"' in html
+        assert "CB.perfiles.modoQuitar" in js
+        assert "CB.perfiles.preguntarQuitar" in js
+        assert "CB.almacen.borrarPerfil(entrada.id)" in js
+
+    def test_el_modo_quitar_no_sobrevive_a_crear_ni_a_vaciarse(self, web_dir):
+        """
+        Se apaga ANTES de pintar los botones: apagandolo despues, quitar el
+        ultimo minero dejaba la pantalla sin «Nuevo minero».
+        """
+        js = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+        cuerpo = js[js.index("CB.perfiles.pintar = function"):]
+        cuerpo = cuerpo[: cuerpo.index("CB.perfiles.PREGUNTA_CURSO")]
+        apagado = cuerpo.index("if (!idx.length) CB.perfiles.modoQuitar = false;")
+        pintado = cuerpo.index("btn.hidden = CB.perfiles.modoQuitar")
+        assert apagado < pintado, "el modo se apaga despues de pintar los botones"
+
+    def test_la_expedicion_a_medias_se_puede_dejar(self, web_dir):
+        html = (web_dir / "index.html").read_text(encoding="utf-8")
+        js = (web_dir / "js" / "cubomatica.js").read_text(encoding="utf-8")
+        assert 'id="btn-descartar"' in html
+        assert "CB.partida.descartarGuardada = function" in js
+        assert "perfil.partidaEnCurso = null" in js
+
+
 class TestAnchoDeLectura:
     """Una columna, pero ancha.
 

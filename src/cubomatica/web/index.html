@@ -31,6 +31,7 @@
         <button id="btn-seguir" class="btn-bloque btn-bloque--primario btn-bloque--grande" hidden></button>
         <button id="btn-jugar" class="btn-bloque btn-bloque--primario btn-bloque--grande">JUGAR</button>
         <p id="portada-pista" class="texto texto--menor portada__pista"></p>
+        <button id="btn-descartar" class="btn-bloque btn-bloque--secundario" hidden>Dejarla y empezar otra</button>
         <button id="btn-tranquila" class="btn-bloque btn-bloque--medio btn-bloque--con-nota"><span>CANTERA TRANQUILA</span><span class="btn-bloque__nota">Sin reloj y sin vidas</span></button>
         <div class="fila fila--centro">
           <button class="btn-bloque" data-ir="p-perfiles">¿Quién juega?</button>
@@ -51,6 +52,7 @@
         <h1 id="titulo-perfiles">¿Quién juega?</h1>
         <div id="lista-perfiles" class="lista-perfiles"></div>
         <button id="btn-nuevo-perfil" class="btn-bloque btn-bloque--primario btn-bloque--medio">Nuevo minero</button>
+        <button id="btn-quitar-minero" class="btn-bloque btn-bloque--secundario" hidden>Quitar un minero</button>
         <button class="btn-bloque" data-salir><span class="icono-px" data-icono="flecha" aria-hidden="true"></span>Salir</button>
       </div>
     </section>
@@ -330,6 +332,16 @@
             <p class="texto texto--lectura">Al crear tu minero, una persona mayor elige tu curso de Primaria. Luego lo pone en la portada, debajo del título, para que se vea siempre.</p>
             <p class="texto texto--lectura">Si está mal, lo cambia una persona mayor con la llave.</p>
             <p class="texto texto--lectura">Después te hacemos cuatro preguntas. Aquí no hay reloj y no pierdes ninguna vida. No eligen tu curso: solo miran por dónde empezar dentro de él.</p>
+          </div>
+          <div class="panel-bloque">
+            <h2>Quitar un minero</h2>
+            <p class="texto texto--lectura">En «¿Quién juega?» hay un bloque que pone «Quitar un minero». Al tocarlo, cada minero cambia JUGAR por QUITAR.</p>
+            <p class="texto texto--lectura">Antes de quitarlo te pregunta si estás seguro. Si dices que sí, se pierde todo lo que ha cavado y no se puede recuperar. Cuando acabes, toca «Listo».</p>
+          </div>
+          <div class="panel-bloque">
+            <h2>Dejar una expedición a medias</h2>
+            <p class="texto texto--lectura">Si te vas en mitad de una expedición, el juego te la guarda y el bloque grande pasa a poner «Seguir jugando».</p>
+            <p class="texto texto--lectura">¿Prefieres empezar otra? Debajo tienes «Dejarla y empezar otra». Se pierden las gemas de esa expedición, pero nada de lo que ya habías aprendido.</p>
           </div>
           <div class="panel-bloque">
             <h2>Tu curso</h2>

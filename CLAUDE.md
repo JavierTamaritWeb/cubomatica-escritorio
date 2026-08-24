@@ -8,9 +8,9 @@ The **desktop packaging shell** for Cubomática, a Spanish primary-school maths 
 window loads a local HTML/CSS/JS bundle, and PyInstaller turns it into `dist/Cubomatica.app`.
 Desktop only — it is not a web build or a PWA, and it opens no port on the machine.
 
-**Two version numbers, deliberately.** The app version (currently **4.8.1**) is declared in both
+**Two version numbers, deliberately.** The app version (currently **4.8.2**) is declared in both
 `pyproject.toml` and `Cubomatica.spec`, and `tests/test_web.py::TestVersion` fails if they drift
-apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.7.1); it tracks the
+apart. The game has its own, `CB.VERSION` inside the web bundle (currently 3.7.2); it tracks the
 game's content, moves on its own schedule, and nothing on the Python side reads it.
 
 The Python here is deliberately thin (two short modules); nearly everything else is the game bundle.
@@ -119,6 +119,16 @@ resolving in relative mode. Both portada corners are excluded from that rule and
 `z-index`; `TestEleccionDeCurso` fails if the exclusions go. Anything else absolutely positioned
 directly under `.pantalla` needs the same treatment.
 
+**Undoing is a first-class action, and it is gated by a mode, not by an X.** «¿Quién juega?»
+carries `#btn-quitar-minero`: it flips `CB.perfiles.modoQuitar`, hides «Nuevo minero», paints the
+cards in brasa and swaps each JUGAR for QUITAR; the card itself then asks, with the miner's face
+still on it, before `CB.almacen.borrarPerfil` runs. A per-card X would be tapped by accident and
+take a sibling's progress with it. `pintar()` clears the mode **before** it decides which buttons
+show — clearing it after left the screen with no «Nuevo minero» once the last miner went.
+`CB.adulto.confirmarBorrado` (type BORRAR) stays for the active profile. The portada's
+`#btn-descartar` calls `CB.partida.descartarGuardada`, the only way out of a half-finished
+expedition short of waiting for the 24 h expiry.
+
 There is no parental gate either. The key on the title screen opens the parent panel directly: the
 old gate (type the n-th word of a sentence shown on screen) was removed in 4.6.0 at the owner's
 request. With no profile selected the panel says so and offers only «Salir».
@@ -213,7 +223,7 @@ global `.05em` is tuned for lower case and reads tight in caps. Keep both if you
 uv sync --all-extras                 # create .venv/ and install pinned deps
 uv run cubomatica                    # run the app from source
 CUBOMATICA_DEBUG=1 uv run cubomatica # …with WebKit DevTools enabled
-uv run pytest                        # full suite (62 tests, fast)
+uv run pytest                        # full suite (65 tests, fast)
 uv run ruff check .                  # lint
 ./build-mac.sh                       # -> dist/Cubomatica.app, ad-hoc signed
 ./make-icon.sh                       # regenerate assets/icon.icns from assets/icon.svg

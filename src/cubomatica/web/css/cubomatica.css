@@ -61,6 +61,10 @@
   --btn-primario: #5AA02C;
   --btn-primario-hundido: #3F7A1E;
   --btn-primario-texto: #241C14;
+  --btn-peligro: #E8642A;
+  --btn-peligro-luz: #F58B52;
+  --btn-peligro-hundido: #B84618;
+  --btn-peligro-texto: #241C14;
   --ok-fondo: #E3F3D6;
   --ok-texto: #1E3D10;
   --mal-fondo: #E8E4DE;
@@ -252,6 +256,10 @@
   --btn-borde-sombra: #FFFFFF;
   --btn-primario: #000000;
   --btn-primario-texto: #FFFFFF;
+  --btn-peligro: #000000;
+  --btn-peligro-luz: #FFFFFF;
+  --btn-peligro-hundido: #FFFFFF;
+  --btn-peligro-texto: #FFFFFF;
   --ok-fondo: #000000;
   --ok-texto: #FFFFFF;
   --mal-fondo: #000000;
@@ -602,6 +610,20 @@ button:disabled {
 .btn-bloque--primario:hover:not(:disabled) {
   background: var(--btn-primario-hundido);
 }
+
+/* Quitar un minero. Brasa y no verde: en la misma ficha donde antes ponía
+   JUGAR, el color es lo primero que avisa de que este bloque no lleva a jugar. */
+.btn-bloque--peligro {
+  background: var(--btn-peligro);
+  color: var(--btn-peligro-texto);
+  box-shadow: inset var(--bisel) var(--bisel) 0 0 var(--btn-peligro-luz), inset calc(var(--bisel) * -1) calc(var(--bisel) * -1) 0 0 var(--btn-peligro-hundido), 0 var(--bisel) 0 0 var(--btn-peligro-hundido);
+}
+
+.btn-bloque--peligro:hover:not(:disabled) {
+  background: var(--btn-peligro-hundido);
+  color: var(--blanco);
+}
+
 
 .btn-bloque--grande {
   width: 200px;
@@ -2055,6 +2077,15 @@ button:disabled {
 /* Al fondo de la ficha, todas a la misma altura. */
 .tarjeta-perfil__jugar {
   margin-top: auto;
+}
+
+/* La ficha entera avisa mientras dura el modo quitar: solo el botón en brasa
+   se lee como «este de aquí es especial», y lo especial es el modo, no la
+   ficha. Va DESPUÉS de .tarjeta-perfil: esa declara su propio border-image con
+   la misma especificidad, y antes ganaba ella. */
+.tarjeta-perfil--quitando {
+  border-image: none;
+  border-color: var(--btn-peligro);
 }
 
 .pantalla--juego {

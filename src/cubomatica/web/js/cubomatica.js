@@ -1525,7 +1525,7 @@ CB.bus = new CB.util.EventoSimple();
 
 /* CB.LEGAL */
 /* Versión */
-CB.VERSION = '3.7.1';
+CB.VERSION = '3.7.2';
 
 CB.LEGAL = {
   /* El texto completo viaja en web/LICENCIA.txt. Aquí va solo la línea que
@@ -15710,6 +15710,16 @@ CB.partida.hayPartidaGuardada = function (perfil) {
   return true;
 };
 
+/* Tirar la expedición a medias. Hasta 3.7.2 la única salida era esperar 24 h a
+   que caducara: JUGAR decía «Seguir jugando» y no había forma de arrancar
+   limpio, ni siquiera para el adulto. */
+CB.partida.descartarGuardada = function (perfil) {
+  if (!perfil || !perfil.partidaEnCurso) return false;
+  perfil.partidaEnCurso = null;
+  CB.almacen.guardarPerfil(perfil);
+  return true;
+};
+
 CB.partida.reanudarGuardada = function (perfil) {
   const p = perfil.partidaEnCurso;
   if (!p) return null;
@@ -17815,6 +17825,14 @@ CB.perfiles = {};
 
 CB.perfiles.TITULO = '¿Quién juega?';
 
+/* Quitar un minero borra su progreso para siempre, y esta pantalla la ve el
+   niño: no vale un aspa en la esquina de cada ficha, que se toca sin querer y
+   se lleva por delante al hermano. Hay que entrar a propósito en modo quitar,
+   y aun dentro la ficha pregunta por su nombre antes de irse. El panel del
+   adulto conserva su propio borrado —el que pide escribir BORRAR— para el
+   perfil activo; esto es lo mismo, con la puerta a la altura del niño. */
+CB.perfiles.modoQuitar = false;
+
 CB.perfiles.pintar = function () {
   const cont = document.getElementById('lista-perfiles');
   if (!cont) return;
@@ -17827,6 +17845,9 @@ CB.perfiles.pintar = function () {
   cont.classList.remove('lista-perfiles--paso');
 
   const idx = CB.almacen.indice();
+  /* Sin mineros no hay nada que quitar. Va antes de pintar los botones: si se
+     apagara después, quitar el último dejaba la pantalla sin «Nuevo minero». */
+  if (!idx.length) CB.perfiles.modoQuitar = false;
   /* El curso llega al índice en 3.7.0. Los perfiles anteriores lo tienen en su
      propio fichero: se rellena una vez, aquí, y no se vuelve a leer. */
   let rellenados = false;
@@ -17857,10 +17878,18 @@ CB.perfiles.pintar = function () {
     if (e.curso != null) {
       t.appendChild(CB.ui.crear('div', 'tarjeta-perfil__curso', e.curso + '.º de Primaria'));
     }
-    t.appendChild(CB.ui.boton('Jugar',
-      'btn-bloque--primario btn-bloque--ancho tarjeta-perfil__jugar', function () {
-        CB.perfiles.activar(e.id);
-      }));
+    if (CB.perfiles.modoQuitar) {
+      t.classList.add('tarjeta-perfil--quitando');
+      t.appendChild(CB.ui.boton('Quitar',
+        'btn-bloque--peligro btn-bloque--ancho tarjeta-perfil__jugar', function () {
+          CB.perfiles.preguntarQuitar(e, t);
+        }));
+    } else {
+      t.appendChild(CB.ui.boton('Jugar',
+        'btn-bloque--primario btn-bloque--ancho tarjeta-perfil__jugar', function () {
+          CB.perfiles.activar(e.id);
+        }));
+    }
     cont.appendChild(t);
   });
 
@@ -17868,9 +17897,48 @@ CB.perfiles.pintar = function () {
   const tope = ap.modoAula ? CB.almacen.TOPES.aula.perfiles : CB.almacen.TOPES.domestico.perfiles;
   const btn = document.getElementById('btn-nuevo-perfil');
   if (btn) {
-    btn.hidden = idx.length >= tope;
+    btn.hidden = CB.perfiles.modoQuitar || idx.length >= tope;
     btn.onclick = function () { CB.perfiles.crear(); };
   }
+
+  const quitar = document.getElementById('btn-quitar-minero');
+  if (quitar) {
+    quitar.hidden = !idx.length;
+    CB.ui.rotular(quitar, CB.perfiles.modoQuitar ? 'Listo' : 'Quitar un minero');
+    quitar.onclick = function () {
+      CB.perfiles.modoQuitar = !CB.perfiles.modoQuitar;
+      CB.perfiles.pintar();
+      CB.a11y.anunciar(CB.perfiles.modoQuitar
+        ? 'Toca el minero que quieras quitar. Se pierde todo lo que ha cavado.'
+        : CB.perfiles.TITULO);
+    };
+  }
+};
+
+/* La confirmación vive DENTRO de la ficha, no en un aviso aparte: así se ve
+   a quién se está quitando mientras se decide. */
+CB.perfiles.preguntarQuitar = function (entrada, tarjeta) {
+  CB.ui.vaciar(tarjeta);
+  const indice = CB.util.clamp(entrada.avatar || 0, 0, 15);
+  const av = CB.ui.crear('div', 'tarjeta-perfil__avatar');
+  if (!CB.sprites.aplicar(av, 'avatar', { indice: indice, px: 12 })) {
+    av.style.background = CB.datos.AVATARES[indice].casco;
+  }
+  tarjeta.appendChild(av);
+  tarjeta.appendChild(CB.ui.crear('div', 'tarjeta-perfil__mote', entrada.mote));
+  tarjeta.appendChild(CB.ui.crear('div', 'tarjeta-perfil__curso',
+    'Se pierde todo lo que ha cavado. No se puede deshacer.'));
+  tarjeta.appendChild(CB.ui.boton('Sí, quitar',
+    'btn-bloque--peligro btn-bloque--ancho', function () {
+      CB.almacen.borrarPerfil(entrada.id);
+      if (CB.perfil && CB.perfil.id === entrada.id) CB.perfil = null;
+      CB.perfiles.pintar();
+      CB.a11y.anunciar(entrada.mote + ' se ha quitado.');
+    }));
+  tarjeta.appendChild(CB.ui.boton('No', 'btn-bloque--ancho tarjeta-perfil__jugar', function () {
+    CB.perfiles.pintar();
+  }));
+  CB.a11y.anunciar('¿Quitar a ' + entrada.mote + '? Se pierde todo lo que ha cavado.');
 };
 
 /* Paso previo a crear: «¿En qué curso está?». El curso se DECLARA una vez —
@@ -17892,6 +17960,10 @@ CB.perfiles.crear = function () {
      «¿Quién juega?» y la pregunta de verdad iba debajo, en letra más pequeña
      que el título: la decisión que manda en todo el contenido del juego era
      el texto más discreto de la pantalla. */
+  CB.perfiles.modoQuitar = false;
+  const quitar = document.getElementById('btn-quitar-minero');
+  if (quitar) quitar.hidden = true;
+
   const h1 = document.getElementById('titulo-perfiles');
   if (h1) h1.textContent = CB.perfiles.PREGUNTA_CURSO;
 
@@ -18258,6 +18330,16 @@ CB.arranque = function () {
   }
 
 
+  const descartar = document.getElementById('btn-descartar');
+  if (descartar) {
+    descartar.addEventListener('click', function () {
+      CB.audio.iniciar();
+      if (!CB.partida.descartarGuardada(CB.perfil)) return;
+      CB.pantallas.alEntrar['p-portada']();
+      CB.a11y.anunciar('Expedición dejada. Puedes empezar otra.');
+    });
+  }
+
   const seguir = document.getElementById('btn-seguir');
   if (seguir) {
     seguir.addEventListener('click', function () {
@@ -18389,6 +18471,10 @@ CB.pantallas.alEntrar['p-portada'] = function () {
   if (b) b.textContent = CB.arranque.rotuloJugar(CB.perfil);
   const quien = document.getElementById('portada-quien');
   if (quien) quien.textContent = CB.arranque.quienJuega(CB.perfil);
+  const descartar = document.getElementById('btn-descartar');
+  if (descartar) {
+    descartar.hidden = !(CB.perfil && CB.partida.hayPartidaGuardada(CB.perfil));
+  }
   const p = document.getElementById('portada-pista');
   if (p) p.textContent = CB.arranque.pistaJugar(CB.perfil);
   /* Para quien vuelve: «Seguir cavando en el Bosque» encima de JUGAR, en vez
